@@ -1,0 +1,35 @@
+# Godot cache and editor state (regenerated automatically)
+.godot/
+*.import.tmp
+*.translation
+
+# Android build template (reinstalled from Project > Install Android Build Template)
+game/android/
+
+# Export output
+build/
+exports/
+*.apk
+*.aab
+*.pck
+
+# Web build copied into the site at release time
+site/play/
+
+# Signing keys and secrets: NEVER commit these
+*.keystore
+*.jks
+keystore.properties
+.env
+*.env
+
+# Tool output
+tools/output/
+*.log
+
+# OS and editor clutter
+Thumbs.db
+desktop.ini
+.DS_Store
+.vscode/
+.idea/

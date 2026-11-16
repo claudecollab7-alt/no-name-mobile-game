@@ -1,0 +1,486 @@
+# Build Plan — Trial Week and Release 1
+
+- **Written:** 2026-11-16
+- **Covers:** the one-week Godot trial and release 1 (platform shell plus Aadupuli, "Tigers & Goats").
+- **Companion:** [DISCUSSION.md](DISCUSSION.md) holds every decision and its reason. Its "Current plan at a glance" table is the source of truth. If this plan and that table disagree, stop and ask.
+- **Who does what:** Opus writes the code. You review, test on a real phone, and make the decisions listed in [section 12](#12-decisions-you-owe-and-when).
+- **Pace:** 10–20 hours a week. If late, cut from the bottom of the stretch list and keep the date.
+
+Anything marked *(verify)* is from memory and must be checked against the installed Godot version or the current store rules before relying on it.
+
+---
+
+## 1. How to use this plan
+
+### For each working session
+
+1. Read the "Current plan at a glance" in DISCUSSION.md and the [progress tracker](#13-progress-tracker) here.
+2. Pick the next unticked task. Do one task per session.
+3. Build it to its "Done when" line. Run the automated tests.
+4. Tell the user exactly what to check on the phone or in the Godot editor.
+5. Tick the task in the tracker and add a line to the [session log](#14-session-log).
+
+### Ground rules for the code
+
+- **Rules and computer opponent are plain GDScript classes** (extending `RefCounted`), with no nodes, no scenes and no screen code. They must run from the command line.
+- **Typed GDScript everywhere** (`var x: int`, typed arrays, return types).
+- **The shell knows nothing about Aadupuli.** It talks to a game only through the module contract in [section 3](#3-architecture).
+- **Every rule has a test.** A rule change without a test change is not done.
+- **All visible text goes through translation keys.** No English or Tamil text inside scripts or scenes.
+- **No new decisions in code.** If a task needs a product decision that DISCUSSION.md does not answer, stop and ask.
+- **Opus cannot see the Godot editor or a phone.** Anything visual or tactile ends with a short checklist for the user.
+- **Commits:** the user decides when to commit. Suggest a commit at the end of each finished task.
+
+---
+
+## 2. Week 0 — your preparation
+
+Nothing here needs Opus. Tick these before the trial week.
+
+| # | Task | Notes |
+|---|---|---|
+| P1 | Install Godot 4, latest stable, standard (not .NET) build | Done 2026-11-16: **4.7.2 pinned**. Full setup in [docs/SETUP.md](docs/SETUP.md). |
+| P2 | Do the official "Your first 2D game" tutorial | 2–3 hours. The goal is being able to read GDScript and find your way round the editor. |
+| P3 | Install Android build tools | Android Studio (for the SDK) and JDK 17 *(verify the JDK version Godot asks for)*. Follow Godot's "Exporting for Android" page. |
+| P4 | Install Git and create a free private GitHub repository | The project folder is not a Git repository yet. |
+| P5 | Get a cheap Android test phone | Borrow or buy the lowest-end phone you can (2–3 GB memory). Turn on USB debugging. This phone is the judge for every speed target. |
+| P6 | Play 20–30 games of Aadupuli on paper | Use the rules in DISCUSSION.md section 17. Note where it drags and where it's exciting. |
+| P7 | **Verify the board** — done 2026-11-16 | Board confirmed against your picture and tiger start points confirmed; see [section 4](#4-the-board-verified-2026-11-16). |
+| P8 | Play the competitor's Aadupuli app for an hour | Note what confuses, what is missing, what they do well. |
+| P9 | Open a Google Play developer account | One-time $25. Identity checks can take days, so start early. |
+| P10 | Start asking 12 people to be testers | They need Android phones and Google accounts, and must stay opted in for 14 days in a row in weeks 13–14. Ask 15–18 so drop-outs don't reset the clock. |
+
+---
+
+## 3. Architecture
+
+### Folder layout
+
+| Path | Contents |
+|---|---|
+| `game/` | The Godot project |
+| `game/shell/` | Start-up, home shelf, mode picker, settings, profile, stats, saving, sound, language, sharing |
+| `game/games/aadupuli/` | The Aadupuli module: `rules/`, `ai/`, `board/`, `tutorial/`, `puzzles/`, `text/` |
+| `game/shared/` | Pieces reused by every game: tutorial engine, puzzle frame, search runner, UI parts, theme |
+| `game/tests/` | Automated tests, run from the command line |
+| `tools/` | Command-line scripts: self-play balance runner, puzzle generator, test runner |
+| `site/` | The plain website; the web build is copied under `site/play/` |
+| `DISCUSSION.md`, `BUILD_PLAN.md` | The two planning documents |
+
+### Layers
+
+```text
+Shell (screens, navigation, profile, saving, language, sound, sharing)
+   │  talks only through the game module contract
+   ▼
+Game module (Aadupuli)
+   ├── Board view      draws a state, turns taps into moves
+   ├── Tutorial data   scripted steps
+   ├── Puzzle data     bundled daily puzzles
+   ├── Opponent        picks a move for a state, a level and a time budget
+   └── Rules           the only place that knows what is legal
+```
+
+Dependencies point downward only. Rules depend on nothing.
+
+### The game module contract
+
+Every game supplies these pieces. Names are a starting point; keep them identical across games.
+
+| Piece | Kind | Responsibility |
+|---|---|---|
+| `GameDefinition` | Resource | Id, title key, family-name key, supported modes, variants, options with defaults, links to the scenes and data below |
+| `Rules` | `RefCounted` | `initial_state(options)`, `legal_moves(state)`, `apply_move(state, move)`, `result(state)`, `to_dict(state)`, `from_dict(data)` |
+| `Opponent` | `RefCounted` | `choose_move(state, level, time_budget_ms)`; must be interruptible and never touch the screen |
+| `BoardView` | Scene | `show_state(state)`, `set_legal_hints(moves)`, signal `move_chosen(move)`; plays its own animations and sounds |
+| `TutorialScript` | Data file | Ordered steps: board position, highlighted targets, text key, the move that completes the step |
+| `PuzzleSet` | Data file | Bundled puzzles: position, side to move, goal, solution line, difficulty |
+| Text | Translation file | Every string for this game, in English and Tamil |
+
+`apply_move` returns a new state and never changes the one it was given. That makes undo, replay, search and tests simple.
+
+### Aadupuli state
+
+Kept small and integer-based so the opponent can search quickly.
+
+| Field | Type | Meaning |
+|---|---|---|
+| `tigers` | three ints (0–22) | Point index of each tiger |
+| `goats` | int used as 23 bits | Which points hold a goat |
+| `goats_in_hand` | int | Goats not yet placed (starts at 15) |
+| `captured` | int | Goats taken by tigers |
+| `to_move` | int | Goats or tigers |
+| `position_counts` | Dictionary | How many times each full position has occurred, for the no-repeat rule |
+
+Always true: goats on board + `goats_in_hand` + `captured` = 15. Tests check this after every move.
+
+Two lookup tables are built once from the board data: `NEIGHBOURS[point]` (points one step away) and `JUMPS[point]` (pairs of "over" and "landing" points in a straight line).
+
+### Options (set per game, not hard-coded)
+
+| Option | Release 1 value | Why it is an option |
+|---|---|---|
+| `capture_target` | 5 | Decision D10: settled by self-play in phase 2; later a house rule |
+| `start_mode` | `fixed` | Decision D11: other start modes arrive later |
+| `repeat_limit` | 3 | Decision D12: a move creating a position for the third time is illegal |
+| `board_id` | `classic_23` | Decision D34: more boards may be added later |
+| `tiger_count`, `goat_count` | 3 and 15 | Decision D34: other counts may be offered later |
+
+### Saving
+
+One versioned JSON file in Godot's `user://` folder, written to a temporary file and then renamed so a crash cannot corrupt it. Holds settings, stats, puzzle streak, ladder progress, unlocked themes and any game in progress. A `version` number and a small upgrade function are there from the first save.
+
+---
+
+## 4. The board (verified 2026-11-16)
+
+**Verified against the board picture you supplied**, saved as [docs/board-reference.png](docs/board-reference.png). The picture shows exactly this layout: one top point, three rows of six joined by the rectangle's left and right sides, four lines fanning down from the top, and a bottom row of four. 23 points, 38 connections, 3 tigers, 15 goats.
+
+You decided to start with this board and add more boards or piece-count options later if needed. So the board is a data file, and the number of tigers and goats are options, never fixed numbers in the code.
+
+```text
+Row 0 (top point):                 0
+
+Row 1:              1     2     3     4     5     6
+Row 2:              7     8     9    10    11    12
+Row 3:             13    14    15    16    17    18
+
+Row 4 (bottom):          19    20    21    22
+```
+
+| Lines | Points in order |
+|---|---|
+| Four lines fanning down from the top | 0–2–8–14–19, 0–3–9–15–20, 0–4–10–16–21, 0–5–11–17–22 |
+| Three long rows | 1–2–3–4–5–6, 7–8–9–10–11–12, 13–14–15–16–17–18 |
+| Bottom row | 19–20–21–22 |
+| Left and right sides | 1–7–13 and 6–12–18 |
+
+- 23 points and 38 connections.
+- The side lines (1–7–13 and 6–12–18) are confirmed by the picture.
+- A tiger jumps only along one of these lines: over the next point, landing on the one after.
+- Fixed start: tigers on 0, 3 and 4 (the top point plus the two centre points of the first row). **Confirmed by you on 2026-11-16.**
+
+---
+
+## 5. Phase 0 — trial week (week 1)
+
+A throwaway proof. Its code is not kept. Its only job is a go or no-go on Godot.
+
+| # | Task | Done when |
+|---|---|---|
+| T0.1 | New Godot project: Compatibility renderer, portrait, 1080×1920 base size with stretch enabled | Project opens and runs on the PC |
+| T0.2 | Draw the draft board in code; place 3 tigers and a few goats; tap a piece, tap a point, it slides there | Pieces move smoothly on the PC |
+| T0.3 | Add one line of Tamil text with a bundled Tamil font, one sound on move, one vibration on capture | Text, sound and vibration all present |
+| T0.4 | Export to Android and install on the cheap phone | The app runs on the phone |
+| T0.5 | Export to web; serve it locally; open it in the phone's browser | The game loads and plays in the browser |
+| T0.6 | Timing test: a rough move generator and a simple look-ahead, run on the phone | Numbers recorded for depth reached in 1 second |
+| T0.7 | Look up, without building, a Godot plugin for Google Play Games saved games | One-paragraph finding: workable, risky or not available |
+
+### Go or no-go measurements (on the cheap phone)
+
+| Measure | Pass | Worry | Fail |
+|---|---|---|---|
+| Android download size | under 30 MB | 30–45 MB | over 45 MB |
+| Time from tap to first screen | under 3 s | 3–5 s | over 5 s |
+| Smoothness while a piece slides | steady, no visible stutter | occasional stutter | constant stutter |
+| Tamil text | letters join correctly (test "ஆடு புலி ஆட்டம்" and "ஸ்ரீ") | minor spacing flaws | broken letters |
+| Web: transfer size / load on mobile data | under 15 MB / under 10 s | up to 25 MB / 20 s | worse |
+| Opponent look-ahead in 1 second | 6 or more moves deep | 4–5 | 3 or fewer |
+
+Thresholds are my proposals.
+
+- **All pass, or only worries:** go. Note the worries as risks.
+- **Web fails, Android passes:** go; release 1 ships Android plus the website without web play, and web play follows later.
+- **Android size, start-up, smoothness or Tamil fails:** stop. Revisit the stack with the user before spending more.
+
+---
+
+## 6. Phase 1 — rules, board, pass-and-play (weeks 2–3)
+
+| # | Task | Done when |
+|---|---|---|
+| 1.1 | Project set-up: real project in `game/`, folder layout, project settings as in T0.1, a test framework for GDScript (GUT or gdUnit4 *(pick whichever runs cleanly from the command line on the pinned version)*), and a `tools/run_tests` script | One command runs an example test and reports pass or fail |
+| 1.2 | Board data from the verified board: points with screen positions, connections, and the generated `NEIGHBOURS` and `JUMPS` tables. Also a printable numbered board image for the user | Tests confirm 23 points, the agreed connection count, and that every connection is two-way. User signs off the printout. |
+| 1.3 | Rules: state, `initial_state`, `legal_moves`, `apply_move`, `result` | All rule tests in 1.4 pass |
+| 1.4 | Rule tests (list below) plus a "golden games" file: complete games as move lists with the expected result | Tests pass from the command line; at least 10 golden games |
+| 1.5 | Shell skeleton: start-up, home shelf with the Aadupuli card and a "coming next" card, mode picker, empty settings screen, back navigation, module loading through `GameDefinition` | From launch, two taps reach an empty game screen; the shell contains no Aadupuli-specific code |
+| 1.6 | Board view: board and pieces drawn in code, tap to select and move, tap an empty point to place a goat, legal-move hints, slide and capture animations, sound and vibration hooks | A full game can be played by hand; illegal taps do nothing and give gentle feedback |
+| 1.7 | Pass-and-play: choose sides or coin toss, turn banner, counters for goats in hand and goats captured, greyed-out repeat moves with a one-line reason, game-over screen, rematch | **Checkpoint A** |
+
+### Rule tests required in 1.4
+
+- Goats move first; goats place one per turn; goats cannot move until all 15 are placed.
+- Tigers move one step along a line to an empty point, from their first turn.
+- A tiger jumps one goat into the empty point directly beyond; the goat is removed and `captured` rises by one.
+- No jumping a tiger, no jumping two goats, no jumping off a line, one jump per turn.
+- Capturing is optional.
+- Tigers win exactly when `captured` reaches `capture_target`.
+- Goats win when no tiger has a legal move, including during placement.
+- If goats have no legal move, tigers win.
+- A move that would create the same full position for the third time is not in `legal_moves`.
+- The 15-goat total always holds.
+- Random play test: 2,000 random games all end, never crash and never break the 15-goat total.
+- Saving and loading a state gives back an identical state.
+
+### Checkpoint A
+
+Two people can play a full, correct game on one phone, and the test suite is green. Check the date against the timeline.
+
+---
+
+## 7. Phase 2 — computer opponents (weeks 4–6)
+
+| # | Task | Done when |
+|---|---|---|
+| 2.1 | Search: look-ahead with pruning, deepening one level at a time until the time budget runs out, captures tried first, a table of positions already examined. Runs off the main thread on Android; on web it works in small slices per frame *(Godot's web build runs single-threaded by default; verify)* | Returns a legal move within budget on the cheap phone; the screen never freezes |
+| 2.2 | Position scoring, with all weights in one tunable resource: goats captured, goats that can be captured next turn, tiger freedom of movement, tigers already trapped, goats in hand, goats standing safely together | Beats a random player 99 times in 100 as either side |
+| 2.3 | Three levels as data (table below), each with a name, portrait and a few lines in both languages | Each level feels clearly different to the user |
+| 2.4 | `tools/self_play`: plays many computer-versus-computer games from the command line at capture targets 4, 5, 6 and 7 and writes a table of win rates and game lengths | Table produced from at least 500 games per target; user picks the target (D10) |
+| 2.5 | Versus-computer mode: choose side or coin toss, thinking indicator, undo (takes back your move and the reply), resign | **Checkpoint B** |
+
+### Level design
+
+| Level | Look-ahead | Deliberate mistakes | Thinking time shown |
+|---|---|---|---|
+| Easy | 1–2 moves | Picks a weaker move about 1 time in 3; never misses an immediate win | about 0.6 s |
+| Medium | 3–4 moves | Picks the second-best move about 1 time in 10 | about 0.8 s |
+| Hard | As deep as 1–1.5 s allows | None | 1–1.5 s |
+
+Numbers are starting points to tune by playing. The hard level is strong but not proven perfect (see DISCUSSION.md section 17).
+
+### Also measure in 2.4
+
+Average game length in moves and in minutes. The research warning was that Aadupuli can feel slow. If hard-versus-hard games regularly pass about 80 moves, raise it with the user before phase 3.
+
+### Checkpoint B
+
+All three levels are playable as either side on the cheap phone, and the capture target is chosen from data.
+
+---
+
+## 8. Phase 3 — tutorial, first run, Tamil (weeks 7–8)
+
+| # | Task | Done when |
+|---|---|---|
+| 3.1 | Tutorial engine in `shared/`, driven entirely by a data file: set a position, highlight targets, show one line, wait for the right move, advance | A two-step dummy tutorial runs from data alone |
+| 3.2 | Aadupuli tutorial, five steps: place a goat; move a tiger; jump a goat; move a goat once all are placed; trap the last tiger. Skippable, replayable from the menu | A newcomer finishes it in under 90 seconds |
+| 3.3 | One-screen rules summary and a short story page (history, regional names) | Both fit without scrolling on a small phone, in both languages |
+| 3.4 | Language support: translation file with English and Tamil columns, bundled Tamil font with an open licence, language switch in settings, layouts that survive longer Tamil lines | Every screen is correct in both languages; no clipped text |
+| 3.5 | First-run flow: pick language → offer tutorial → first game against Easy, playing tigers | A fresh install reaches a first move in under two minutes |
+| 3.6 | Usability test, run by the user: five people who have never seen the game, watched silently | **Checkpoint C** |
+
+### Checkpoint C
+
+Five first-timers each finish a game with no help. Every point where one hesitated is written down and either fixed or consciously left.
+
+---
+
+## 9. Phase 4 — daily puzzle (weeks 9–10)
+
+| # | Task | Done when |
+|---|---|---|
+| 4.1 | Puzzle format: position, side to move, goal ("tigers: capture a goat in N moves" or "goats: trap a tiger in N moves"), solution line, difficulty 1–5 | Format documented in the data file header and loadable |
+| 4.2 | `tools/make_puzzles`: collect positions from self-play games, prove a forced win within N by full search, keep those with a single correct first move, grade difficulty by depth and number of tempting wrong moves | At least 120 proven puzzles spread across difficulties |
+| 4.3 | Puzzle screen: the player moves, the computer answers with the best defence, tries are counted, solved or failed result | A puzzle can be solved and failed correctly |
+| 4.4 | Daily choice and streak: puzzle picked by calendar date from the bundled list (easier early in the week), works offline, streak counted on the phone's local date | Changing the phone's date moves to the right puzzle; streak rises and resets correctly |
+| 4.5 | Sharing: a short text result with a link to the website, through the Android share sheet and the browser's share feature | **Checkpoint D** |
+
+Example share text:
+
+```text
+Tigers & Goats · Daily #42
+Solved in 2 tries · 5-day streak
+https://<site>/daily
+```
+
+### Checkpoint D
+
+120 proven puzzles are bundled, the streak works, and a shared result opens the website. If the generator cannot find 120 good puzzles, ship with fewer and loop them; do not hand-write unproven ones.
+
+---
+
+## 10. Phase 5 — polish, website, stretch (weeks 11–12)
+
+| # | Task | Done when |
+|---|---|---|
+| 5.1 | Visual identity pass: one palette, one type family, one piece style, all held in a single theme resource so later themes are a data swap | Every screen uses the theme; nothing looks like a default control |
+| 5.2 | Sounds: place, move, capture, trap, win, lose, button, puzzle solved. Free-licence or self-recorded, with sources listed in `CREDITS.md` | All eight present, balanced in volume, and can be switched off |
+| 5.3 | Stats screen and the full save system from section 3 | Stats survive closing the app; an older save file still loads |
+| 5.4 | Settings and comfort: sound, vibration, language, reduced motion; tigers and goats distinct by shape, not only colour; every tap target comfortably finger-sized | User passes a one-handed test on the cheap phone |
+| 5.5 | Website in `site/`: home, rules in English and Tamil, daily page, privacy policy, Play page with the web build if the trial allowed it; preview tags so shared links show a picture | Site live on free static hosting; pages load fast on mobile data |
+| 5.6 | Stretch items, strictly in this order, stopping when week 12 ends | Feature freeze at the end of week 12 |
+
+### Stretch order (from DISCUSSION.md section 18)
+
+1. Opponent ladder: each opponent "cleared" by beating them as tigers and as goats.
+2. One unlockable board theme.
+3. Google sign-in backup through Play Games saved games, Android only.
+4. Replay with one hint after a loss.
+
+Whatever is unfinished at the freeze moves to a 1.1 update. No exceptions.
+
+### Rule for AI-assisted art
+
+Board and pieces are drawn in code. AI-generated images are used only for backgrounds, story illustrations and store pictures, and every one is redrawn or corrected to the palette and style from 5.1 before it ships. Confirm the generating tool's licence allows commercial use.
+
+---
+
+## 11. Phases 6 and 7 — closed test and release (weeks 13–16)
+
+| # | Task | Done when |
+|---|---|---|
+| 6.1 | Release build: permanent app identifier from the brand name, release signing key created, version numbers, app bundle export, current target Android level *(verify Play's requirement)* | A signed bundle uploads to Play Console without errors |
+| 6.2 | **Back up the signing key and its passwords in two separate places** | User confirms both copies exist |
+| 6.3 | Store listing in English and Tamil: title led by "Tigers & Goats", short and full description, screenshots, feature picture | Listing complete in Play Console |
+| 6.4 | Store forms: data safety (nothing collected), content rating questionnaire, audience set to 13 and over, privacy policy link | All forms accepted |
+| 6.5 | Closed test: 12 or more testers opted in for 14 days in a row; a simple feedback form; fixes in order of crashes, rule errors, confusion | 14 days reached with 12 or more still opted in |
+| 6.6 | Apply for public release, describing the test and what changed because of it | Google grants production access |
+| 7.1 | Buffer week: only fixes | No known crash or rule error |
+| 7.2 | Release to a fraction of users first, then everyone | **Release 1 is public** |
+| 7.3 | After release: reply to every review; write the 1.1 list | First week of reviews answered |
+
+### Release 1 is done when
+
+| Measure | Bar |
+|---|---|
+| Automated rule tests | All pass |
+| Crashes in the closed test | None unresolved |
+| Fresh install to first move | Under two minutes |
+| Start-up on the cheap phone | Under 3 seconds (or the figure agreed after the trial) |
+| Languages | Every screen correct in English and Tamil |
+| Offline | Everything except sharing works in aeroplane mode |
+| Data | Nothing leaves the phone except what the player shares |
+
+---
+
+## 12. Decisions you owe, and when
+
+| Decision | Needed by | Blocks |
+|---|---|---|
+| Board connections (P7) | Done 2026-11-16 | — |
+| Tiger start points (top point plus 3 and 4) | Done 2026-11-16 | — |
+| Go or no-go on Godot | End of week 1 | Everything |
+| Capture target (4, 5, 6 or 7) from the self-play table | End of week 6 | Tutorial wording, puzzles |
+| Names and personalities of the three opponents | Week 5 | Task 2.3 |
+| Palette and piece style direction | Week 10 | Task 5.1 |
+| **Brand name** | **Week 11** | The permanent app identifier, the website address |
+| Which stretch items made it | End of week 12 | Store description |
+
+---
+
+## 13. Risks
+
+| Risk | Likelihood | Effect | Response |
+|---|---|---|---|
+| The board connections are wrong | Low (verified against your picture 2026-11-16) | Every rule, puzzle and opponent is wrong | Board kept as data, not code; a test checks the 23 points and 38 connections |
+| Godot fails the trial on cheap phones or the web | Low to medium | Stack change | The trial exists for this; only a week is lost |
+| The opponent is too slow in GDScript | Medium | Weak hard level | Time budget, integer state, position table; accept a shallower hard level before considering native code |
+| Too few good puzzles can be generated | Medium | Daily puzzle repeats early | Ship fewer and loop; widen goals (two-move and three-move); never ship unproven puzzles |
+| The game feels slow, as the research warned | Medium | Poor retention | Measured in 2.4; levers are capture target, animation speed and the puzzle mode |
+| Tamil text renders badly on some phones | Low | Broken signature feature | Tested in the trial; bundled font, not the phone's |
+| Fewer than 12 testers stay opted in for 14 days | Medium | Release slips by weeks | Recruit 15–18 from week 0; remind them weekly |
+| Scope creep | High | Missed date | Fixed stretch order; feature freeze at week 12 |
+| Burnout | Medium | Project stalls | One full day off a week; every fourth week light |
+| Signing key lost | Low | Cannot update the app | Task 6.2, two backups |
+| Brand name not chosen by week 11 | Medium | Closed test delayed | It is in the decisions table with a date |
+
+---
+
+## 14. Progress tracker
+
+### Week 0 (you)
+
+- [x] P1 Godot installed, version noted (4.7.2, 2026-11-16; see docs/SETUP.md)
+- [ ] P2 First-game tutorial done
+- [x] P3 Android build tools installed (2026-11-16; test APK and web build exported successfully)
+- [ ] P4 Git and private repository (local repository created 2026-11-16; GitHub sign-in and private repository still to do)
+- [ ] P5 Cheap test phone ready
+- [ ] P6 20–30 paper games played
+- [x] P7 Board and tiger start points verified and signed off (2026-11-16)
+- [ ] P8 Competitor app played
+- [ ] P9 Play developer account open
+- [ ] P10 Testers being recruited
+
+### Phase 0 — trial
+
+- [ ] T0.1 Project
+- [ ] T0.2 Board and moving pieces
+- [ ] T0.3 Tamil, sound, vibration
+- [ ] T0.4 Android on the cheap phone
+- [ ] T0.5 Web in the phone's browser
+- [ ] T0.6 Look-ahead timing
+- [ ] T0.7 Saved-games plugin finding
+- [ ] **Go or no-go recorded**
+
+### Phase 1 — rules, board, pass-and-play
+
+- [ ] 1.1 Project set-up and test runner
+- [ ] 1.2 Board data and printout
+- [ ] 1.3 Rules
+- [ ] 1.4 Rule tests and golden games
+- [ ] 1.5 Shell skeleton
+- [ ] 1.6 Board view
+- [ ] 1.7 Pass-and-play — **Checkpoint A**
+
+### Phase 2 — computer opponents
+
+- [ ] 2.1 Search
+- [ ] 2.2 Position scoring
+- [ ] 2.3 Three levels
+- [ ] 2.4 Self-play table; capture target chosen
+- [ ] 2.5 Versus-computer mode — **Checkpoint B**
+
+### Phase 3 — tutorial, first run, Tamil
+
+- [ ] 3.1 Tutorial engine
+- [ ] 3.2 Aadupuli tutorial
+- [ ] 3.3 Rules summary and story
+- [ ] 3.4 Language support
+- [ ] 3.5 First-run flow
+- [ ] 3.6 Five first-timers — **Checkpoint C**
+
+### Phase 4 — daily puzzle
+
+- [ ] 4.1 Puzzle format
+- [ ] 4.2 Puzzle generator, 120 puzzles
+- [ ] 4.3 Puzzle screen
+- [ ] 4.4 Daily choice and streak
+- [ ] 4.5 Sharing — **Checkpoint D**
+
+### Phase 5 — polish, website, stretch
+
+- [ ] 5.1 Visual identity
+- [ ] 5.2 Sounds
+- [ ] 5.3 Stats and saving
+- [ ] 5.4 Settings and comfort
+- [ ] 5.5 Website
+- [ ] Stretch 1 Opponent ladder
+- [ ] Stretch 2 One board theme
+- [ ] Stretch 3 Sign-in backup
+- [ ] Stretch 4 Replay with hint
+- [ ] **Feature freeze**
+
+### Phases 6 and 7 — closed test and release
+
+- [ ] 6.1 Release build
+- [ ] 6.2 Signing key backed up twice
+- [ ] 6.3 Store listing
+- [ ] 6.4 Store forms
+- [ ] 6.5 14-day closed test
+- [ ] 6.6 Production access
+- [ ] 7.1 Buffer week
+- [ ] 7.2 **Release 1 public**
+- [ ] 7.3 Reviews answered, 1.1 list written
+
+---
+
+## 15. Session log
+
+Add one line per working session: date, task, result, anything the next session must know.
+
+| Date | Task | Result | Notes |
+|---|---|---|---|
+| 2026-11-16 | Plan written | — | Godot version not yet pinned; board not yet verified |
+| 2026-11-16 | Board verified | Matches the draft exactly | Picture saved at docs/board-reference.png |
+| 2026-11-16 | Tiger start confirmed | Points 0, 3 and 4 | Nothing about the board is open now |
+| 2026-11-16 | Tools set up | Godot 4.7.2, JDK 17, Android SDK (API 35 and 36, NDK r28b), Android Studio, GitHub CLI; local Git repository | Empty test app: Android 27 MB, web 9.8 MB compressed. Android size will be near the trial's limit. Details in docs/SETUP.md |

@@ -1,0 +1,788 @@
+# Traditional Games Project — Discussion Notes
+
+Living document. Updated as the discussion moves. Newest changes are listed in the [Change log](#change-log) at the bottom.
+
+- **Started:** 2026-11-14
+- **Direction (confirmed 2026-11-16):** a global multiplayer games platform, built one game at a time. Sections 20 and 21 hold the current plan; where an older section disagrees with them, sections 20 and 21 win.
+- **Build plan:** [BUILD_PLAN.md](BUILD_PLAN.md) holds the task-by-task plan for the trial week and release 1, with a progress tracker.
+- **Stage:** Planning for release 1 is complete; next is your week 0 preparation, then the trial week. First game, audience, platforms, languages, release phasing and the core Aadupuli rules and the tech stack are decided (see [Decisions](#14-decisions), [section 11](#11-tech-stack-decided-2026-11-15) and [section 17](#17-aadupuli-rules)). Release 1 scope and app structure are decided too (sections 18 and 19). The brand name is not.
+- **Workflow:** Ideas and decisions with Fable → development with Opus. Order of work: discuss → decide architecture → detailed plan → build one piece at a time.
+- **Caveat on numbers:** every figure here is a rough estimate from general knowledge, not fresh research. Anything marked *(verify)* must be researched before we rely on it.
+
+---
+
+## Current plan at a glance
+
+The short version of everything decided so far. Details and reasons are in the numbered sections.
+
+| Topic | Where things stand |
+|---|---|
+| Product | A global multiplayer board-games platform: play people or the computer. One app that grows a game at a time. |
+| Signature | Rare traditional games (Tamil first) alongside familiar world classics that act as doorways. |
+| Audience | Players worldwide, English-speaking first. |
+| First game | Aadupuli, sold as "Tigers & Goats". Rules in section 17. |
+| Second game | Mancala, with Pallanguzhi as the unique variant. |
+| Release 1 (about month 4) | Shell plus Aadupuli: versus computer, pass-and-play, tutorial, daily puzzle. No online play, no money features. |
+| Later releases | 2: online with friends. 3: Mancala and Pallanguzhi. 4: matchmaking, ranks, coins, cosmetics, opt-in ads. |
+| Languages | English and Tamil. |
+| Platforms | Android and web first; iPhone later. |
+| Tech | Godot (GDScript) for the game; Godot on a rented machine for the server; plain website with the game embedded. |
+| Money | No forced ads, ever. Cosmetics and coins; opt-in ads for extra coins. |
+| Chat | Preset phrases and emotes only. |
+| Empty lobbies | Clearly labelled computer opponents after a short wait. No disguised bots. |
+| Who builds | Opus writes the code; you review and test. 10–20 hours a week, almost no budget. |
+| If late | Cut features, keep the date. |
+| Still open | Brand name (needed by week 11); one-week Godot trial. The board and the tiger start are verified. |
+| Build plan | [BUILD_PLAN.md](BUILD_PLAN.md): tasks, checkpoints, risks and the progress tracker. |
+
+---
+
+## 1. The idea
+
+A mobile game (probably web too) that brings back old traditional games, starting with South India and growing outward.
+
+Games named so far:
+
+| Game | Type | Notes |
+|---|---|---|
+| Paramapadham | Dice race (ancestor of snakes and ladders) | Pure luck. Strong festival tie (Vaikuntha Ekadasi). Each snake/ladder carries a moral meaning. |
+| Aadupuli (Aadu Puli Aattam) | Asymmetric strategy, 3 tigers vs 15 goats | Pure skill, no dice. Short matches. |
+| Pallanguzhi | Sowing game (mancala family), 14 pits | Deep, but long and harder to teach. Many regional names and rules. |
+| Goli (marbles) | Physical dexterity | Not a board game. Needs physics. Parked. |
+| Pambaram (spinning top) | Physical dexterity | Not a board game. Needs physics. Parked. |
+| Dayakattam / Thayam *(suggested)* | Dice race for 2–4, cousin of Ludo/Pachisi | Borrows existing Ludo demand. Best fit for 4-player multiplayer. |
+
+### Stated preferences
+
+- No forced in-game ads. At most opt-in rewarded ads for extra gold.
+- Revenue from cosmetics and game-related purchases.
+- Slow and steady growth, not an immediate hit.
+- Wants hard truths, not encouragement.
+
+---
+
+## 2. Hard truths
+
+1. **"Forgotten" means no demand.** Nobody searches the store for Pallanguzhi. People who remember it are mostly 40+, who download and pay least. People under 30 don't know the rules. The real product is the teaching, not the board.
+2. **Rules can't be owned.** Pallanguzhi and Aadupuli apps already exist, and anyone can copy ours. One developer has had the same three games live since January 2026 with only about a hundred installs each (section 19).
+3. **India gives downloads, not revenue.** Roughly 1–2% of players ever pay, in small amounts. Diaspora players (US, UK, Gulf, Singapore, Malaysia) are likely worth many times more each.
+4. **Multiplayer is the most expensive feature and the worst one at small scale.** An empty lobby kills a game faster than no lobby.
+5. **Goli and pambaram are a different kind of game.** They need a physics engine and a different feel. Parked.
+6. **Art and feel are the bottleneck, not code.** Brass, wood, tamarind seeds, cowrie shells and the sound of seeds dropping are the delight.
+7. **Most solo games earn close to nothing.** Plan this as a multi-year craft with near-zero running cost, not as income in year one.
+8. **"Slow and steady" only works if retention is good.** Stores reward momentum, so fix how many players come back before spending anything on promotion.
+
+---
+
+## 3. Market: what gets downloaded most
+
+Top multiplayer casual games in India: Ludo King, Carrom Pool, 8 Ball Pool, Callbreak.
+
+What they share:
+
+- Players already know the rules.
+- Matches are short.
+- Private play with friends and family.
+- Work offline and on cheap phones, with a small download.
+
+**Lesson for us:** our games fail the first point. Teaching in under a minute has to be excellent.
+
+---
+
+## 4. Retention: what makes people stay
+
+| Honest hooks (use these) | Manipulative tricks the big ones use (avoid) |
+|---|---|
+| Private rooms with a WhatsApp invite link | Bots disguised as real people |
+| 3–8 minute matches | Rigged early wins, then engineered losing streaks |
+| Ranks and visible skill growth | Streaks built on loss aversion |
+| Festival events and collections | Fake countdown offers and discounts |
+| Friends list and rematch button | Betting coins until bankrupt, then selling coins |
+| | Two currencies to hide real prices; notification spam |
+
+**Position:** no disguised bots, no rigged dice. For a dice game, trust is the product. "Dice is rigged" is the most common 1-star review in this genre.
+
+Rough retention targets for a casual board game *(verify)*: 35–40% return the next day, 12–15% after a week, 5%+ after a month.
+
+---
+
+## 5. Spending: what makes people pay
+
+- Removing ads and coin packs (for betting) are the biggest earners in this genre.
+- Cosmetics only sell when other people see them, so they need a social audience first.
+- Season passes work once there are regular players.
+- India price points must be small: about ₹10–₹89.
+- A one-time "supporter" unlock may beat cosmetics for diaspora parents who want their children to know these games.
+
+---
+
+## 6. Ratings: what loses and earns stars
+
+**Loses stars**
+
+- Forced ads, especially mid-game
+- Perceived rigged dice and fake players
+- Opponents who stall or quit without penalty
+- Coins lost to a dropped connection
+- Crashes on cheap phones, or a forced login
+- Wrong rules ("that's not how my grandmother played")
+- Pay-to-win, toxic chat, notification spam
+
+**Earns stars**
+
+- Smooth reconnection
+- Offline play
+- House-rule toggles for regional variants
+- Replying to reviews
+- Asking for a rating only after a win
+
+---
+
+## 7. Moats: staying on top when copied
+
+Leaders are not protected by complexity (Ludo has a thousand clones). They stay on top because:
+
+- Your friends are already there.
+- Matches are instant at any hour.
+- Rating count and store rank compound.
+- Players have years of progress and inventory.
+- They have ad budgets.
+
+Making the game complicated only hurts our own players.
+
+**Moats a solo developer can build**
+
+| Moat | How |
+|---|---|
+| Authenticity depth | Every regional variant, name and story, in regional languages. Big studios won't bother. |
+| Home of the category | Each added game makes the whole collection harder to copy. |
+| Web presence | Own "how to play Pallanguzhi" searches → play in browser → install. |
+| Community | Tamil sangams, schools, festival tournaments. |
+| Small niche | Too small for giants to care about, at least at first. |
+| Player identity | Rank, friends, collection and history that players don't want to abandon. |
+
+**Risk:** if it gets big, a giant can add our game as a mode within a month. By then the community must be the moat.
+
+---
+
+## 8. Ads
+
+Not necessary. The plan (opt-in rewarded only) is right for ratings and retention. The cost: for most Indian casual games, ads are the majority of revenue.
+
+| Ad type | India, per 1,000 views | US, per 1,000 views |
+|---|---|---|
+| Rewarded video | about $0.5–2 | about $10–20 |
+| Interstitial | about $0.3–1.5 | about $5–12 |
+| Banner | about $0.05–0.3 | about $0.5–1 |
+
+*(verify all)*
+
+Example: 1,000 daily Indian players × 2 rewarded ads each ≈ ₹4,000–10,000 a month.
+
+Steps:
+
+1. Open an AdMob account.
+2. Add the SDK and a consent prompt.
+3. Add rewarded placements.
+4. Add mediation once there is volume.
+
+If children are a target audience, only certified ad networks and non-personalised ads are allowed.
+
+---
+
+## 9. Ideas
+
+- **Positioning:** "games your grandmother played", not "forgotten games". A *thinnai* (the veranda where these were played) as the home screen, possibly the name.
+- **Mode order:** vs computer and pass-and-play first → friend links → public matchmaking last. Grandparent and grandchild on one phone is the core use case.
+- **Honest bots with character:** a named "Paati" opponent, clearly labelled as a computer. Solves the empty lobby without lying.
+- **Turn-by-turn play over WhatsApp links:** nobody waits in a lobby.
+- **Preset phrases and emotes instead of free chat:** removes most moderation and child-safety problems.
+- **Festival events:** Pongal, Vaikuntha Ekadasi (Paramapadham), Onam, Ugadi.
+- **Each game ships with its story:** regional names, history, and house-rule toggles.
+- **Scheduled play hours** (for example 8–10 pm IST) to concentrate players when public matchmaking arrives.
+
+---
+
+## 10. First game candidates
+
+| Game | For | Against |
+|---|---|---|
+| **Aadupuli** *(my pick)* | Pure skill, no dice-trust issue. 5–10 minute matches. Strong computer opponent is easy. Looks like nothing else on the store. | Two players only. Unknown to most. |
+| **Dayakattam** | Borrows Ludo demand. 2–4 players, good for families. | Dice trust must be earned. Competes with Ludo apps. Needs multiplayer early. |
+| **Pallanguzhi** | Deep, beautiful, tactile. | Long matches, complex rules, hard to teach. Better second. |
+| **Paramapadham** | Known rules, easy to build, festival hook. | Pure luck. Competes with every snakes-and-ladders app. |
+
+**Status:** decided — Aadupuli is the first release.
+
+---
+
+## 11. Tech stack (decided 2026-11-15)
+
+My first lean was TypeScript in an Android wrapper. You chose **Godot**, so the stack below is built around that choice.
+
+| Part | Choice | Notes |
+|---|---|---|
+| Game (Android and web) | **Godot 4**, latest stable (4.7.x at time of writing *(verify on the official download page)*) | Language: GDScript. Renderer: Compatibility, for cheap phones and browsers. |
+| Rules and computer opponent | Plain GDScript classes with no screen code in them | Must run without the editor so they can be tested from the command line and reused by the server. |
+| Online server (release 2+) | **Godot itself, run without a screen, on a rented machine** | One copy of the rules checks every move. About $5 a month. Replaces the earlier Cloudflare idea. |
+| Website | **Plain HTML, CSS and JavaScript**, with the Godot web build embedded on a "Play" page | Rules, history and Tamil/English pages that search engines can read. Free static hosting. |
+| Who codes | **Opus writes; you review and test** | So: automated tests for every rule, and you do the visual checks in the Godot editor. |
+| Source control | Git, with a free private GitHub repository | Not set up yet. |
+
+### What Godot gives us
+
+- Real game feel: smooth animation, particles, sound mixing, and the same look on every device.
+- The parked physics games (goli, pambaram) become possible later in the same engine and the same app.
+- Free and open source, with no royalties.
+- One language for app, computer opponent and server.
+
+### What Godot costs us (accepted trade-offs)
+
+| Cost | Detail | How we limit it |
+|---|---|---|
+| Bigger download | Roughly 20–35 MB on Android against 5–10 MB for a web-wrapped app *(verify by a test export)* | Ship as an app bundle so each phone gets only its own files; trim the engine later if needed. |
+| Heavy web version | The browser must download the engine before the game starts | Test load time on a cheap phone early; the website itself stays light and loads the game only on the Play page. |
+| Invisible to search | A Godot game is a canvas | The separate plain website carries all the searchable content. |
+| New language for you | GDScript is closer to Python than to PHP or JavaScript | Do the official "Your first 2D game" tutorial (2–3 hours) so you can read and review the code. |
+| Opus cannot see the editor | It works through text files and command-line runs | Rules and opponent are tested from the command line; you check how things look and feel. |
+| Slower scripting | GDScript runs slower than JavaScript, which matters for the hard opponent's look-ahead | Give the opponent a time limit per move and measure on a cheap phone in the trial below. |
+| Server needs looking after | A rented machine must be secured, updated and restarted | Not needed until release 2; keep it to one small machine and one service. |
+| Budget | About $5 a month from release 2 | Small, but it ends the "almost nothing" budget once online play starts. |
+
+### Server cost, rough *(verify)*
+
+| Daily players | Machines | Monthly cost |
+|---|---|---|
+| 1,000 | One small | about $5 |
+| 10,000 | One small to medium | about $5–15 |
+| 100,000 | One or two medium | about $20–80 |
+
+Turn-based board games send a few tiny messages a minute, so one cheap machine goes a long way.
+
+### First step before real building: a short trial
+
+Before committing months to it, build a throwaway proof in about a week:
+
+1. The 23-point board with pieces that move, one line of Tamil text and one sound.
+2. Export it to Android and to the web.
+3. Test on the cheapest Android phone you can borrow: download size, start-up time, smoothness, and whether Tamil letters join correctly.
+4. Time the opponent's look-ahead on that phone.
+
+If any of these fail badly, we revisit the stack before anything is lost.
+
+### Proposed project layout
+
+| Folder | Contents |
+|---|---|
+| `game/` | The Godot project: `rules/`, `ai/`, `scenes/`, `ui/`, `i18n/`, `tests/` |
+| `site/` | The plain website, with the web build placed under its Play page |
+| `tools/` | Command-line scripts: puzzle generator, self-play balance runner |
+| `DISCUSSION.md` | This document |
+
+The server is the same `game/` project started in server mode, so it needs no folder of its own.
+
+### Store facts checked 2026-11-15
+
+- **Google Play, new personal accounts:** you must run a closed test with at least 12 testers opted in for 14 days in a row before you can release publicly. Plan for this adding two to three weeks to the first launch, and start lining up 12 friends and family early. ([Google's help page](https://support.google.com/googleplay/android-developer/answer/14151465?hl=en))
+- **Selling digital items on Google Play** must go through Google's own billing.
+
+---
+
+## 12. Legal and store notes (all to verify)
+
+- **Online Gaming Act 2025:** bans games played for money winnings. Free social games with cosmetics are the encouraged category. Keep all currency non-cashable.
+- **DPDP Act:** parental consent rules for under-18s and limits on tracking children. Collect as little data as possible; no login required to play.
+- **Store fees:** Google and Apple both take 15% from small developers (under $1M a year). Google account is a one-time $25; Apple is $99 a year.
+- **Google Play:** new personal developer accounts must run a closed test with testers before public release.
+
+---
+
+## 13. Topics still to discuss
+
+| # | Topic | Status |
+|---|---|---|
+| 1 | Smallest version that delights, and a sustainable weekly schedule | Decided (section 18) |
+| 2 | Regional rule variants for each game, with sources | Aadupuli done (section 17); other games not started |
+| 3 | Single-codebase stack and server costs | Decided (section 11, D15–D18); trial build still to do |
+| 4 | Fair, server-controlled dice and showing players they're fair | Not started |
+| 5 | Computer opponents: easy, medium, hard (and whether Aadupuli is solved) | Solved question answered (not solved; section 17); level design not started |
+| 6 | In-game economy: currencies, earning, spending, price points | Not started |
+| 7 | Empty-lobby problem without fake players | Decided (D5) |
+| 8 | Design for ages 8 to 70 on cheap Android phones | Not started |
+| 9 | Cost to acquire a player, lifetime value, break-even (India vs diaspora) | Not started |
+| 10 | Store keyword research in six languages plus transliterations | Not started |
+| 11 | GST, store fee tiers, company vs sole proprietorship | Not started |
+| 12 | Compliance checklist: Online Gaming Act, DPDP, Play Families policy | Not started |
+| 13 | Chat moderation and safety for minors | Decided: preset phrases and emotes only (D29) |
+| 14 | Soft launch: region, success numbers, six-month festival calendar | Not started |
+| 15 | Analytics events and first A/B tests | Not started |
+
+---
+
+## 14. Decisions
+
+| # | Decision | Date |
+|---|---|---|
+| D1 | First game is **Aadupuli**. | 2026-11-14 |
+| D2 | ~~Player number one is young adults, 18–30, in India.~~ **Replaced by D26.** | 2026-11-14 |
+| D3 | Main goal for the first two years is **preserving the games**; money is a bonus. | 2026-11-14 |
+| D4 | **Phased releases.** Release 1: versus computer, pass-and-play, shareable daily puzzle. Release 2: friend link online. Release 3: public matchmaking. | 2026-11-14 |
+| D5 | Empty lobby is handled with a **clearly labelled computer opponent after a short wait**. No disguised bots. | 2026-11-14 |
+| D6 | **Android and web first.** iPhone once revenue covers Apple's yearly fee. | 2026-11-14 |
+| D7 | Launch languages are **English and Tamil**, built so more can be added without rework. | 2026-11-14 |
+| D8 | Art is **AI-generated, then polished by hand**. | 2026-11-14 |
+| D9 | Budget before revenue is **almost nothing** (under ₹5,000): store fee and a domain. | 2026-11-14 |
+| D10–D14 | Aadupuli rules: see [section 17](#17-aadupuli-rules). | 2026-11-15 |
+| D15 | The game is built in **Godot** (GDScript), for Android and web. | 2026-11-15 |
+| D16 | **Opus writes the code; you review and test.** | 2026-11-15 |
+| D17 | The online server (release 2+) is **Godot run on a rented machine**, checking every move with the same rules as the app. | 2026-11-15 |
+| D18 | The web side is a **plain website with the Godot game embedded** on a Play page. You are most at home in plain JavaScript, so the site uses no framework. | 2026-11-15 |
+| D19–D22 | Release 1 scope: see [section 18](#18-release-1-scope-and-schedule). | 2026-11-15 |
+| D23–D24 | One app holding many games; game-led store title: see [section 19](#19-name-app-structure-and-competition). Brand name still open, needed by week 11. D24 is refined by D32. | 2026-11-15 |
+| D25 | **Direction: a global multiplayer games platform, built one excellent game at a time.** Unique games are the signature; familiar games are the doorways. | 2026-11-16 |
+| D26 | **Audience: players worldwide**, casual and strategy, English-speaking first. Replaces D2. | 2026-11-16 |
+| D27 | **Release 1 is one deep game** (Aadupuli) inside the platform shell, with the home shelf showing what comes next. | 2026-11-16 |
+| D28 | **The second game is Mancala with Pallanguzhi** as its unique variant. | 2026-11-16 |
+| D29 | **Chat is preset phrases and emotes only.** No free typing. | 2026-11-16 |
+| D30 | **English and Tamil at launch** (confirms D7 for the worldwide plan). | 2026-11-16 |
+| D31 | **Ads are never forced.** Opt-in ads for extra coins arrive with the coin economy and online play; release 1 still has no money features (D19 stands). | 2026-11-16 |
+| D32 | **Store titles lead with the world family name** people search for, for example "Tigers & Goats", with the traditional name alongside. Refines D24. | 2026-11-16 |
+| D33 | **Turn-based games only for now.** Live physics games (carrom, pool, goli, pambaram) stay parked. | 2026-11-16 |
+| D34 | **Aadupuli starts on the classic 23-point board**, verified against your picture. More boards and piece-count options may be added later if needed. | 2026-11-16 |
+| D35 | **Fixed start confirmed:** tigers begin on the top point and the two centre points of the first row. | 2026-11-16 |
+
+---
+
+## 15. Your answers
+
+| Question | Answer |
+|---|---|
+| Strongest background | Web: PHP and JavaScript |
+| Art and sound | AI-generated, then polished |
+| Hours per week | 10–20 |
+| Main goal | Preserve the games |
+| Player number one | Young adults 18–30 in India |
+| First game | Aadupuli |
+| Modes wanted | Versus computer, pass-and-play, friend link, public matchmaking (all four, released in phases) |
+| Budget | Almost nothing |
+| Release phasing | Phased |
+| Empty lobby | Labelled bot after a wait |
+| Platforms | Android and web first |
+| Languages | English and Tamil |
+
+---
+
+## 16. What the answers mean
+
+### Rough timeline at 10–20 hours a week
+
+| Release | Contents | Rough timing |
+|---|---|---|
+| 1 | Versus computer (easy, medium, hard), pass-and-play, interactive tutorial, daily puzzle, English and Tamil | Month 3–4 |
+| 2 | Friend link online (WhatsApp invite), rematch, basic profile | Month 5–6 |
+| 3 | Public matchmaking with labelled bot fallback, ranks | Month 8–10 |
+| Later | Second game (Pallanguzhi or Dayakattam), cosmetics, iPhone | After release 3 |
+
+### Tensions to watch
+
+1. **Goal versus audience.** Preserving the games through young adults is the right pairing (they are the ones who need to learn them), but they don't know the rules and have no nostalgia. The hook must be "a sharp two-player strategy game", with heritage as flavour, not a history lesson.
+2. **Young adults expect online play.** Release 1 has none. The daily puzzle and sharing have to carry interest until release 2.
+3. **AI art consistency.** AI images drift in style between pictures. Suggestion: draw the board and pieces in code as clean vector shapes (kolam-like geometry), and use AI only for backgrounds, story illustrations and the store listing. Check the tool's licence allows commercial use.
+4. **Near-zero budget means near-zero promotion.** Growth has to come from sharing, search and community. That makes the web version and the daily puzzle core features, not extras.
+5. **PHP hosting does not suit live matches.** XAMPP-style hosting works for a website but not for real-time play. Release 1 needs no server at all. *(Settled 2026-11-15: the live server will be Godot on a rented machine, D17.)*
+
+### New ideas from this round
+
+- **Daily puzzle.** One position a day ("tiger to capture in two", "goats to trap in three") with a shareable result, like a daily word game. Needs no opponent and no server. Puzzles can be generated and checked automatically, because a short forced win is easy for a computer to prove.
+- **Play both sides.** A match is two games, once as tigers and once as goats, so the asymmetry feels fair and ranks make sense.
+- **Hard level as a deep-search player.** Strong but not provably perfect (see the correction in section 17); "easy" and "medium" make deliberate, human-looking mistakes.
+- **Named computer opponents.** For young adults, give each level a character with a face and a line or two in Tamil and English.
+- **Post-match replay with one hint.** "This was the move that lost it." Teaches the game and gives a reason to play again.
+- **Other names for store search.** Aadu Puli Aattam, Puli Meka (Telugu), Adu Huli (Kannada), and the Nepali cousin Bagh-Chal. *(verify spellings and reach)*
+
+---
+
+## 17. Aadupuli rules
+
+Researched 2026-11-14/15. Several rule pages could not be opened by automated reading, so the base is two documents read in full plus search summaries (marked).
+
+### Sources
+
+| Source | What it gave us | Reliability |
+|---|---|---|
+| [Funskool "Goats and Tigers" instruction sheet, 2022](https://funskoolindia.com/wp-content/uploads/2024/09/9548100-Goats-Tigers-2022-Instructions.pdf) | A complete commercial ruleset from an Indian publisher | Read in full |
+| [Agarwal & Iida, "Analyzing thousand years old game: Tigers and Goats is still alive", APJITM 2018](https://doi.org/10.17576/apjitm-2018-0702-01) | Rules summary, repetition rule, comparison with Bagh-Chal | Read in full; small study, treat its numbers as weak evidence |
+| [Wikipedia, "Lambs and tigers"](https://en.wikipedia.org/wiki/Lambs_and_tigers) | Regional names, history notes. Contains no rules of play. | Read in full |
+| Other pages (Indian Culture Portal, Durham University, Singapore Indian Heritage Centre, blogs) | "Tigers win at 5 captures" | Search summaries only; pages would not open. *(verify)* |
+
+### Where sources agree
+
+- 23-point board, 3 tigers, 15 goats, two players.
+- All three tigers are on the board from the start; one sits on the top point (apex).
+- The goat player goes first, placing one goat per turn on any empty point.
+- Tigers move from their first turn, one step along a line to an empty neighbouring point.
+- A tiger captures by jumping over one neighbouring goat to the empty point directly behind it. Captures are allowed from the start.
+- One goat per jump, one jump per turn. A tiger cannot jump a tiger or two goats in a row.
+- Goats never jump and cannot move until all 15 have been placed.
+- Goats win by trapping all three tigers so none can move.
+
+### Where sources differ or are silent
+
+| Point | Funskool | 2018 paper | Other sources |
+|---|---|---|---|
+| Tiger win | Capture all 15 goats | "A given number" of goats | Mostly 5 *(verify)* |
+| Other two tigers | Any two of the four points nearest the top | Two fixed centre points (from its board picture) | — |
+| Endless repetition | Silent | Same back-and-forth move at most three times in a row | One mentions a draw |
+| Must a tiger capture when it can? | Silent (so: optional) | Silent | — |
+| Match format | Silent | Each player plays once as goats and once as tigers | — |
+
+### Board layout (verified 2026-11-16)
+
+1 top point, then three rows of 6 points, then a bottom row of 4, joined by four lines fanning down from the top, by the horizontal rows, and by the rectangle's left and right sides. That is 23 points and 38 connections. **Confirmed against the board picture you supplied**, saved at [docs/board-reference.png](docs/board-reference.png). The numbered version is in BUILD_PLAN.md section 4.
+
+**D34 (2026-11-16):** we start with this board. More boards ("maps") and other piece counts may be added later as options if needed, so the board is data and the counts are settings.
+
+### Decisions from this round
+
+| # | Decision | Date |
+|---|---|---|
+| D10 | Tigers win at **5 captured goats** as the working default. Before launch, the computer plays itself at 4, 5, 6 and 7 and we keep the most even setting. | 2026-11-15 |
+| D11 | The tiger start is a **selectable game mode**, not one fixed rule (see below). | 2026-11-15 |
+| D12 | **Repeating is not allowed.** A player cannot make a move that recreates an earlier position too many times; they must find a different move. No draws by repetition. | 2026-11-15 |
+| D13 | Published rules are the base. You played as a child and remember it hazily, so you check each rule against memory. | 2026-11-15 |
+
+### Start modes (D11)
+
+Your answer was: "add game mode type fixed, coin decide, turn based, etc". My reading of it (the coin toss is confirmed; the other modes follow from your wording):
+
+| Mode | What happens | Where used |
+|---|---|---|
+| **Fixed** | Tigers start on the top point and the two centre points below it. | Default. The only mode in ranked play and daily puzzles. |
+| **Tiger's choice** | One tiger on top; the tiger player picks two of the four nearest points (Funskool rule). | Friendly and versus computer |
+| **Placed in turns** | Tigers enter one at a time, alternating with the first goats. | Friendly and versus computer |
+| **Coin toss** | A coin decides who plays tigers and who plays goats. | Any single game that is not a two-game match |
+
+**Confirmed 2026-11-15 (D14):** "coin decide" is a toss for sides: the coin decides who plays tigers and who plays goats. It does not change the start position.
+
+**Caution:** every mode needs its own tutorial line, computer-opponent testing and balance check. I'd ship release 1 with Fixed plus coin toss only, and add the other two in a later update.
+
+### Details I propose (not yet confirmed)
+
+- **Repetition, exactly:** a move that would create the same full board position for the third time is greyed out, with a one-line explanation. If that leaves a player with no legal move, they lose.
+- **Trapped during placement:** if all three tigers are trapped before the 15th goat is placed, goats win immediately.
+- **Goats with no legal move** (very rare): tigers win.
+- **Capturing is optional.**
+- **Match format:** one match is two games with sides swapped, so the lopsided roles are fair. Tie-break if each player wins one: more goats captured as tigers, then fewer total moves.
+- **Turn timer:** 30 seconds per move in online play, none against the computer or in pass-and-play.
+- **House rules for friendly games:** capture target (5, 7 or all), start mode, multiple jumps in one turn.
+
+### Is the game solved? Correction to earlier notes
+
+- The often-quoted "solved, it's a draw" result (Jin & Nievergelt, 2009) is for **Bagh-Chal**, the Nepali game on a 5×5 board with 4 tigers and 20 goats. The 2018 paper says so in its own text.
+- I found **no published solution for the 23-point South Indian board**.
+- My earlier note that it is "small enough to solve completely on a laptop" was too confident. My own rough count is on the order of ten billion positions: possible as a one-off overnight job on a PC, but far too large to ship inside the app.
+- **What this changes:** the hard computer opponent will be a deep search, strong but not provably perfect. Daily puzzles are still safe, because a puzzle only needs a short forced win that the search can prove.
+
+### A warning from the research
+
+The 2018 paper measured Aadupuli as having far fewer choices per turn than Bagh-Chal (about 3 versus about 9) and longer games (about 50 moves versus 39), and argues this is why it faded while Bagh-Chal stayed popular. The study is small, so treat it as a caution, not a fact. If our own playtests feel slow, the levers are the capture target, the turn timer, quick animations and the puzzle mode.
+
+### Suggested homework
+
+- Draw the board on paper and play 20–30 games with coins and seeds before we build anything. Note where it drags and where it's exciting.
+- Ask two or three elders how they played: tiger start, how tigers win, any special rules. Even a voice note each is valuable.
+
+---
+
+## 18. Release 1 scope and schedule
+
+Decided 2026-11-15. Target: public release about four months after the trial week, at 10–20 hours a week.
+
+### Decisions from this round
+
+| # | Decision | Date |
+|---|---|---|
+| D19 | **No money features in release 1**: no ads, no shop, no purchases. | 2026-11-15 |
+| D20 | **Come-back hooks wanted:** daily puzzle streak with sharing, ladder of named opponents, board themes unlocked by playing, replay with one hint after a loss. | 2026-11-15 |
+| D21 | Progress is saved on the phone, with **optional Google sign-in backup**. | 2026-11-15 |
+| D22 | **If late, cut features and keep the date.** Unfinished items move to a 1.1 update. | 2026-11-15 |
+
+### Honest note on D20 and D21
+
+You chose all four hooks plus sign-in backup. Together they add roughly four to six weeks to an offline game, so not all of them will fit by month 4. Because D22 says the date wins, the cut order below decides in advance what slips. I expect the last one or two items to land in 1.1.
+
+### Core: release 1 does not ship without these
+
+| Area | Contents |
+|---|---|
+| Play | Rules as in section 17. Fixed start. Coin toss or choose your side. Legal-move highlights, capture animation, sound, vibration. |
+| Tutorial | Interactive, under 90 seconds, skippable: place a goat, move a tiger, jump, move goats after the 15th, trap to win. |
+| Versus computer | Three named opponents (easy, medium, hard), playable as tigers or goats. Undo allowed. |
+| Pass-and-play | Two people, one phone. No undo. |
+| Daily puzzle | One puzzle a day, the same for everyone, working offline from a bundled set. Streak counter. Share the result to WhatsApp with a link. |
+| Languages | English and Tamil, switchable in settings. All text in translation files. |
+| Basics | Settings (sound, vibration, language), "How to play" and a short story of the game, simple stats, progress saved on the phone, privacy policy. |
+| Website | Home, rules in English and Tamil, privacy policy, and the Play page if the web build passes the trial. |
+
+### Stretch: built in this order, cut from the bottom
+
+| Order | Item | Rough cost | Note |
+|---|---|---|---|
+| 1 | Opponent ladder | 2–3 days | Each opponent is "cleared" by beating them as tigers and as goats. Cheap because the opponents already exist. |
+| 2 | One unlockable board theme | About a week | Start with one extra look, earned by a puzzle streak or by clearing the ladder. More themes follow in updates. |
+| 3 | Google sign-in backup | About a week | Suggestion: use Google Play Games saved games, so backup lives in the player's own Google account and we run no server. Android only; the web version stays on-device. *(verify the Godot plugin in the trial)* |
+| 4 | Replay with one hint | 1–2 weeks | Shows the move that lost the game. Most valuable for learning, but the costliest, so it is the first to slip to 1.1. |
+
+### Out of release 1
+
+Online play, accounts of our own, ranks, chat and emotes, shop and cosmetics for sale, ads, the other start modes, house-rule toggles, iPhone, more languages, a second game, and any analytics kit (proposal: rely on Google Play Console's own install and active-user figures for now).
+
+### Timeline
+
+| Weeks | Work | Checkpoint |
+|---|---|---|
+| 0 | **You:** install Godot and do the first-game tutorial; play 20–30 games on paper; verify the board; open the Google Play developer account ($25); start asking 12 testers. | — |
+| 1 | Trial build (section 11): board, Tamil text, sound, exports, cheap-phone test. | **Go or no-go on Godot** |
+| 2–3 | Rules with automated tests; board screen; pass-and-play. | **A:** two people can play a full, correct game on one phone |
+| 4–6 | Three computer opponents; computer self-play to settle the capture target (D10). | **B:** all three levels playable, target chosen |
+| 7–8 | Tutorial, first-run flow, Tamil throughout. | **C:** five first-timers finish a game with no help from you |
+| 9–10 | Puzzle generator, puzzle screen, streak, sharing. | **D:** 120 checked puzzles bundled |
+| 11–12 | Art, sound and animation polish; stats; settings; website; stretch items in order. | Feature freeze |
+| 13–14 | Closed test with 12 testers for 14 days; bug fixes; store listing in English and Tamil. | Google's testing rule met |
+| 15–16 | Buffer and public release. | **Release 1** |
+
+At every checkpoint we check the date against the plan and cut from the bottom of the stretch list if behind.
+
+### A sustainable week
+
+- **Three weeknight sessions of about 2 hours** and **one weekend block of 4–6 hours**: 10–12 hours in a normal week, up to 16–18 in a good one.
+- **One full day off** every week, with no project work.
+- **One goal per week**, ending with a build you can open on your own phone.
+- **Every fourth week is lighter:** play the game, tidy, review notes, no new features.
+- **Working with Opus:** one task per session, starting from this document and the build plan. You test on the phone at the end and note problems for the next session.
+
+### What "good" looks like before starting release 2
+
+| Measure | Target |
+|---|---|
+| First-timers who finish the tutorial | 70% or more |
+| Players who return the next day | 30% or more |
+| Players who return after a week | 10% or more |
+| Store rating | 4.3 or higher |
+| Sessions without a crash | 99% or more |
+
+*(Targets are my estimates.)* With no promotion, expect tens to low hundreds of installs in the first month, so these numbers will be noisy. What the 12 testers and early reviewers say matters more at this stage. Release 1's job is learning, not growth.
+
+### Things to settle before the closed test
+
+- **Brand name.** Structure is settled (one app, D23). The brand name is still open and is needed by week 11, because the app's permanent identifier carries it (section 19).
+- **Privacy policy text.**
+- **Store listing:** title, short description, screenshots, in English and Tamil.
+
+---
+
+## 19. Name, app structure and competition
+
+Discussed 2026-11-15.
+
+### Decisions from this round
+
+| # | Decision | Date |
+|---|---|---|
+| D23 | **One app that grows to hold many games.** The home screen is a shelf that starts with Aadupuli. The permanent app identifier is based on the brand, not on one game. | 2026-11-15 |
+| D24 | **Store title leads with the game, brand appears as the developer name**, for example "Aadu Puli: Tigers & Goats" by "<Brand> Games". The title can be changed later as games are added. | 2026-11-15 |
+| — | **Brand name: to be decided later.** | Open |
+
+### Brand name deadline
+
+The app identifier is fixed for ever at the first upload to Google Play, and it should carry the brand. So the name must be chosen **by week 11** of the timeline, before the closed test in week 13. Until then the project uses a placeholder name.
+
+### Shortlist so far
+
+| Name | Meaning | For | Against |
+|---|---|---|---|
+| Thinnai *(my pick)* | The veranda where these games were played | Warm, easy to say, home screen can be a thinnai | Used by a Tamil literary magazine and restaurants (not in games); `thinnai.in` appears taken |
+| Mutram | Open courtyard of a traditional house | Suggests a gathering place for many games | Less familiar word |
+| Sozhi | Cowrie shells used as dice | Short, distinctive, ready-made logo | "zh" is hard for non-Tamil speakers |
+| Aadukalam | Playing arena; pun on aadu (goat) | Competitive tone for young adults | Search dominated by the 2011 film |
+
+Checks done 2026-11-15: web searches found no game or app using any of the four names. A quick lookup found no records for `thinnai.games`, `thinnaigames.com`, `playthinnai.com`, `mutram.games`, `mutramgames.com`, `sozhi.games`, `sozhigames.com` or `aadukalam.games`. That is a hint they are free, not proof; confirm at a registrar. Note that `.games` addresses usually cost more per year than `.com` or `.in`.
+
+Still to check for the final choice: an exact search inside the Play Store, and the Indian trademark register.
+
+### Competition found
+
+Figures come from third-party trackers, not from Google, so treat them as rough.
+
+| App | Developer | What it is | Installs (tracker) |
+|---|---|---|---|
+| [Aadu Puli – Tamil Board Game](https://appgoblin.info/apps/com.chozhanaadu.adupuliattam) | Chozhanaadu Apps | Offline, computer opponent at three levels, tigers win at 5. Released January 2026. | about 150 |
+| [Thayam – Tamil Traditional Game](https://appgoblin.info/apps/com.chozhanaadu.thayam) | Chozhanaadu Apps | Dice game on a 7×7 board, ad-supported. Released January 2026. | about 130 |
+| [Pallankuzhi](https://appgoblin.info/apps/in.chozhanaaduapp.pallankuzhi) | Chozhanaadu Apps | Friends or computer, offline, English and Tamil. | about 90 |
+| [Aatalu: Indian Board Games](https://apkcombo.com/aatalu-indian-board-games/io.puya.games/) | puya.games | Seven games in one app, including Aadupuli. | near zero |
+| Goats or Tigers; Puli Meka & More | Others | iPhone apps. | Not known |
+
+### What the competition tells us
+
+- **This is the hard truth about demand, measured.** A developer has had almost our exact plan (the same three games, offline, computer opponent, Tamil) live for about ten months and trackers show roughly a hundred installs per app. Putting a good version in the store is not enough; nobody is searching.
+- **Splitting games into separate apps has not helped them.** Each app starts from zero. This supports D23.
+- **Their feature list is our starting line, not our edge.** Offline play and three opponent levels are expected. Our differences have to be the tutorial, the daily puzzle with sharing, the feel, and the website that brings people in from search.
+- **Homework:** install the Chozhanaadu Aadupuli app and play it for an hour. Note what is confusing, what is missing and what they do well.
+- **Growth must be planned, not hoped for.** The sharing loop and the website matter as much as the game. This raises the priority of the launch and growth topic (14) and keyword research (10).
+
+### A privacy point to settle with the legal topic
+
+On a personal Google Play developer account, Google shows the developer's legal name publicly, and for accounts that earn money it also shows a full address *(verify current rule)*. An organisation account avoids putting a home address on show but needs a registered business and a D-U-N-S number. This belongs with topic 11 (company or sole proprietorship).
+
+---
+
+## 20. New direction: a global multiplayer games platform
+
+Raised by you on 2026-11-16, after trying existing Tamil game apps (pagadai, aadu puli, goli and others).
+
+### What you saw and proposed
+
+- Existing Tamil game apps feel machine-made and blunt, have no pool of players, and many share the same Tamil names.
+- **New direction:** aim at the **global market**, with one **multiplayer games platform** (against people and against the computer).
+- **Games:** Tamil games, plus some of the most-played games, plus a few unique board games.
+- **Ads:** never forced; available by choice for extra coins and similar rewards.
+- **References:** Plato first (easy game selection, clear rule explanations, playability, no lag), then Ludo King and Carrom Pool.
+- **Reasoning:** familiar games bring more players in.
+
+### My assessment
+
+**Where you are right**
+
+- The gap you found is real: quality and a player pool, not the idea, are what is missing.
+- Familiar games solve the "nobody searches for Aadupuli" problem. People arrive for what they know and discover the rest.
+- A global audience is worth far more per player than an India-only one, and D23 (one app, many games) already points this way.
+- Godot suits this vision better than my web-wrapper suggestion did.
+
+**Hard truths**
+
+1. **Plato is the product of a company, not a person.** It lists about 50 games, with chat rooms and voice chat, and says "10 million+" people *(its own store listing; unverified)*. Ludo King and Carrom Pool belong to large studios. Matching them game for game, solo and part-time with no budget, is not realistic.
+2. **A platform makes the empty-lobby problem worse, not better.** Players are split across every game and every time zone. Five hundred people online across ten games worldwide means every lobby is empty.
+3. **Nobody leaves Ludo King for a weaker Ludo.** A familiar game only pulls people in if ours is at least as good, or if the platform gives another reason to stay (friends, one identity, unique games).
+4. **Physics games played live (carrom, pool, goli) are a different class of difficulty** from turn-based board games. They should wait a long time.
+5. **"Looks AI-made" is our risk too.** The plan is AI-assisted art and AI-written code. Avoiding that look needs one consistent, deliberate style and a lot of care over feel.
+6. **Global means more rules:** consent screens for European players, children's privacy law in the US, and age ratings, especially once ads are in.
+
+### What I recommend: keep the vision, change the route
+
+**The platform is the destination. One excellent game at a time is the road.**
+
+- **The signature is the unique games; the familiar games are doorways.** Each Tamil game belongs to a family the world already searches for:
+
+| Our game | World family people search for | Evidence of demand |
+|---|---|---|
+| Pallanguzhi | Mancala | One mancala app shows about 766,000 installs on a tracker *(rough)* |
+| Dayakattam / Thayam | Ludo, Pachisi, Parcheesi | Ludo is the biggest board-game category in India |
+| Paramapadham | Snakes and ladders | Universally known |
+| Aadupuli | Tigers and goats, fox and geese, Bagh-Chal | Known among strategy-game fans; small |
+
+  So the store can say "Mancala" and the game can offer Pallanguzhi as the variant nobody else has.
+
+- **Build order by cost and reach, turn-based only:** Aadupuli → Pallanguzhi/Mancala → Dayakattam/Ludo → cheap world classics (Nine Men's Morris, Checkers, Reversi, Four in a Row, Dots and Boxes).
+- **Use generic names** for classics. Several familiar names are trademarks (for example Othello, Connect Four, Battleship).
+- **Take principles from Plato, not its look:** game picking in one tap, rules explained on one screen, instant start, no waiting. Our visual identity must be our own.
+- **Design for an empty pool from day one:** every game is fully enjoyable against the computer; clearly labelled computer opponents fill empty lobbies (D5); friend links; turn-by-turn matches.
+- **Realistic pace:** after the app shell exists, roughly one polished game every two to three months. In two years that is six to eight games with online play, which is a real platform.
+
+### What this changes in earlier decisions (confirmed 2026-11-16, see D25–D33)
+
+| Earlier decision | Change |
+|---|---|
+| D2: player number one is young adults in India | **Worldwide casual and strategy players**, 16–35, English-speaking first |
+| D7: English and Tamil | **English first.** Tamil kept as a language option and as flavour (names, stories). More languages later. |
+| D19: no money features in release 1 | Still none in release 1. **Opt-in ads for coins** arrive with the coin economy, alongside online play. |
+| D4: online play in release 2 | Unchanged in order, but online play becomes the core of the product, so the shell is designed for many games and for accounts from the start. |
+| D24: store title leads with the game | Title leads with the **world family name** people search for, for example "Tigers & Goats". |
+| Brand shortlist (section 19) | Needs a name that works worldwide: short, easy to say and spell in English. Tamil-rooted names can stay if they pass that test. |
+| Release 1 scope (section 18) | Aadupuli stays first. The shell is built as a multi-game shelf. Whether release 1 should hold two games is open. |
+
+### Questions answered 2026-11-16
+
+| Question | Your answer |
+|---|---|
+| One deep game in release 1, or two? | One deep game; the shelf shows what's next (D27) |
+| Which doorway game is second? | Mancala with Pallanguzhi (D28) |
+| How much chat? | Preset phrases and emotes only (D29) |
+| Languages at launch? | English and Tamil (D30) |
+
+---
+
+## 21. The reworked plan
+
+Written 2026-11-16 after you confirmed the platform direction.
+
+### Positioning
+
+**The world's classic board games in one place, including rare ones you can't play anywhere else.** Every game is easy to pick, explained on one screen, and playable in seconds against a person or the computer. The earlier "games your grandmother played" line (section 9) becomes flavour inside each game's story, not the headline.
+
+### Roadmap
+
+Timings are my estimates at 10–20 hours a week. The order of releases 3 and 4 is my proposal: the doorway game comes before public matchmaking, because it is what brings in enough players to make matchmaking worth opening.
+
+| Release | When | Contents |
+|---|---|---|
+| 1 | Month 4 | Platform shell and **Aadupuli**: versus computer, pass-and-play, tutorial, daily puzzle. English and Tamil. Android and web. No money features. |
+| 2 | Month 6–7 | **Online play with friends** by link. Guest identity with optional sign-in. Preset phrases and emotes. Godot server goes live. |
+| 3 | Month 9–10 | **Mancala and Pallanguzhi**, in every mode the shell already supports. |
+| 4 | Month 12–13 | **Public matchmaking** with clearly labelled computer opponents after a short wait, and ranks. **Coins, cosmetics and opt-in ads.** |
+| Year 2 | — | Dayakattam with Ludo; cheap classics (Nine Men's Morris, Checkers, Reversi, Four in a Row); Paramapadham timed for a festival; iPhone; more languages. |
+
+### The shell: what every game gets for free
+
+The shell is the part that makes game two take two to three months instead of four.
+
+| Shell provides | Each game supplies |
+|---|---|
+| Home shelf of game cards | Rules and legal moves |
+| Mode picker: computer, same phone, friend, online | Computer opponent at three levels |
+| Profile, stats and saved progress | Tutorial script, under 90 seconds |
+| Settings, sound, vibration, language | Board and pieces |
+| Sharing and daily-challenge frame | One-screen rules summary and story |
+| Online connection, friends, phrases and emotes (release 2 onward) | Variants, as tabs (for example Kalah and Pallanguzhi) |
+
+### Principles taken from the references (not their look)
+
+- **Two taps to playing:** pick a game, pick a mode, play.
+- **Rules on one screen**, plus the short interactive tutorial.
+- **No waiting:** instant start against the computer; a labelled computer opponent after about 20 seconds in matchmaking.
+- **Speed targets:** opens in under 3 seconds on a cheap phone, smooth animation, taps answered within a tenth of a second *(targets are mine; measured in the trial)*.
+- **One identity across games:** profile, friends, stats and later coins.
+- **Our own visual identity:** one palette, one type family, one piece style, tuned by hand. This is the answer to "looks AI-made".
+
+### What changes in release 1 (section 18)
+
+- **Added:** the home shelf with Aadupuli and a "coming next" card for Mancala and Pallanguzhi; the game written as a module behind the shell from day one.
+- **Changed:** English-first wording that assumes no prior knowledge of the game; store title led by "Tigers & Goats" (D32).
+- **Unchanged:** everything else in the core and stretch lists, the cut order, the weekly rhythm and the "cut features, keep the date" rule.
+- **Timeline effect:** the shell skeleton adds about a week, taken from the buffer. Release 1 is now 16–17 weeks after the trial.
+
+### Brand name, revisited
+
+The name must now be easy to say and spell for English speakers worldwide. Against that test: Thinnai and Mutram pass, Sozhi struggles ("zh"), Aadukalam is long. The shortlist needs more candidates before the week 11 deadline.
+
+### Notes for the legal topic
+
+- Release 1 collects nothing: no ads, no analytics kit, no account. That keeps European consent rules and children's privacy rules simple at launch.
+- Set the store audience to 13 and over, so the app is not treated as made for children.
+- Ads and accounts in later releases bring consent screens and a fuller privacy policy; plan those with release 2 and release 4.
+
+---
+
+## Change log
+
+- **2026-11-14** — Document created from the first discussion.
+- **2026-11-14** — Three rounds of questions answered. Added decisions D1–D9, the answers table, and section 16 (timeline, tensions, new ideas). Marked Aadupuli as the first game.
+- **2026-11-15** — Added section 17 (Aadupuli rules, sources, decisions D10–D13, start modes). Corrected the earlier claim that the game is easily solved: the published "draw" result is for Bagh-Chal, not the 23-point board.
+- **2026-11-15** — Confirmed the coin toss decides sides (D14).
+- **2026-11-15** — Tech stack decided: Godot for the game, Godot on a rented machine for the server, plain website with the game embedded (D15–D18). Section 11 rewritten with trade-offs, a one-week trial and a project layout.
+- **2026-11-15** — Added section 18: release 1 scope (core, stretch in cut order, out), 16-week timeline, weekly rhythm and success targets (D19–D22).
+- **2026-11-15** — Added section 19: one app for many games (D23), game-led store title (D24), brand shortlist with a week 11 deadline, and the competition found on the stores.
+- **2026-11-16** — Added section 20: your proposed shift to a global multiplayer games platform, my assessment, a recommended route, and the earlier decisions it would change (awaiting confirmation).
+- **2026-11-16** — Direction confirmed. Added decisions D25–D33, section 21 (reworked plan: positioning, roadmap, shell, release 1 changes) and a "Current plan at a glance" summary at the top. D2 replaced by D26; D24 refined by D32.
+- **2026-11-16** — Build plan written as a separate file, BUILD_PLAN.md, covering the trial week and release 1.
+- **2026-11-16** — Board verified against your picture (saved in docs/). Added D34: start with this board, more boards or piece counts later if needed.
+- **2026-11-16** — Fixed tiger start confirmed (D35): top point plus the two centre points of the first row.
