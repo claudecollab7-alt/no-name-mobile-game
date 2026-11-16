@@ -29,6 +29,7 @@ The short version of everything decided so far. Details and reasons are in the n
 | Tech | Godot (GDScript) for the game; Godot on a rented machine for the server; plain website with the game embedded. |
 | Money | No forced ads, ever. Cosmetics and coins; opt-in ads for extra coins. |
 | Chat | Preset phrases and emotes only. |
+| Look | Brass-and-wood board on a light, calm app; tigers and goats differ by shape and colour; kolam patterns as decoration; traditional boards as unlockable themes (section 22). |
 | Empty lobbies | Clearly labelled computer opponents after a short wait. No disguised bots. |
 | Who builds | Opus writes the code; you review and test. 10–20 hours a week, almost no budget. |
 | If late | Cut features, keep the date. |
@@ -350,6 +351,7 @@ The server is the same `game/` project started in server mode, so it needs no fo
 | D33 | **Turn-based games only for now.** Live physics games (carrom, pool, goli, pambaram) stay parked. | 2026-11-16 |
 | D34 | **Aadupuli starts on the classic 23-point board**, verified against your picture. More boards and piece-count options may be added later if needed. | 2026-11-16 |
 | D35 | **Fixed start confirmed:** tigers begin on the top point and the two centre points of the first row. | 2026-11-16 |
+| D36–D39 | Visual design: brass-and-wood board, pieces by shape and colour, light calm app, kolam patterns and unlockable themes. See [section 22](#22-visual-design-direction). | 2026-11-16 |
 
 ---
 
@@ -772,6 +774,62 @@ The name must now be easy to say and spell for English speakers worldwide. Again
 
 ---
 
+## 22. Visual design direction
+
+Decided 2026-11-16 after comparing four board looks (brass and wood, kolam chalk, modern flat, temple stone) drawn on the real 23-point board.
+
+### Decisions
+
+| # | Decision | Date |
+|---|---|---|
+| D36 | **The default board is brass and wood:** a dark wooden plank with brass inlay lines and brass points, like an heirloom set. | 2026-11-16 |
+| D37 | **Pieces differ by shape and colour**, never colour alone: tigers are larger round copper tokens with stripes; goats are smaller ivory tokens of a different shape. | 2026-11-16 |
+| D38 | **The app around the board is light, friendly and calm:** light background, rounded cards, one warm accent, plenty of space. | 2026-11-16 |
+| D39 | **Heritage shows through kolam-style patterns** as quiet decoration (backgrounds, loading screens, dividers) **and unlockable traditional board themes.** | 2026-11-16 |
+
+### How the pieces fit together
+
+The board is the one rich, crafted object on the screen; everything around it stays light and quiet. A dark wooden board on a cream page reads like a real set placed on a table, and keeps the menus clean like Plato.
+
+### Starting palette (proposal, to tune in the trial)
+
+| Use | Colour | Hex |
+|---|---|---|
+| App background | Warm cream | `#FAF6EE` |
+| Cards and panels | White | `#FFFFFF` |
+| Main text | Dark brown ink | `#2B2118` |
+| Secondary text | Muted brown | `#6E6254` |
+| Accent (buttons, highlights) | Copper | `#C25A22` |
+| Board wood | Dark walnut | `#3A2415` |
+| Board lines | Brass | `#C99A45` |
+| Board points | Light brass | `#E3BF73` |
+| Tiger token | Copper, dark stripes | `#D4682A` / `#4A1D08` |
+| Goat token | Ivory, brown rim | `#F1E6CF` / `#8B6A3E` |
+| Legal-move hint | Soft light ring | `#FFF3D6` at partial opacity |
+
+### Type (proposal)
+
+One family covering Latin and Tamil with an open licence, so both languages match in weight and size. Candidates: **Hind Madurai**, **Catamaran** or **Mukta Malar** (all on Google Fonts, SIL Open Font License) *(verify licence and Tamil joining in the trial)*.
+
+### Theme plan
+
+| Theme | When | How earned |
+|---|---|---|
+| Brass and wood | Default | — |
+| Kolam chalk | Release 1 stretch item 2 (the one unlockable theme) | Proposal: a 7-day puzzle streak |
+| Temple stone | Later update | Proposal: clear the opponent ladder |
+| Modern flat | Later, optional | Could double as a high-contrast or low-power option |
+
+Because every look lives in one theme resource (BUILD_PLAN task 5.1), adding a theme is a data change, not new code.
+
+### Risks to check in the trial week
+
+- **Cheap screens:** dark wood with brass can turn muddy on low-quality displays and in sunlight. Test on the cheap phone; if needed, raise line thickness and contrast before anything else.
+- **Wood texture size:** a photographic wood texture costs download size and can look AI-made. Start with a flat walnut colour plus a few hand-tuned grain lines drawn in code; add a small texture only if it clearly earns its place.
+- **Goat shape:** the mockup used circles; the chosen rule needs a different shape. Proposal: rounded squares, as in the flat mockup, in ivory with a brown rim.
+
+---
+
 ## Change log
 
 - **2026-11-14** — Document created from the first discussion.
@@ -786,3 +844,5 @@ The name must now be easy to say and spell for English speakers worldwide. Again
 - **2026-11-16** — Build plan written as a separate file, BUILD_PLAN.md, covering the trial week and release 1.
 - **2026-11-16** — Board verified against your picture (saved in docs/). Added D34: start with this board, more boards or piece counts later if needed.
 - **2026-11-16** — Fixed tiger start confirmed (D35): top point plus the two centre points of the first row.
+- **2026-11-16** — Development tools installed (docs/SETUP.md); repository pushed to GitHub (public, your choice).
+- **2026-11-16** — Added section 22, visual design direction (D36–D39), with a starting palette, type candidates and a theme plan.

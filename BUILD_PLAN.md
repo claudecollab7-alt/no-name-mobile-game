@@ -170,7 +170,7 @@ A throwaway proof. Its code is not kept. Its only job is a go or no-go on Godot.
 |---|---|---|
 | T0.1 | New Godot project: Compatibility renderer, portrait, 1080×1920 base size with stretch enabled | Project opens and runs on the PC |
 | T0.2 | Draw the draft board in code; place 3 tigers and a few goats; tap a piece, tap a point, it slides there | Pieces move smoothly on the PC |
-| T0.3 | Add one line of Tamil text with a bundled Tamil font, one sound on move, one vibration on capture | Text, sound and vibration all present |
+| T0.3 | Add one line of Tamil text with a bundled Tamil font, one sound on move, one vibration on capture. Draw the board in the brass-and-wood starting palette (DISCUSSION.md section 22) and compare two or three font candidates | Text, sound and vibration all present; board readable on the cheap phone indoors and in sunlight |
 | T0.4 | Export to Android and install on the cheap phone | The app runs on the phone |
 | T0.5 | Export to web; serve it locally; open it in the phone's browser | The game loads and plays in the browser |
 | T0.6 | Timing test: a rough move generator and a simple look-ahead, run on the phone | Numbers recorded for depth reached in 1 second |
@@ -303,7 +303,7 @@ https://<site>/daily
 
 | # | Task | Done when |
 |---|---|---|
-| 5.1 | Visual identity pass: one palette, one type family, one piece style, all held in a single theme resource so later themes are a data swap | Every screen uses the theme; nothing looks like a default control |
+| 5.1 | Visual identity pass: one palette, one type family, one piece style, all held in a single theme resource so later themes are a data swap. Direction is decided: brass-and-wood board on a light app (DISCUSSION.md section 22). The trial week and phase 1 already use the starting palette, so this pass is tuning, not invention. | Every screen uses the theme; nothing looks like a default control |
 | 5.2 | Sounds: place, move, capture, trap, win, lose, button, puzzle solved. Free-licence or self-recorded, with sources listed in `CREDITS.md` | All eight present, balanced in volume, and can be switched off |
 | 5.3 | Stats screen and the full save system from section 3 | Stats survive closing the app; an older save file still loads |
 | 5.4 | Settings and comfort: sound, vibration, language, reduced motion; tigers and goats distinct by shape, not only colour; every tap target comfortably finger-sized | User passes a one-handed test on the cheap phone |
@@ -313,7 +313,7 @@ https://<site>/daily
 ### Stretch order (from DISCUSSION.md section 18)
 
 1. Opponent ladder: each opponent "cleared" by beating them as tigers and as goats.
-2. One unlockable board theme.
+2. One unlockable board theme: kolam chalk (proposal: earned by a 7-day puzzle streak).
 3. Google sign-in backup through Play Games saved games, Android only.
 4. Replay with one hint after a loss.
 
@@ -362,7 +362,8 @@ Board and pieces are drawn in code. AI-generated images are used only for backgr
 | Go or no-go on Godot | End of week 1 | Everything |
 | Capture target (4, 5, 6 or 7) from the self-play table | End of week 6 | Tutorial wording, puzzles |
 | Names and personalities of the three opponents | Week 5 | Task 2.3 |
-| Palette and piece style direction | Week 10 | Task 5.1 |
+| Palette and piece style direction | Done 2026-11-16 (brass and wood, DISCUSSION.md section 22) | — |
+| Font choice from the trial comparison | End of week 1 | Every screen |
 | **Brand name** | **Week 11** | The permanent app identifier, the website address |
 | Which stretch items made it | End of week 12 | Store description |
 
@@ -483,4 +484,5 @@ Add one line per working session: date, task, result, anything the next session 
 | 2026-11-16 | Plan written | — | Godot version not yet pinned; board not yet verified |
 | 2026-11-16 | Board verified | Matches the draft exactly | Picture saved at docs/board-reference.png |
 | 2026-11-16 | Tiger start confirmed | Points 0, 3 and 4 | Nothing about the board is open now |
+| 2026-11-16 | Design direction | Brass-and-wood board, light app, shapes plus colour, kolam decoration | Starting palette in DISCUSSION.md section 22 |
 | 2026-11-16 | Tools set up | Godot 4.7.2, JDK 17, Android SDK (API 35 and 36, NDK r28b), Android Studio, GitHub CLI; local Git repository | Empty test app: Android 27 MB, web 9.8 MB compressed. Android size will be near the trial's limit. Details in docs/SETUP.md |
