@@ -75,12 +75,17 @@ Two project settings every Android export needs (the real project will include t
 - Rendering › Textures › VRAM Compression › **Import ETC2 ASTC** = on.
 - Application › Config › **Icon** set (export works without it, but complains).
 
+## Repository
+
+- GitHub: https://github.com/claudecollab7-alt/no-name-mobile-game
+- **Public** by your choice (2026-11-16). Everything committed is readable by anyone, so never commit keystores, passwords, API keys or private player data. The `.gitignore` already blocks keystores and `.env` files.
+- Branch `main` tracks `origin/main`.
+
 ## Still to do by you
 
 | Item | How |
 |---|---|
-| Sign in to GitHub on this computer | Run `gh auth login` in a new terminal and follow the prompts (browser sign-in). |
-| Create the private GitHub repository | After sign-in, ask Claude to create it and push, or run `gh repo create` yourself. |
+| Sign in to the GitHub command-line tool | Optional: run `gh auth login` in a new terminal. Plain `git push` already works through Git's own saved sign-in. |
 | First run of Android Studio | Choose **Custom** setup and keep the SDK location `%LOCALAPPDATA%\Android\Sdk`. Do not let it delete or move existing packages. Needed only if you want the phone emulator. |
 | Phone ready | On the cheap test phone: Settings › About › tap "Build number" seven times, then Developer options › **USB debugging** on. Plug in and accept the prompt. `adb devices` should list it. |
 | Godot tutorial | Official docs › Getting started › "Your first 2D game". |

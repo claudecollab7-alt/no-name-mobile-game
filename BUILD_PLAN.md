@@ -393,7 +393,7 @@ Board and pieces are drawn in code. AI-generated images are used only for backgr
 - [x] P1 Godot installed, version noted (4.7.2, 2026-11-16; see docs/SETUP.md)
 - [ ] P2 First-game tutorial done
 - [x] P3 Android build tools installed (2026-11-16; test APK and web build exported successfully)
-- [ ] P4 Git and private repository (local repository created 2026-11-16; GitHub sign-in and private repository still to do)
+- [x] P4 Git and GitHub repository (2026-11-16; public by your choice, connected and pushed)
 - [ ] P5 Cheap test phone ready
 - [ ] P6 20–30 paper games played
 - [x] P7 Board and tiger start points verified and signed off (2026-11-16)
