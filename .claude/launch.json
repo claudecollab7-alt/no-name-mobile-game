@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "trial-web",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8060", "--directory", "trial/build/web", "--bind", "127.0.0.1"],
+      "port": 8060
+    }
+  ]
+}

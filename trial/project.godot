@@ -1,0 +1,33 @@
+; Throwaway trial project for the one-week Godot go/no-go (BUILD_PLAN.md section 5).
+; Not the real game: the real project will live in game/.
+
+config_version=5
+
+[application]
+
+config/name="Tigers & Goats Trial"
+config/description="Throwaway proof: board, Tamil text, sound, exports, look-ahead timing."
+run/main_scene="res://main.tscn"
+config/features=PackedStringArray("4.7")
+config/icon="res://icon.svg"
+
+[display]
+
+window/size/viewport_width=1080
+window/size/viewport_height=1920
+window/size/window_width_override=432
+window/size/window_height_override=768
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+window/handheld/orientation=1
+
+[input_devices]
+
+pointing/emulate_mouse_from_touch=true
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/vram_compression/import_etc2_astc=true
+environment/defaults/default_clear_color=Color(0.98, 0.965, 0.933, 1)

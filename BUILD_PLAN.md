@@ -189,6 +189,31 @@ A throwaway proof. Its code is not kept. Its only job is a go or no-go on Godot.
 
 Thresholds are my proposals.
 
+### Trial results so far (2026-11-19)
+
+The trial project is in [trial/](trial/README.md). It plays a real pass-and-play game: goats place then move, tigers move and jump, captures and wins are counted.
+
+| Measure | Result | Verdict |
+|---|---|---|
+| Board data | 23 points, 38 connections, all two-way | Pass |
+| Rule sanity | 300 random games all finished; goat total never broke | Pass |
+| Android download size | 27.7 MB debug APK, arm64 only (an empty project is 27 MB) | **Pass, but close to 30 MB.** Real content will push it over; plan an engine trim before release |
+| Web transfer size | 10.4 MB compressed (game data itself is 0.6 MB) | Pass |
+| Tamil text | "ஆடு புலி ஆட்டம்" and "ஸ்ரீ" join correctly in the web build with Hind Madurai and Catamaran | Pass on web; phone still to check |
+| Look-ahead, this laptop, native | 5–8 moves deep in 1 s, about 46,000 positions a second | Reference only |
+| Look-ahead, this laptop, browser | 6 moves deep in 1 s, about 56,000 positions a second | Reference only |
+| Look-ahead on the cheap phone | Not measured yet | Expect roughly 4–5 moves; likely a **worry**, fixable in phase 2 with a position table and better ordering |
+| Start-up, smoothness, sunlight, sound, vibration | Not measured yet | Needs the phone |
+| Google Play Games saved games (T0.7) | A Godot 4 plugin exists ("Google Play Games Services for Godot", MIT, Asset Library). Needs Gradle builds (verified working), the Drive app-folder permission and Play Console set-up. Google is removing the old games v1 SDK in 2026, so the plugin's sign-in path must be checked first | **Workable but risky.** Keep as stretch item 3; drop to 1.1 at the first sign of trouble |
+
+Seen while playing, to carry into phase 1:
+
+- **Taps were swallowed by layout containers** until they were told to let input through. The real shell must set this deliberately.
+- **The top of the board is crowded:** points 2, 3, 4 and 5 are close together, and the two starting tigers almost touch. Piece sizes and tap areas must be tuned on the real phone; a slightly larger board or a small zoom on the top area may be needed.
+- **Empty space above and below the board** on tall screens. The real layout should give the board more of the height.
+
+Still to do in the trial: T0.4 and the phone half of T0.5 (needs the test phone), the start-up/smoothness/sunlight checks, choosing the font, and listening to the sounds.
+
 - **All pass, or only worries:** go. Note the worries as risks.
 - **Web fails, Android passes:** go; release 1 ships Android plus the website without web play, and web play follows later.
 - **Android size, start-up, smoothness or Tamil fails:** stop. Revisit the stack with the user before spending more.
@@ -404,13 +429,13 @@ Board and pieces are drawn in code. AI-generated images are used only for backgr
 
 ### Phase 0 — trial
 
-- [ ] T0.1 Project
-- [ ] T0.2 Board and moving pieces
-- [ ] T0.3 Tamil, sound, vibration
-- [ ] T0.4 Android on the cheap phone
-- [ ] T0.5 Web in the phone's browser
-- [ ] T0.6 Look-ahead timing
-- [ ] T0.7 Saved-games plugin finding
+- [x] T0.1 Project (2026-11-19, `trial/`)
+- [x] T0.2 Board and moving pieces (2026-11-19; playable pass-and-play)
+- [ ] T0.3 Tamil, sound, vibration (built 2026-11-19; Tamil checked on web; sound, vibration and font choice need you and the phone)
+- [ ] T0.4 Android on the cheap phone (APK built: `trial/build/android/trial.apk`)
+- [ ] T0.5 Web in the phone's browser (web build works on the laptop)
+- [ ] T0.6 Look-ahead timing (laptop done; phone still to measure with "Think 1 s")
+- [x] T0.7 Saved-games plugin finding (workable but risky; see trial results)
 - [ ] **Go or no-go recorded**
 
 ### Phase 1 — rules, board, pass-and-play
@@ -484,5 +509,6 @@ Add one line per working session: date, task, result, anything the next session 
 | 2026-11-16 | Plan written | — | Godot version not yet pinned; board not yet verified |
 | 2026-11-16 | Board verified | Matches the draft exactly | Picture saved at docs/board-reference.png |
 | 2026-11-16 | Tiger start confirmed | Points 0, 3 and 4 | Nothing about the board is open now |
+| 2026-11-19 | Trial T0.1–T0.3, T0.6, T0.7 | Playable board in brass and wood; exports work; look-ahead 6 moves in 1 s on the laptop's browser | Phone checks outstanding. Run the web build with the `trial-web` preview (`.claude/launch.json`) |
 | 2026-11-16 | Design direction | Brass-and-wood board, light app, shapes plus colour, kolam decoration | Starting palette in DISCUSSION.md section 22 |
 | 2026-11-16 | Tools set up | Godot 4.7.2, JDK 17, Android SDK (API 35 and 36, NDK r28b), Android Studio, GitHub CLI; local Git repository | Empty test app: Android 27 MB, web 9.8 MB compressed. Android size will be near the trial's limit. Details in docs/SETUP.md |

@@ -64,6 +64,7 @@ An empty test project (one label, Compatibility renderer) was exported from the 
 |---|---|---|
 | Android debug APK, arm64 only | Built, signed with the debug key, targets Android 16 (API 36), minimum Android 7 (API 24) | **27 MB** |
 | Web, no threads | Built | 38 MB on disk, **9.8 MB compressed** (what a phone actually downloads) |
+| Android App Bundle via Gradle (Play Store format), checked 2026-11-19 | Built | **26.9 MB**. First run downloaded about 1.2 GB of Gradle files into `%USERPROFILE%\.gradle`; later builds reuse them |
 
 What this tells the trial week:
 
