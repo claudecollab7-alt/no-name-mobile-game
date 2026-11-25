@@ -2,13 +2,13 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://dmjoum2qniqcq"
-path="res://.godot/imported/MuktaMalar-Regular.ttf-f92c86219d7c24bc8b2c44ee6fb2d466.fontdata"
+uid="uid://bhedxvvqisbst"
+path="res://.godot/imported/Figtree-Variable.ttf-660f5ec17725a210137ad1840e24c37f.fontdata"
 
 [deps]
 
-source_file="res://assets/fonts/MuktaMalar-Regular.ttf"
-dest_files=["res://.godot/imported/MuktaMalar-Regular.ttf-f92c86219d7c24bc8b2c44ee6fb2d466.fontdata"]
+source_file="res://assets/fonts/Figtree-Variable.ttf"
+dest_files=["res://.godot/imported/Figtree-Variable.ttf-660f5ec17725a210137ad1840e24c37f.fontdata"]
 
 [params]
 

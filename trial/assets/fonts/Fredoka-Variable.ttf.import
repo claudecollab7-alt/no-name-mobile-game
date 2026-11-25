@@ -2,13 +2,13 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://dh54jktdpcg0n"
-path="res://.godot/imported/HindMadurai-Regular.ttf-2cbaa3ffebf63f540845e1d8ae0fa1ab.fontdata"
+uid="uid://drqussxw5ylw7"
+path="res://.godot/imported/Fredoka-Variable.ttf-be82ba9dfdb46f07e2455d8b62d90c28.fontdata"
 
 [deps]
 
-source_file="res://assets/fonts/HindMadurai-Regular.ttf"
-dest_files=["res://.godot/imported/HindMadurai-Regular.ttf-2cbaa3ffebf63f540845e1d8ae0fa1ab.fontdata"]
+source_file="res://assets/fonts/Fredoka-Variable.ttf"
+dest_files=["res://.godot/imported/Fredoka-Variable.ttf-be82ba9dfdb46f07e2455d8b62d90c28.fontdata"]
 
 [params]
 

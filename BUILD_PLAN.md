@@ -1,7 +1,7 @@
 # Build Plan — Trial Week and Release 1
 
 - **Written:** 2026-11-16
-- **Covers:** the one-week Godot trial and release 1 (platform shell plus Aadupuli, "Tigers & Goats").
+- **Covers:** the one-week Godot trial and release 1 (Tiger & Goat: the Aadupuli rules for a global audience).
 - **Companion:** [DISCUSSION.md](DISCUSSION.md) holds every decision and its reason. Its "Current plan at a glance" table is the source of truth. If this plan and that table disagree, stop and ask.
 - **Who does what:** Opus writes the code. You review, test on a real phone, and make the decisions listed in [section 12](#12-decisions-you-owe-and-when).
 - **Pace:** 10–20 hours a week. If late, cut from the bottom of the stretch list and keep the date.
@@ -26,7 +26,7 @@ Anything marked *(verify)* is from memory and must be checked against the instal
 - **Typed GDScript everywhere** (`var x: int`, typed arrays, return types).
 - **The shell knows nothing about Aadupuli.** It talks to a game only through the module contract in [section 3](#3-architecture).
 - **Every rule has a test.** A rule change without a test change is not done.
-- **All visible text goes through translation keys.** No English or Tamil text inside scripts or scenes.
+- **All visible text goes through translation keys.** No player-facing text hard-coded in scripts or scenes, so more languages can be added later.
 - **No new decisions in code.** If a task needs a product decision that DISCUSSION.md does not answer, stop and ask.
 - **Opus cannot see the Godot editor or a phone.** Anything visual or tactile ends with a short checklist for the user.
 - **Commits:** the user decides when to commit. Suggest a commit at the end of each finished task.
@@ -95,7 +95,7 @@ Every game supplies these pieces. Names are a starting point; keep them identica
 | `BoardView` | Scene | `show_state(state)`, `set_legal_hints(moves)`, signal `move_chosen(move)`; plays its own animations and sounds |
 | `TutorialScript` | Data file | Ordered steps: board position, highlighted targets, text key, the move that completes the step |
 | `PuzzleSet` | Data file | Bundled puzzles: position, side to move, goal, solution line, difficulty |
-| Text | Translation file | Every string for this game, in English and Tamil |
+| Text | Translation file | Every string for this game, in English (more languages later) |
 
 `apply_move` returns a new state and never changes the one it was given. That makes undo, replay, search and tests simple.
 
@@ -170,7 +170,7 @@ A throwaway proof. Its code is not kept. Its only job is a go or no-go on Godot.
 |---|---|---|
 | T0.1 | New Godot project: Compatibility renderer, portrait, 1080×1920 base size with stretch enabled | Project opens and runs on the PC |
 | T0.2 | Draw the draft board in code; place 3 tigers and a few goats; tap a piece, tap a point, it slides there | Pieces move smoothly on the PC |
-| T0.3 | Add one line of Tamil text with a bundled Tamil font, one sound on move, one vibration on capture. Draw the board in the brass-and-wood starting palette (DISCUSSION.md section 22) and compare two or three font candidates | Text, sound and vibration all present; board readable on the cheap phone indoors and in sunlight |
+| T0.3 | Bundled fonts, one sound on move, one vibration on capture. Draw the board in the brass-and-wood starting palette (DISCUSSION.md section 22). *(Changed 2026-11-25: Tamil text dropped for the global focus; fonts are now Fredoka and Figtree.)* | Text, sound and vibration all present; board readable on the cheap phone indoors and in sunlight |
 | T0.4 | Export to Android and install on the cheap phone | The app runs on the phone |
 | T0.5 | Export to web; serve it locally; open it in the phone's browser | The game loads and plays in the browser |
 | T0.6 | Timing test: a rough move generator and a simple look-ahead, run on the phone | Numbers recorded for depth reached in 1 second |
@@ -183,7 +183,7 @@ A throwaway proof. Its code is not kept. Its only job is a go or no-go on Godot.
 | Android download size | under 30 MB | 30–45 MB | over 45 MB |
 | Time from tap to first screen | under 3 s | 3–5 s | over 5 s |
 | Smoothness while a piece slides | steady, no visible stutter | occasional stutter | constant stutter |
-| Tamil text | letters join correctly (test "ஆடு புலி ஆட்டம்" and "ஸ்ரீ") | minor spacing flaws | broken letters |
+| Text | crisp and readable at small sizes | slightly soft | blurry or clipped |
 | Web: transfer size / load on mobile data | under 15 MB / under 10 s | up to 25 MB / 20 s | worse |
 | Opponent look-ahead in 1 second | 6 or more moves deep | 4–5 | 3 or fewer |
 
@@ -199,7 +199,7 @@ The trial project is in [trial/](trial/README.md). It plays a real pass-and-play
 | Rule sanity | 300 random games all finished; goat total never broke | Pass |
 | Android download size | 27.7 MB debug APK, arm64 only (an empty project is 27 MB) | **Pass, but close to 30 MB.** Real content will push it over; plan an engine trim before release |
 | Web transfer size | 10.4 MB compressed (game data itself is 0.6 MB) | Pass |
-| Tamil text | "ஆடு புலி ஆட்டம்" and "ஸ்ரீ" join correctly in the web build with Hind Madurai and Catamaran | Pass on web; phone still to check |
+| Tamil text (since dropped) | Joined correctly in the web build before Tamil was removed from the app on 2026-11-25 | No longer tested |
 | Look-ahead, this laptop, native | 5–8 moves deep in 1 s, about 46,000 positions a second | Reference only |
 | Look-ahead, this laptop, browser | 6 moves deep in 1 s, about 56,000 positions a second | Reference only |
 | Look-ahead on the cheap phone | Not measured yet | Expect roughly 4–5 moves; likely a **worry**, fixable in phase 2 with a position table and better ordering |
@@ -216,7 +216,7 @@ Still to do in the trial: T0.4 and the phone half of T0.5 (needs the test phone)
 
 - **All pass, or only worries:** go. Note the worries as risks.
 - **Web fails, Android passes:** go; release 1 ships Android plus the website without web play, and web play follows later.
-- **Android size, start-up, smoothness or Tamil fails:** stop. Revisit the stack with the user before spending more.
+- **Android size, start-up, smoothness or text fails:** stop. Revisit the stack with the user before spending more.
 
 ---
 
@@ -283,15 +283,15 @@ All three levels are playable as either side on the cheap phone, and the capture
 
 ---
 
-## 8. Phase 3 — tutorial, first run, Tamil (weeks 7–8)
+## 8. Phase 3 — tutorial, first run, text (weeks 7–8)
 
 | # | Task | Done when |
 |---|---|---|
 | 3.1 | Tutorial engine in `shared/`, driven entirely by a data file: set a position, highlight targets, show one line, wait for the right move, advance | A two-step dummy tutorial runs from data alone |
 | 3.2 | Aadupuli tutorial, five steps: place a goat; move a tiger; jump a goat; move a goat once all are placed; trap the last tiger. Skippable, replayable from the menu | A newcomer finishes it in under 90 seconds |
 | 3.3 | One-screen rules summary and a short story page (history, regional names) | Both fit without scrolling on a small phone, in both languages |
-| 3.4 | Language support: translation file with English and Tamil columns, bundled Tamil font with an open licence, language switch in settings, layouts that survive longer Tamil lines | Every screen is correct in both languages; no clipped text |
-| 3.5 | First-run flow: pick language → offer tutorial → first game against Easy, playing tigers | A fresh install reaches a first move in under two minutes |
+| 3.4 | Text system: one translation file (English only at launch, ready for more), bundled fonts, layouts that survive longer words in other languages | Every screen correct; no clipped text, tested with a deliberately long dummy language |
+| 3.5 | First-run flow: "How to play" card → offer tutorial → first game against Easy, playing tigers | A fresh install reaches a first move in under two minutes |
 | 3.6 | Usability test, run by the user: five people who have never seen the game, watched silently | **Checkpoint C** |
 
 ### Checkpoint C
@@ -313,7 +313,7 @@ Five first-timers each finish a game with no help. Every point where one hesitat
 Example share text:
 
 ```text
-Tigers & Goats · Daily #42
+Tiger & Goat · Daily #42
 Solved in 2 tries · 5-day streak
 https://<site>/daily
 ```
@@ -332,7 +332,7 @@ https://<site>/daily
 | 5.2 | Sounds: place, move, capture, trap, win, lose, button, puzzle solved. Free-licence or self-recorded, with sources listed in `CREDITS.md` | All eight present, balanced in volume, and can be switched off |
 | 5.3 | Stats screen and the full save system from section 3 | Stats survive closing the app; an older save file still loads |
 | 5.4 | Settings and comfort: sound, vibration, language, reduced motion; tigers and goats distinct by shape, not only colour; every tap target comfortably finger-sized | User passes a one-handed test on the cheap phone |
-| 5.5 | Website in `site/`: home, rules in English and Tamil, daily page, privacy policy, Play page with the web build if the trial allowed it; preview tags so shared links show a picture | Site live on free static hosting; pages load fast on mobile data |
+| 5.5 | Website in `site/`: home, rules, daily page, privacy policy, Play page with the web build if the trial allowed it; preview tags so shared links show a picture | Site live on free static hosting; pages load fast on mobile data |
 | 5.6 | Stretch items, strictly in this order, stopping when week 12 ends | Feature freeze at the end of week 12 |
 
 ### Stretch order (from DISCUSSION.md section 18)
@@ -356,7 +356,7 @@ Board and pieces are drawn in code. AI-generated images are used only for backgr
 |---|---|---|
 | 6.1 | Release build: permanent app identifier from the brand name, release signing key created, version numbers, app bundle export, current target Android level *(verify Play's requirement)* | A signed bundle uploads to Play Console without errors |
 | 6.2 | **Back up the signing key and its passwords in two separate places** | User confirms both copies exist |
-| 6.3 | Store listing in English and Tamil: title led by "Tigers & Goats", short and full description, screenshots, feature picture | Listing complete in Play Console |
+| 6.3 | Store listing in English: title "Tiger & Goat", short and full description, screenshots, feature picture | Listing complete in Play Console |
 | 6.4 | Store forms: data safety (nothing collected), content rating questionnaire, audience set to 13 and over, privacy policy link | All forms accepted |
 | 6.5 | Closed test: 12 or more testers opted in for 14 days in a row; a simple feedback form; fixes in order of crashes, rule errors, confusion | 14 days reached with 12 or more still opted in |
 | 6.6 | Apply for public release, describing the test and what changed because of it | Google grants production access |
@@ -372,7 +372,7 @@ Board and pieces are drawn in code. AI-generated images are used only for backgr
 | Crashes in the closed test | None unresolved |
 | Fresh install to first move | Under two minutes |
 | Start-up on the cheap phone | Under 3 seconds (or the figure agreed after the trial) |
-| Languages | Every screen correct in English and Tamil |
+| Text | Every screen correct in English; no hard-coded text |
 | Offline | Everything except sharing works in aeroplane mode |
 | Data | Nothing leaves the phone except what the player shares |
 
@@ -389,7 +389,7 @@ Board and pieces are drawn in code. AI-generated images are used only for backgr
 | Names and personalities of the three opponents | Week 5 | Task 2.3 |
 | Palette and piece style direction | Done 2026-11-16 (brass and wood, DISCUSSION.md section 22) | — |
 | Font choice from the trial comparison | End of week 1 | Every screen |
-| **Brand name** | **Week 11** | The permanent app identifier, the website address |
+| **Platform brand name** (Tiger & Goat is the game's name, D44) | **Week 11** | The permanent app identifier, the website address |
 | Which stretch items made it | End of week 12 | Store description |
 
 ---
@@ -403,7 +403,7 @@ Board and pieces are drawn in code. AI-generated images are used only for backgr
 | The opponent is too slow in GDScript | Medium | Weak hard level | Time budget, integer state, position table; accept a shallower hard level before considering native code |
 | Too few good puzzles can be generated | Medium | Daily puzzle repeats early | Ship fewer and loop; widen goals (two-move and three-move); never ship unproven puzzles |
 | The game feels slow, as the research warned | Medium | Poor retention | Measured in 2.4; levers are capture target, animation speed and the puzzle mode |
-| Tamil text renders badly on some phones | Low | Broken signature feature | Tested in the trial; bundled font, not the phone's |
+| Text renders badly on some phones | Low | Looks broken | Bundled fonts, not the phone's; checked in the trial |
 | Fewer than 12 testers stay opted in for 14 days | Medium | Release slips by weeks | Recruit 15–18 from week 0; remind them weekly |
 | Scope creep | High | Missed date | Fixed stretch order; feature freeze at week 12 |
 | Burnout | Medium | Project stalls | One full day off a week; every fourth week light |
@@ -431,7 +431,7 @@ Board and pieces are drawn in code. AI-generated images are used only for backgr
 
 - [x] T0.1 Project (2026-11-19, `trial/`)
 - [x] T0.2 Board and moving pieces (2026-11-19; playable pass-and-play)
-- [ ] T0.3 Tamil, sound, vibration (built 2026-11-19; Tamil checked on web; sound, vibration and font choice need you and the phone)
+- [ ] T0.3 Fonts, sound, vibration (built 2026-11-19; fonts changed to Fredoka and Figtree 2026-11-25; sound and vibration need you and the phone)
 - [ ] T0.4 Android on the cheap phone (APK built: `trial/build/android/trial.apk`)
 - [ ] T0.5 Web in the phone's browser (web build works on the laptop)
 - [ ] T0.6 Look-ahead timing (laptop done; phone still to measure with "Think 1 s")
@@ -456,12 +456,12 @@ Board and pieces are drawn in code. AI-generated images are used only for backgr
 - [ ] 2.4 Self-play table; capture target chosen
 - [ ] 2.5 Versus-computer mode — **Checkpoint B**
 
-### Phase 3 — tutorial, first run, Tamil
+### Phase 3 — tutorial, first run, text
 
 - [ ] 3.1 Tutorial engine
 - [ ] 3.2 Aadupuli tutorial
 - [ ] 3.3 Rules summary and story
-- [ ] 3.4 Language support
+- [ ] 3.4 Text system
 - [ ] 3.5 First-run flow
 - [ ] 3.6 Five first-timers — **Checkpoint C**
 

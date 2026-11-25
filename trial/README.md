@@ -6,7 +6,8 @@ What it contains:
 
 - The verified 23-point board drawn in code in the brass-and-wood palette.
 - Playable pass-and-play Aadupuli: goats place, then move; tigers move and jump. No undo, no repeat rule.
-- Three Tamil-capable fonts to compare (button "Font").
+- Fredoka (headings, buttons) and Figtree (text) fonts.
+- Plato-like play screen: a panel per side with its goal, a "How to play" card, and a one-line hint.
 - Three generated sounds (place, move, capture) and a vibration on capture (phones only).
 - On-screen measurements: platform, start-up time, frames per second, and "Think 1 s" for look-ahead depth.
 
@@ -46,7 +47,15 @@ Regenerate the sounds:
 python -I trial/tools/make_sounds.py trial/assets/sounds
 ```
 
+## Playing it on a phone
+
+**Web, any phone on the same Wi-Fi:** start the `trial-web-phone` preview (in `.claude/launch.json`; `tools/serve.py` serves `trial/build/web` on port 8061 to the local network with caching off), then open `http://<this computer's Wi-Fi address>:8061` on the phone. Find the address with `ipconfig` (the "IPv4 Address" under Wi-Fi). Windows Firewall already allows Python on this computer.
+
+**Android app, no cable:** send `trial/build/android/trial.apk` to the phone (USB file transfer, Google Drive or a message to yourself), open it, and allow "Install unknown apps" for the app you opened it from when Android asks. Turn that permission off again afterwards.
+
+**Android app, with a cable:** turn on USB debugging (Settings › About phone › tap "Build number" seven times › Developer options › USB debugging), plug in, accept the prompt, then run the `adb install` command above.
+
 ## Credits
 
-- Fonts: Hind Madurai (Indian Type Foundry), Catamaran (The Catamaran Authors), Mukta Malar (Ek Type). All SIL Open Font License 1.1; licence files are next to the fonts.
+- Fonts: Fredoka (The Fredoka Project Authors) and Figtree (The Figtree Project Authors). Both SIL Open Font License 1.1; licence files are next to the fonts.
 - Sounds: synthesised by `tools/make_sounds.py`.

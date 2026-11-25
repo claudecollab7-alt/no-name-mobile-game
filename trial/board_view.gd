@@ -21,10 +21,12 @@ const MARGIN := 40.0  ## Plank border around the lines, in board-picture units.
 const TIGER_R := 17.0  ## Piece sizes in board-picture units (closest points are 32 apart).
 const GOAT_R := 16.0
 const TAP_R := 30.0
+const MAX_STRETCH := 1.6
 
 var state: R.State
 var plank := Rect2()
-var unit := 1.0  ## Screen pixels per board-picture unit.
+var unit := 1.0  ## Screen pixels per board-picture unit, horizontally (also sizes pieces and lines).
+var unit_y := 1.0  ## Vertical scale; can exceed unit on tall screens.
 var origin := Vector2.ZERO
 var pieces := {}  ## point -> Piece node
 var selected := -1
@@ -45,11 +47,14 @@ func new_game() -> void:
 
 
 func layout(area: Vector2) -> void:
-	var usable := area - Vector2(0, 0)
-	unit = minf(usable.x / (SRC_SIZE.x + MARGIN * 2.0), usable.y / (SRC_SIZE.y + MARGIN * 2.0))
-	var size := (SRC_SIZE + Vector2(MARGIN, MARGIN) * 2.0) * unit
+	var full := SRC_SIZE + Vector2(MARGIN, MARGIN) * 2.0
+	unit = minf(area.x / full.x, area.y / full.y)
+	# On tall phones, stretch the board vertically (up to MAX_STRETCH) instead of
+	# leaving empty bands; it also spreads the rows apart for easier tapping.
+	unit_y = minf(area.y / full.y, unit * MAX_STRETCH)
+	var size := Vector2(full.x * unit, full.y * unit_y)
 	plank = Rect2((area - size) / 2.0, size)
-	origin = plank.position + Vector2(MARGIN, MARGIN) * unit
+	origin = plank.position + Vector2(MARGIN * unit, MARGIN * unit_y)
 	for p: int in pieces:
 		var piece: Piece = pieces[p]
 		piece.position = point_pos(p)
@@ -58,7 +63,8 @@ func layout(area: Vector2) -> void:
 
 
 func point_pos(i: int) -> Vector2:
-	return origin + (R.POINTS[i] - SRC_MIN) * unit
+	var p := R.POINTS[i] - SRC_MIN
+	return origin + Vector2(p.x * unit, p.y * unit_y)
 
 
 func _draw() -> void:

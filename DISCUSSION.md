@@ -18,13 +18,14 @@ The short version of everything decided so far. Details and reasons are in the n
 | Topic | Where things stand |
 |---|---|
 | Product | A global multiplayer board-games platform: play people or the computer. One app that grows a game at a time. |
-| Signature | Rare traditional games (Tamil first) alongside familiar world classics that act as doorways. |
+| Signature | Rare traditional games alongside familiar world classics that act as doorways. Presented for a global audience, with no regional language or script in the app (section 23). |
 | Audience | Players worldwide, English-speaking first. |
 | First game | Aadupuli, sold as "Tigers & Goats". Rules in section 17. |
 | Second game | Mancala, with Pallanguzhi as the unique variant. |
 | Release 1 (about month 4) | Shell plus Aadupuli: versus computer, pass-and-play, tutorial, daily puzzle. No online play, no money features. |
 | Later releases | 2: online with friends. 3: Mancala and Pallanguzhi. 4: matchmaking, ranks, coins, cosmetics, opt-in ads. |
-| Languages | English and Tamil. |
+| Name | **Tiger & Goat** is the first game's name and its store title. The platform brand (and the permanent app identifier) is still open (D44). |
+| Languages | English only at launch; text system ready for more languages later. |
 | Platforms | Android and web first; iPhone later. |
 | Tech | Godot (GDScript) for the game; Godot on a rented machine for the server; plain website with the game embedded. |
 | Money | No forced ads, ever. Cosmetics and coins; opt-in ads for extra coins. |
@@ -33,7 +34,7 @@ The short version of everything decided so far. Details and reasons are in the n
 | Empty lobbies | Clearly labelled computer opponents after a short wait. No disguised bots. |
 | Who builds | Opus writes the code; you review and test. 10–20 hours a week, almost no budget. |
 | If late | Cut features, keep the date. |
-| Still open | Brand name (needed by week 11); one-week Godot trial. The board and the tiger start are verified. |
+| Still open | Platform brand name for the app identifier (needed by week 11); phone half of the Godot trial. The board and the tiger start are verified. |
 | Build plan | [BUILD_PLAN.md](BUILD_PLAN.md): tasks, checkpoints, risks and the progress tracker. |
 
 ---
@@ -330,7 +331,7 @@ The server is the same `game/` project started in server mode, so it needs no fo
 | D4 | **Phased releases.** Release 1: versus computer, pass-and-play, shareable daily puzzle. Release 2: friend link online. Release 3: public matchmaking. | 2026-11-14 |
 | D5 | Empty lobby is handled with a **clearly labelled computer opponent after a short wait**. No disguised bots. | 2026-11-14 |
 | D6 | **Android and web first.** iPhone once revenue covers Apple's yearly fee. | 2026-11-14 |
-| D7 | Launch languages are **English and Tamil**, built so more can be added without rework. | 2026-11-14 |
+| D7 | ~~Launch languages are English and Tamil.~~ **Replaced by D40.** | 2026-11-14 |
 | D8 | Art is **AI-generated, then polished by hand**. | 2026-11-14 |
 | D9 | Budget before revenue is **almost nothing** (under ₹5,000): store fee and a domain. | 2026-11-14 |
 | D10–D14 | Aadupuli rules: see [section 17](#17-aadupuli-rules). | 2026-11-15 |
@@ -345,13 +346,14 @@ The server is the same `game/` project started in server mode, so it needs no fo
 | D27 | **Release 1 is one deep game** (Aadupuli) inside the platform shell, with the home shelf showing what comes next. | 2026-11-16 |
 | D28 | **The second game is Mancala with Pallanguzhi** as its unique variant. | 2026-11-16 |
 | D29 | **Chat is preset phrases and emotes only.** No free typing. | 2026-11-16 |
-| D30 | **English and Tamil at launch** (confirms D7 for the worldwide plan). | 2026-11-16 |
+| D30 | ~~English and Tamil at launch.~~ **Replaced by D40.** | 2026-11-16 |
 | D31 | **Ads are never forced.** Opt-in ads for extra coins arrive with the coin economy and online play; release 1 still has no money features (D19 stands). | 2026-11-16 |
 | D32 | **Store titles lead with the world family name** people search for, for example "Tigers & Goats", with the traditional name alongside. Refines D24. | 2026-11-16 |
 | D33 | **Turn-based games only for now.** Live physics games (carrom, pool, goli, pambaram) stay parked. | 2026-11-16 |
 | D34 | **Aadupuli starts on the classic 23-point board**, verified against your picture. More boards and piece-count options may be added later if needed. | 2026-11-16 |
 | D35 | **Fixed start confirmed:** tigers begin on the top point and the two centre points of the first row. | 2026-11-16 |
-| D36–D39 | Visual design: brass-and-wood board, pieces by shape and colour, light calm app, kolam patterns and unlockable themes. See [section 22](#22-visual-design-direction). | 2026-11-16 |
+| D36–D39 | Visual design: brass-and-wood board, pieces by shape and colour, light calm app, kolam patterns and unlockable themes. See [section 22](#22-visual-design-direction). D39 is narrowed by D40. | 2026-11-16 |
+| D40–D44 | Global focus: English only, Tiger & Goat as the first game's name, Fredoka and Figtree fonts, Plato-like play screen. See [section 23](#23-global-focus-and-the-name-tiger--goat). | 2026-11-25 |
 
 ---
 
@@ -830,6 +832,45 @@ Because every look lives in one theme resource (BUILD_PLAN task 5.1), adding a t
 
 ---
 
+## 23. Global focus and the name "Tiger & Goat"
+
+Decided 2026-11-25 after you played the trial.
+
+### What you said
+
+- Remove the Tamil fonts and every Tamil mention: the focus is the global market, like Plato.
+- Redesign the app to suit global players.
+- The name is **Tiger & Goat**. The rules stay the same.
+
+### Decisions
+
+| # | Decision | Date |
+|---|---|---|
+| D40 | **English only at launch, with no Tamil script, Tamil names or Tamil-specific wording in the app.** The text system stays ready for other languages later. Replaces D7 and D30. Narrows D39: traditional board *looks* (brass, chalk, stone) can stay as visual themes, but nothing in the app is presented as Tamil. | 2026-11-25 |
+| D41 | **Name: Tiger & Goat.** | 2026-11-25 |
+| D42 | **Fonts: Fredoka** (rounded, friendly) for headings and buttons, **Figtree** (clean, very readable) for everything else. Both SIL Open Font License, from Google Fonts. Chosen to avoid the over-used defaults that make apps look machine-made. | 2026-11-25 |
+| D43 | **Plato-like play screen:** a panel for each side with its goal ("Capture 5 goats to win", "Trap all 3 tigers to win"), the active side marked "To play", capture slots for the tigers, goats-to-place count, a one-line hint, and a one-screen "How to play" card shown before the first game and from a "?" button. | 2026-11-25 |
+
+### One game or a platform? (decided 2026-11-25)
+
+Earlier decisions (D23, D25) describe one app that grows into a platform of many games, with the brand name still open. "Tiger & Goat" reads as the name of this one game. Two ways to reconcile:
+
+| Option | What it means |
+|---|---|
+| **A. Tiger & Goat is the first game's name; the platform brand stays open** | The store title is "Tiger & Goat" now. When more games arrive, they live under a separate brand, decided later. |
+| **B. Tiger & Goat is the app's name for good** | The app stays focused on this one game. Other games would be separate apps, or the name changes later (store titles can change; the permanent app identifier cannot). |
+
+**D44: you chose option A.** Tiger & Goat is the name of this first game and its store title. The app is still the multi-game platform from D23 and D25; its brand is decided later, still by week 11, because the permanent app identifier must carry the brand, not the game's name. Until then the project uses a neutral placeholder.
+
+### What changed in the trial
+
+- Tamil fonts and text removed; Fredoka and Figtree added.
+- New layout: wordmark and "?" button, tigers' panel, board, goats' panel, hint line, "New game" and "How to play".
+- The board now stretches taller on tall phones (up to 1.6×), filling the screen and spreading the rows apart for easier tapping.
+- The web preview server no longer lets browsers cache old builds.
+
+---
+
 ## Change log
 
 - **2026-11-14** — Document created from the first discussion.
@@ -846,3 +887,5 @@ Because every look lives in one theme resource (BUILD_PLAN task 5.1), adding a t
 - **2026-11-16** — Fixed tiger start confirmed (D35): top point plus the two centre points of the first row.
 - **2026-11-16** — Development tools installed (docs/SETUP.md); repository pushed to GitHub (public, your choice).
 - **2026-11-16** — Added section 22, visual design direction (D36–D39), with a starting palette, type candidates and a theme plan.
+- **2026-11-25** — Added section 23: global focus, English only (D40), name Tiger & Goat (D41), Fredoka and Figtree (D42), Plato-like play screen (D43). D7 and D30 replaced. Open question: one game or platform.
+- **2026-11-25** — D44: Tiger & Goat is the first game's name; the platform brand stays open (needed by week 11).
