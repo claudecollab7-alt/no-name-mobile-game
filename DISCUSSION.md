@@ -353,6 +353,7 @@ The server is the same `game/` project started in server mode, so it needs no fo
 | D34 | **Aadupuli starts on the classic 23-point board**, verified against your picture. More boards and piece-count options may be added later if needed. | 2026-11-16 |
 | D35 | **Fixed start confirmed:** tigers begin on the top point and the two centre points of the first row. | 2026-11-16 |
 | D36–D39 | Visual design: brass-and-wood board, pieces by shape and colour, light calm app, kolam patterns and unlockable themes. See [section 22](#22-visual-design-direction). D39 is narrowed by D40. | 2026-11-16 |
+| D46–D49 | App structure: four tabs, optional name and avatar, "Soon" items, phase 1 starts now. See [section 25](#25-app-structure-plato-style). | 2026-11-26 |
 | D45 | Default look is "Hill and meadow"; brass and wood becomes the Heirloom theme. See [section 24](#24-hill-and-meadow-look). | 2026-11-25 |
 | D40–D44 | Global focus: English only, Tiger & Goat as the first game's name, Fredoka and Figtree fonts, Plato-like play screen. See [section 23](#23-global-focus-and-the-name-tiger--goat). | 2026-11-25 |
 
@@ -925,6 +926,34 @@ Fonts stay Fredoka and Figtree (D42).
 
 ---
 
+## 25. App structure (Plato-style)
+
+Decided 2026-11-26 after sketching five screens in the meadow style: home, game page, result, profile and settings.
+
+### Decisions
+
+| # | Decision | Date |
+|---|---|---|
+| D46 | **Bottom tabs: Play · Daily · Friends · Profile.** Friends shows "coming soon" until online play arrives in release 2. | 2026-11-26 |
+| D47 | **Identity before accounts: an optional name and animal avatar**, kept on the phone. Players start instantly as "Player" and can change it any time in Profile. Nothing leaves the phone. | 2026-11-26 |
+| D48 | **Unready games and modes are shown, clearly marked "Soon"** (for example Mancala, Ludo, play a friend online). | 2026-11-26 |
+| D49 | **Phase 1 starts now in `game/`**, building the real project with these screens, rather than extending the throwaway trial. The trial's phone checks still happen. | 2026-11-26 |
+
+### Screen map
+
+| Tab or screen | Contents |
+|---|---|
+| **Play** (home) | Greeting with name and avatar; daily puzzle card with streak; game shelf with Tiger & Goat as a large illustrated card; smaller "Soon" cards |
+| Game page | Board illustration and one-line description; modes: against the computer (Easy, Medium, Hard), pass and play, play a friend online ("Soon"); play as goats, tigers or coin toss; big Play button; "?" opens How to play |
+| Play screen | The current trial screen: player panels, board, hint, pause menu |
+| Result | Winner headline, final board, three numbers (moves, goats lost, streak), one key-move note, Rematch, Switch sides, Home |
+| **Daily** | Today's puzzle and streak (puzzles themselves arrive in phase 4) |
+| **Friends** | "Coming soon" until release 2 |
+| **Profile** | Avatar, name, "playing since", totals, per-side record, badges, link to Settings |
+| Settings | Sound, vibration, move hints, reduce motion, board theme; back up progress ("Soon"), reset progress; How to play, privacy, credits and version |
+
+---
+
 ## Change log
 
 - **2026-11-14** — Document created from the first discussion.
@@ -944,3 +973,4 @@ Fonts stay Fredoka and Figtree (D42).
 - **2026-11-25** — Added section 23: global focus, English only (D40), name Tiger & Goat (D41), Fredoka and Figtree (D42), Plato-like play screen (D43). D7 and D30 replaced. Open question: one game or platform.
 - **2026-11-25** — D44: Tiger & Goat is the first game's name; the platform brand stays open (needed by week 11).
 - **2026-11-25** — Added section 24: "Hill and meadow" chosen as the default look (D45), with palette, pieces and updated theme plan.
+- **2026-11-26** — Added section 25: Plato-style app structure and screen map (D46–D49); phase 1 begins in `game/`.

@@ -2,16 +2,16 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "trial-web",
+      "name": "app-web-phone",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["-I", "trial/tools/serve.py", "8060", "127.0.0.1", "trial/build/web"],
-      "port": 8060
+      "runtimeArgs": ["-I", "tools/serve.py", "8061", "0.0.0.0", "game/build/web"],
+      "port": 8061
     },
     {
-      "name": "trial-web-phone",
+      "name": "trial-web",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["-I", "trial/tools/serve.py", "8061", "0.0.0.0", "trial/build/web"],
-      "port": 8061
+      "runtimeArgs": ["-I", "tools/serve.py", "8060", "127.0.0.1", "trial/build/web"],
+      "port": 8060
     }
   ]
 }

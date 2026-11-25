@@ -33,3 +33,6 @@ desktop.ini
 .DS_Store
 .vscode/
 .idea/
+
+# Test reports (gdUnit4)
+game/reports/

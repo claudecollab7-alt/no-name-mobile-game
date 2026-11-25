@@ -1,0 +1,287 @@
+extends Node2D
+## Draws the "hill and meadow" board (DISCUSSION.md section 24), owns the piece nodes
+## and turns taps into moves. The board is a place: the tigers' cave sits on the summit,
+## the paths are worn into a sandy hill, and the goats come up from the meadow.
+
+signal played(kind: String)  ## "place", "move" or "capture"
+signal changed
+signal before_move(state_before)  ## A human move is about to be played; used for undo.
+
+const R := preload("res://games/aadupuli/rules/aadupuli_rules.gd")
+const Piece := preload("res://games/aadupuli/board/piece.gd")
+
+const RIDGE := Color("#C9DCAE")
+const SUN := Color("#F6C66B")
+const BIRD := Color("#647A58")
+const SAND := Color("#EBD5A8")
+const SAND_EDGE := Color("#D9BE88")
+const CAVE := Color("#3A2A1E")
+const GRASS := Color("#6E9A4C")
+const PATH_EDGE := Color("#D5B47D")
+const PATH := Color("#FBF1DA")
+const STONE := Color("#B48D55")
+const HINT := Color("#FFFFFF")
+
+const SRC_MIN := Vector2(16, 22)
+const SRC_SIZE := Vector2(508, 327)
+const MARGIN := 40.0  ## Space around the lines for the hill, in board-picture units.
+const TIGER_R := 17.0  ## Piece sizes in board-picture units (closest points are 32 apart).
+const GOAT_R := 15.0
+const TAP_R := 30.0
+const MAX_STRETCH := 1.6
+
+var state: R.State
+var plank := Rect2()
+var unit := 1.0  ## Screen pixels per board-picture unit, horizontally (also sizes pieces and lines).
+var unit_y := 1.0  ## Vertical scale; can exceed unit on tall screens.
+var origin := Vector2.ZERO
+var pieces := {}  ## point -> Piece node
+var selected := -1
+var targets := {}  ## destination point -> move, for the selected piece or for placement
+var busy := false
+var interactive := true  ## False for the result screen and while the computer thinks.
+var show_hints := true
+var reduce_motion := false
+var _time := 0.0
+
+
+func new_game(options: Dictionary = {}) -> void:
+	set_state(R.new_game(options))
+
+
+## Shows any position without animation (new game, restored game, result screen).
+func set_state(s: R.State) -> void:
+	for p: int in pieces:
+		pieces[p].queue_free()
+	pieces.clear()
+	state = s
+	for t in state.tigers:
+		_spawn(t, true)
+	for p in R.POINT_COUNT:
+		if R.goat_at(state, p):
+			_spawn(p, false)
+	_clear_selection()
+	_refresh_targets()
+	changed.emit()
+
+
+## Plays a move chosen elsewhere (the computer), with the usual animation and sound.
+func play_move(m: int) -> void:
+	_play(m)
+
+
+func layout(area: Vector2) -> void:
+	var full := SRC_SIZE + Vector2(MARGIN, MARGIN) * 2.0
+	unit = minf(area.x / full.x, area.y / full.y)
+	# On tall phones, stretch the board vertically (up to MAX_STRETCH) instead of
+	# leaving empty bands; it also spreads the rows apart for easier tapping.
+	unit_y = minf(area.y / full.y, unit * MAX_STRETCH)
+	var size := Vector2(full.x * unit, full.y * unit_y)
+	plank = Rect2((area - size) / 2.0, size)
+	origin = plank.position + Vector2(MARGIN * unit, MARGIN * unit_y)
+	for p: int in pieces:
+		var piece: Piece = pieces[p]
+		piece.position = point_pos(p)
+		piece.radius = (TIGER_R if piece.is_tiger else GOAT_R) * unit
+	queue_redraw()
+
+
+func point_pos(i: int) -> Vector2:
+	return _sp(R.POINTS[i])
+
+
+## Board-picture coordinates to screen coordinates.
+func _sp(v: Vector2) -> Vector2:
+	return origin + Vector2((v.x - SRC_MIN.x) * unit, (v.y - SRC_MIN.y) * unit_y)
+
+
+func _process(delta: float) -> void:
+	_time += delta
+	if not targets.is_empty():
+		queue_redraw()  # Only the hint pulse animates; skip redraws when there is none.
+
+
+func _draw() -> void:
+	if plank.size == Vector2.ZERO:
+		return
+	_draw_scene()
+	for line: Array in R.LINES:
+		var pts := PackedVector2Array()
+		for i: int in line:
+			pts.append(point_pos(i))
+		draw_polyline(pts, PATH_EDGE, 11.0 * unit, true)
+		draw_polyline(pts, PATH, 5.5 * unit, true)
+	for i in R.POINT_COUNT:
+		draw_circle(point_pos(i), 5.5 * unit, STONE, true, -1.0, true)
+	var pulse := 0.5 + 0.5 * sin(_time * 3.4)
+	for p: int in targets:
+		var c := point_pos(p)
+		draw_circle(c, (8.5 + 2.5 * pulse) * unit, Color(HINT, 0.45 + 0.4 * pulse), true, -1.0, true)
+
+
+func _draw_scene() -> void:
+	# Setting sun behind a far green ridge, and two birds.
+	draw_circle(_sp(Vector2(486, 10)), 24.0 * unit, SUN, true, -1.0, true)
+	var ridge := _path([Vector2(-60, 400)], [
+		[Vector2(40, 0), Vector2(170, 32)], [Vector2(270, 62), Vector2(380, 26)],
+		[Vector2(490, -10), Vector2(600, 52)]])
+	ridge.append(_sp(Vector2(600, 400)))
+	draw_colored_polygon(ridge, RIDGE)
+	for b: Vector2 in [Vector2(70, 26), Vector2(108, 12)]:
+		var s := 8.0  # A gull: two wings arching up from the body.
+		var wing := PackedVector2Array()
+		for v: Vector2 in [Vector2(-s, -s * 0.1), Vector2(-s * 0.55, -s * 0.5), Vector2(-s * 0.15, -s * 0.3), Vector2(0, 0),
+				Vector2(s * 0.15, -s * 0.3), Vector2(s * 0.55, -s * 0.5), Vector2(s, -s * 0.1)]:
+			wing.append(_sp(b + v))
+		draw_polyline(wing, BIRD, 2.0 * unit, true)
+	# The sandy hill: a broad plateau carrying the rows, rising to a summit at the apex.
+	var hill := _path([Vector2(-26, 380)], [
+		[Vector2(-34, 180), Vector2(-16, 80)], [Vector2(-8, 60), Vector2(40, 60)],
+		[Vector2(200, 58), Vector2(248, 18)], [Vector2(278, -8), Vector2(308, 18)],
+		[Vector2(356, 58), Vector2(516, 60)], [Vector2(564, 60), Vector2(572, 80)],
+		[Vector2(590, 180), Vector2(582, 380)]])
+	draw_colored_polygon(hill, SAND)
+	hill.append(hill[0])
+	draw_polyline(hill, SAND_EDGE, 2.5 * unit, true)
+	# The tigers' cave on the summit, just behind the top point.
+	var cave := _path([Vector2(250, 12)], [[Vector2(278, -26), Vector2(306, 12)]])
+	draw_colored_polygon(cave, CAVE)
+	# Meadow grass along the foot of the hill.
+	for x: float in [-14.0, 30.0, 96.0, 150.0, 214.0, 262.0, 300.0, 376.0, 430.0, 490.0, 548.0]:
+		var base := Vector2(x, 381)
+		var tuft := PackedVector2Array()
+		for k in 7:
+			var dx := k * 3.0
+			tuft.append(_sp(base + Vector2(dx, -12.0 if k % 2 == 1 else 0.0) + Vector2(0, -4.0 if k == 3 else 0.0)))
+		draw_polyline(tuft, GRASS, 2.4 * unit, true)
+
+
+## Builds a closed outline from a start point and quadratic segments [control, end],
+## in board-picture coordinates.
+func _path(start: Array, segments: Array) -> PackedVector2Array:
+	var out := PackedVector2Array()
+	var p0: Vector2 = start[0]
+	out.append(_sp(p0))
+	for seg: Array in segments:
+		var c: Vector2 = seg[0]
+		var p1: Vector2 = seg[1]
+		for i in range(1, 13):
+			var t := i / 12.0
+			out.append(_sp(p0.lerp(c, t).lerp(c.lerp(p1, t), t)))
+		p0 = p1
+	return out
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if busy or state == null or not interactive:
+		return
+	var mb := event as InputEventMouseButton
+	if mb == null or not mb.pressed or mb.button_index != MOUSE_BUTTON_LEFT:
+		return
+	var local := make_input_local(event) as InputEventMouseButton
+	_tap(_nearest_point(local.position))
+	get_viewport().set_input_as_handled()
+
+
+func _nearest_point(pos: Vector2) -> int:
+	var best := -1
+	var best_d := TAP_R * unit
+	for i in R.POINT_COUNT:
+		var d := pos.distance_to(point_pos(i))
+		if d < best_d:
+			best_d = d
+			best = i
+	return best
+
+
+func _tap(p: int) -> void:
+	if p < 0 or R.result(state) != R.ONGOING:
+		_clear_selection()
+		_refresh_targets()
+		return
+	if targets.has(p):
+		before_move.emit(state)
+		_play(targets[p])
+		return
+	var own := R.tiger_at(state, p) if state.turn == R.TIGER else (R.goat_at(state, p) and state.in_hand == 0)
+	if own and p != selected:
+		_select(p)
+	else:
+		_clear_selection()
+		_refresh_targets()
+
+
+func _select(p: int) -> void:
+	_clear_selection()
+	selected = p
+	pieces[p].selected = true
+	_refresh_targets()
+
+
+func _clear_selection() -> void:
+	if selected >= 0 and pieces.has(selected):
+		pieces[selected].selected = false
+	selected = -1
+
+
+func _refresh_targets() -> void:
+	targets.clear()
+	if state != null and interactive and R.result(state) == R.ONGOING:
+		var placing := state.turn == R.GOAT and state.in_hand > 0
+		for m: int in R.legal_moves(state):
+			if (placing and show_hints) or R.move_from(m) == selected:
+				targets[R.move_to(m)] = m
+	queue_redraw()
+
+
+func _play(m: int) -> void:
+	var from := R.move_from(m)
+	var to := R.move_to(m)
+	var over := R.move_over(m)
+	state = R.apply(state, m)
+	_clear_selection()
+	if from == R.NONE:
+		var goat := _spawn(to, false)
+		goat.scale = Vector2(0.3, 0.3)
+		create_tween().tween_property(goat, "scale", Vector2.ONE, 0.2).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		played.emit("place")
+	else:
+		var piece: Piece = pieces[from]
+		pieces.erase(from)
+		pieces[to] = piece
+		busy = true
+		var t := create_tween()
+		var speed := 0.5 if reduce_motion else 1.0
+		t.tween_property(piece, "position", point_pos(to), (0.32 if over != R.NONE else 0.2) * speed) \
+			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		t.finished.connect(func() -> void: busy = false)
+		if over != R.NONE:
+			var victim: Piece = pieces[over]
+			pieces.erase(over)
+			var v := create_tween().set_parallel(true)
+			v.tween_property(victim, "scale", Vector2(1.5, 1.5), 0.22).set_delay(0.16)
+			v.tween_property(victim, "modulate:a", 0.0, 0.22).set_delay(0.16)
+			v.chain().tween_callback(victim.queue_free)
+			played.emit("capture")
+		else:
+			played.emit("move")
+	_refresh_targets()
+	changed.emit()
+
+
+func _spawn(p: int, tiger: bool) -> Piece:
+	var piece := Piece.new()
+	piece.is_tiger = tiger
+	piece.radius = (TIGER_R if tiger else GOAT_R) * unit
+	piece.position = point_pos(p)
+	piece.z_index = 2 if tiger else 1
+	piece.breathe = not reduce_motion
+	add_child(piece)
+	pieces[p] = piece
+	return piece
+
+
+## Recomputes the glowing points, e.g. after the computer's move hands the turn back.
+func refresh_targets() -> void:
+	_clear_selection()
+	_refresh_targets()

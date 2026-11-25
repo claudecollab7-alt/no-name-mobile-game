@@ -441,13 +441,13 @@ Board and pieces are drawn in code. AI-generated images are used only for backgr
 
 ### Phase 1 — rules, board, pass-and-play
 
-- [ ] 1.1 Project set-up and test runner
-- [ ] 1.2 Board data and printout
-- [ ] 1.3 Rules
-- [ ] 1.4 Rule tests and golden games
-- [ ] 1.5 Shell skeleton
-- [ ] 1.6 Board view
-- [ ] 1.7 Pass-and-play — **Checkpoint A**
+- [x] 1.1 Project set-up and test runner (2026-11-26: `game/`, gdUnit4 6.2.2, `tools/run_tests.sh`)
+- [x] 1.2 Board data (2026-11-26; verified against your picture earlier, printout skipped)
+- [x] 1.3 Rules (2026-11-26, including the no-repeat rule and save/load)
+- [ ] 1.4 Rule tests and golden games (22 rule tests pass; the 10 golden games file is still to do)
+- [x] 1.5 Shell (2026-11-26: four tabs, home, game page, play, result, daily, friends, profile, settings; see DISCUSSION.md section 25)
+- [x] 1.6 Board view (Hill and meadow, from the trial)
+- [x] 1.7 Pass-and-play — **Checkpoint A** reached in the browser and in tests (2026-11-26); still to confirm on a phone
 
 ### Phase 2 — computer opponents
 
@@ -455,7 +455,7 @@ Board and pieces are drawn in code. AI-generated images are used only for backgr
 - [ ] 2.2 Position scoring
 - [ ] 2.3 Three levels
 - [ ] 2.4 Self-play table; capture target chosen
-- [ ] 2.5 Versus-computer mode — **Checkpoint B**
+- [ ] 2.5 Versus-computer mode — **Checkpoint B** (screen, levels, thinking indicator and undo built with an interim opponent 2026-11-26; real opponent work 2.1–2.4 still to do)
 
 ### Phase 3 — tutorial, first run, text
 
@@ -510,6 +510,7 @@ Add one line per working session: date, task, result, anything the next session 
 | 2026-11-16 | Plan written | — | Godot version not yet pinned; board not yet verified |
 | 2026-11-16 | Board verified | Matches the draft exactly | Picture saved at docs/board-reference.png |
 | 2026-11-16 | Tiger start confirmed | Points 0, 3 and 4 | Nothing about the board is open now |
+| 2026-11-26 | Phase 1 started in `game/` | Rules with 22 tests, app shell with all screens, interim computer opponent, app walk-through test; all 26 tests pass; web and Android builds work | Remaining in phase 1: golden games file; phone checks. Phone server is now `app-web-phone` on port 8061 |
 | 2026-11-25 | Trial redesign | Tiger & Goat, English only, Plato-like screen, "Hill and meadow" look | Decisions D40–D45 in DISCUSSION.md sections 23–24 |
 | 2026-11-19 | Trial T0.1–T0.3, T0.6, T0.7 | Playable board in brass and wood; exports work; look-ahead 6 moves in 1 s on the laptop's browser | Phone checks outstanding. Run the web build with the `trial-web` preview (`.claude/launch.json`) |
 | 2026-11-16 | Design direction | Brass-and-wood board, light app, shapes plus colour, kolam decoration | Starting palette in DISCUSSION.md section 22 |

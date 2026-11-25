@@ -1,0 +1,42 @@
+; Tiger & Goat: the first game of the board-games platform (DISCUSSION.md sections 20-25).
+
+config_version=5
+
+[application]
+
+config/name="Tiger & Goat"
+config/description="Classic hunt-and-trap board game: three tigers against fifteen goats."
+run/main_scene="res://main.tscn"
+config/features=PackedStringArray("4.7")
+config/icon="res://icon.svg"
+config/quit_on_go_back=false
+
+[autoload]
+
+Store="*res://shell/store.gd"
+Sfx="*res://shell/sfx.gd"
+
+[display]
+
+window/size/viewport_width=1080
+window/size/viewport_height=1920
+window/size/window_width_override=432
+window/size/window_height_override=768
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+window/handheld/orientation=1
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/gdUnit4/plugin.cfg")
+
+[input_devices]
+
+pointing/emulate_mouse_from_touch=true
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/vram_compression/import_etc2_astc=true
+environment/defaults/default_clear_color=Color(0.902, 0.937, 0.855, 1)
