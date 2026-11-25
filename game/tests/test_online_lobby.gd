@@ -1,0 +1,152 @@
+extends GdUnitTestSuite
+## Online-play logic without networking: rooms, quick match, moves, timer, chat, rematch.
+
+const R := preload("res://games/aadupuli/rules/aadupuli_rules.gd")
+
+var lobby: OnlineLobby
+var now := 1000
+
+
+func before_test() -> void:
+	lobby = OnlineLobby.new(42)
+	now = 1000
+
+
+func _hello(peer: int, name := "Ana") -> Array:
+	return lobby.handle(peer, {"t": "hello", "v": OnlineLobby.PROTOCOL, "name": name, "avatar": "goat", "colour": 1}, now)
+
+
+func _to(out: Array, peer: int, t: String) -> Dictionary:
+	for pair: Array in out:
+		if pair[0] == peer and pair[1]["t"] == t:
+			return pair[1]
+	return {}
+
+
+func _start_room(side := "goats") -> Array:
+	_hello(1, "Ana")
+	_hello(2, "Ben")
+	var code: String = _to(lobby.handle(1, {"t": "create", "side": side}, now), 1, "room")["code"]
+	return lobby.handle(2, {"t": "join", "code": code}, now)
+
+
+func test_hello_gives_a_token_and_checks_the_protocol_version() -> void:
+	assert_str(_to(_hello(1), 1, "welcome")["token"]).is_not_empty()
+	var old := lobby.handle(9, {"t": "hello", "v": 0}, now)
+	assert_str(_to(old, 9, "error")["code"]).is_equal("update_needed")
+
+
+func test_names_are_filtered() -> void:
+	assert_str(_to(_hello(1, "  Swift   Goat!! "), 1, "welcome")["name"]).is_equal("Swift Goat")
+	assert_str(_to(_hello(2, "sh1t head"), 2, "welcome")["name"]).is_equal("Player")
+	assert_str(NameFilter.clean("Peacock")).is_equal("Peacock")
+
+
+func test_create_and_join_a_private_room_starts_the_game_with_chosen_sides() -> void:
+	var out := _start_room("tigers")
+	assert_str(_to(out, 1, "start")["you"]).is_equal("tigers")
+	assert_str(_to(out, 2, "start")["you"]).is_equal("goats")
+	assert_str(_to(out, 2, "start")["opponent"]["name"]).is_equal("Ana")
+	assert_bool(_to(out, 1, "start")["private"]).is_true()
+
+
+func test_joining_a_wrong_code_or_full_room_is_refused() -> void:
+	_hello(3)
+	assert_str(_to(lobby.handle(3, {"t": "join", "code": "ZZZZZ"}, now), 3, "error")["code"]).is_equal("no_room")
+	var out := _start_room()
+	var code: String = _to(out, 1, "start")["code"]
+	assert_str(_to(lobby.handle(3, {"t": "join", "code": code}, now), 3, "error")["code"]).is_equal("room_full")
+
+
+func test_quick_match_pairs_two_searchers_and_respects_side_wishes() -> void:
+	_hello(1)
+	_hello(2)
+	assert_dict(_to(lobby.handle(1, {"t": "search", "side": "tigers"}, now), 1, "searching")).is_not_empty()
+	var out := lobby.handle(2, {"t": "search", "side": "any"}, now)
+	assert_str(_to(out, 1, "start")["you"]).is_equal("tigers")
+	assert_str(_to(out, 2, "start")["you"]).is_equal("goats")
+	assert_bool(_to(out, 1, "start")["private"]).is_false()
+
+
+func test_two_players_wanting_the_same_side_are_not_paired() -> void:
+	_hello(1)
+	_hello(2)
+	lobby.handle(1, {"t": "search", "side": "goats"}, now)
+	assert_dict(_to(lobby.handle(2, {"t": "search", "side": "goats"}, now), 2, "searching")).is_not_empty()
+
+
+func test_server_applies_legal_moves_and_refuses_moves_out_of_turn() -> void:
+	_start_room("goats")
+	var place := R.encode(R.NONE, 19, R.NONE)
+	var wrong := lobby.handle(2, {"t": "move", "m": place}, now)  # Ben is tigers.
+	assert_dict(_to(wrong, 2, "sync")).is_not_empty()
+	var ok := lobby.handle(1, {"t": "move", "m": place}, now)
+	assert_int(_to(ok, 2, "moved")["m"]).is_equal(place)
+	var illegal := lobby.handle(2, {"t": "move", "m": R.encode(0, 22, R.NONE)}, now)
+	assert_dict(_to(illegal, 2, "sync")).is_not_empty()
+
+
+func test_chat_is_relayed_by_id_and_rate_limited() -> void:
+	_start_room()
+	assert_int(_to(lobby.handle(1, {"t": "chat", "id": 3}, now), 2, "chat")["id"]).is_equal(3)
+	assert_dict(_to(lobby.handle(1, {"t": "chat", "id": 4}, now + 500), 2, "chat")).is_empty()
+	assert_dict(_to(lobby.handle(1, {"t": "chat", "id": 99}, now + 5000), 2, "chat")).is_empty()
+
+
+func test_first_time_out_plays_a_random_move_and_the_second_forfeits() -> void:
+	_start_room("goats")
+	now += OnlineLobby.TURN_MS
+	var first := lobby.tick(now)
+	assert_str(_to(first, 1, "timeout")["side"]).is_equal("goats")
+	assert_dict(_to(first, 2, "moved")).is_not_empty()
+	# Tigers (Ben) reply, then goats (Ana) time out again.
+	var s: R.State = lobby.rooms.values()[0]["state"]
+	lobby.handle(2, {"t": "move", "m": R.legal_moves(s)[0]}, now)
+	now += OnlineLobby.TURN_MS
+	var second := lobby.tick(now)
+	assert_str(_to(second, 1, "end")["reason"]).is_equal("timeout")
+	assert_str(_to(second, 1, "end")["winner"]).is_equal("tigers")
+
+
+func test_resign_ends_the_game_and_rematch_swaps_sides() -> void:
+	_start_room("goats")
+	var end := lobby.handle(1, {"t": "resign"}, now)
+	assert_str(_to(end, 2, "end")["winner"]).is_equal("tigers")
+	assert_dict(_to(lobby.handle(1, {"t": "rematch"}, now), 2, "rematch_offer")).is_not_empty()
+	var again := lobby.handle(2, {"t": "rematch"}, now)
+	assert_str(_to(again, 1, "start")["you"]).is_equal("tigers")
+
+
+func test_disconnected_player_can_reconnect_with_their_token() -> void:
+	_start_room()
+	var token: String = lobby.players[1]["token"]
+	assert_dict(_to(lobby.disconnected(1, now), 2, "opponent_away")).is_not_empty()
+	var back := lobby.handle(7, {"t": "hello", "v": OnlineLobby.PROTOCOL, "token": token}, now + 5000)
+	assert_dict(_to(back, 7, "start")).is_not_empty()
+	assert_dict(_to(back, 2, "opponent_back")).is_not_empty()
+
+
+func test_player_who_never_returns_loses_after_a_minute() -> void:
+	_start_room("goats")
+	lobby.disconnected(1, now)
+	var out := lobby.tick(now + OnlineLobby.RECONNECT_MS)
+	assert_str(_to(out, 2, "end")["reason"]).is_equal("left")
+	assert_str(_to(out, 2, "end")["winner"]).is_equal("tigers")
+	assert_bool(lobby.rooms.is_empty()).is_true()
+
+
+func test_full_game_over_the_lobby_ends_with_a_result() -> void:
+	_start_room("goats")
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 5
+	var ended := {}
+	for i in 400:
+		var room: Dictionary = lobby.rooms.values()[0]
+		var s: R.State = room["state"]
+		var mover := 1 if s.turn == R.GOAT else 2
+		var moves := R.legal_moves(s)
+		var out := lobby.handle(mover, {"t": "move", "m": moves[rng.randi_range(0, moves.size() - 1)]}, now)
+		ended = _to(out, 1, "end")
+		if not ended.is_empty():
+			break
+	assert_dict(ended).is_not_empty()

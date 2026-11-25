@@ -15,6 +15,7 @@ config/quit_on_go_back=false
 
 Store="*res://shell/store.gd"
 Sfx="*res://shell/sfx.gd"
+Online="*res://shell/online.gd"
 
 [display]
 

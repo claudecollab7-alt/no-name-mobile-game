@@ -1,7 +1,9 @@
 extends AppScreen
 ## Settings: game options, progress, and about (DISCUSSION.md section 25).
 
-const VERSION := "0.1.0"
+const VERSION := "0.2.0"
+
+var _server_value: Label
 
 
 func _ready() -> void:
@@ -16,6 +18,12 @@ func _ready() -> void:
 	_toggle(game, "Reduce motion", "reduce_motion")
 	_row(game, "Board theme", Ui.label("Hill and meadow", 28, Ui.MUTED), func() -> void: _themes())
 	col.add_child(game.get_parent().get_parent())
+
+	col.add_child(section("Online"))
+	var online := _group()
+	_server_value = Ui.label(_server_text(), 26, Ui.MUTED)
+	_row(online, "Game server", _server_value, _edit_server)
+	col.add_child(online.get_parent().get_parent())
 
 	col.add_child(section("Progress"))
 	var progress := _group()
@@ -93,8 +101,29 @@ func _confirm_reset() -> void:
 
 
 func _privacy() -> void:
-	Modal.show(app, "Privacy", [Modal.text("Tiger & Goat keeps everything on this phone: your name, avatar, settings and stats. Nothing is sent anywhere, there are no ads, and there's no account. If that ever changes, this page will say exactly what and why before it happens.")], [["Close", func() -> void: pass, true]])
+	Modal.show(app, "Privacy", [Modal.text("Playing alone or pass and play, everything stays on this phone: your name, avatar, settings and stats.\n\nWhen you play online, the game server receives your name, avatar and moves so your opponent can see them, plus a random code that lets you rejoin a game if your connection drops. The server keeps these only while you're connected and for a minute after; nothing is stored, sold or used for ads. There's no account and no free-text chat.")], [["Close", func() -> void: pass, true]])
 
 
 func _credits() -> void:
 	Modal.show(app, "Credits", [Modal.text("Tiger & Goat " + VERSION + "\nA traditional hunt-and-trap game for two.\n\nFonts: Fredoka and Figtree (SIL Open Font License).\nIcons: Tabler Icons (MIT License).\nSounds: made for this game.\nBuilt with the Godot Engine (MIT License).")], [["Close", func() -> void: pass, true]])
+
+
+
+func _server_text() -> String:
+	var url := Online.server_url()
+	return url.trim_prefix("ws://").trim_prefix("wss://") if url != "" else tr("Not set")
+
+
+func _edit_server() -> void:
+	var field := LineEdit.new()
+	field.text = str(Store.data["online"]["server"])
+	field.placeholder_text = "192.168.1.10:9080"
+	field.custom_minimum_size.y = 110
+	Modal.show(app, "Game server", [Modal.text("The address of the Tiger & Goat server. Leave empty to use the default."), field], [
+		["Cancel", func() -> void: pass],
+		["Save", func() -> void:
+			Store.data["online"]["server"] = field.text.strip_edges()
+			Store.save_data()
+			Online.go_offline()
+			_server_value.text = _server_text(), true],
+	])

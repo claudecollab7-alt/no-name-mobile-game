@@ -23,7 +23,7 @@ The short version of everything decided so far. Details and reasons are in the n
 | First game | Aadupuli, sold as "Tigers & Goats". Rules in section 17. |
 | Second game | Mancala, with Pallanguzhi as the unique variant. |
 | Release 1 (about month 4) | Shell plus Aadupuli: versus computer, pass-and-play, tutorial, daily puzzle. No online play, no money features. |
-| Later releases | 2: online with friends. 3: Mancala and Pallanguzhi. 4: matchmaking, ranks, coins, cosmetics, opt-in ads. |
+| Later releases | Online play (friends and quick match) is built and in testing (section 26). Then Mancala and Pallanguzhi; then ranks, coins, cosmetics, opt-in ads. |
 | Name | **Tiger & Goat** is the first game's name and its store title. The platform brand (and the permanent app identifier) is still open (D44). |
 | Languages | English only at launch; text system ready for more languages later. |
 | Platforms | Android and web first; iPhone later. |
@@ -353,6 +353,7 @@ The server is the same `game/` project started in server mode, so it needs no fo
 | D34 | **Aadupuli starts on the classic 23-point board**, verified against your picture. More boards and piece-count options may be added later if needed. | 2026-11-16 |
 | D35 | **Fixed start confirmed:** tigers begin on the top point and the two centre points of the first row. | 2026-11-16 |
 | D36–D39 | Visual design: brass-and-wood board, pieces by shape and colour, light calm app, kolam patterns and unlockable themes. See [section 22](#22-visual-design-direction). D39 is narrowed by D40. | 2026-11-16 |
+| D50–D54 | Online play: filtered names, 45-second turns, server on this computer for now, computer offer after 20 s, online before Mancala. See [section 26](#26-online-play). | 2026-11-26 |
 | D46–D49 | App structure: four tabs, optional name and avatar, "Soon" items, phase 1 starts now. See [section 25](#25-app-structure-plato-style). | 2026-11-26 |
 | D45 | Default look is "Hill and meadow"; brass and wood becomes the Heirloom theme. See [section 24](#24-hill-and-meadow-look). | 2026-11-25 |
 | D40–D44 | Global focus: English only, Tiger & Goat as the first game's name, Fredoka and Figtree fonts, Plato-like play screen. See [section 23](#23-global-focus-and-the-name-tiger--goat). | 2026-11-25 |
@@ -954,6 +955,48 @@ Decided 2026-11-26 after sketching five screens in the meadow style: home, game 
 
 ---
 
+## 26. Online play
+
+Built 2026-11-26, ahead of Mancala: you asked for online play next, so it moves before the second game in the roadmap (D54).
+
+### Decisions
+
+| # | Decision | Date |
+|---|---|---|
+| D50 | **Players see each other's chosen names, passed through a word filter.** Letters, digits and single spaces, 2–16 characters; blocked words are caught even when written with digits or symbols. Filters miss things, so a report button and someone to review reports will be needed before public launch. | 2026-11-26 |
+| D51 | **45 seconds per move online.** The first time a player runs out, a random legal move is played for them and both players are told; the second time, they lose. | 2026-11-26 |
+| D52 | **The game server runs on this computer for testing.** Phones on the same Wi-Fi can play each other. Putting it on the internet is a later step (see below). | 2026-11-26 |
+| D53 | **Empty quick match: after 20 seconds, offer the computer** while still searching, clearly labelled (confirms D5). | 2026-11-26 |
+| D54 | **Online play comes before Mancala.** Roadmap releases 2 and 3 now hold friends online *and* quick match; Mancala follows. | 2026-11-26 |
+
+### What's built
+
+- **Find a player** (quick match), with a side wish: any, tigers or goats. Two players wanting the same side aren't paired.
+- **Invite a friend:** create a room, get a 5-character code (no 0/O or 1/I), copy an invite to paste into WhatsApp. Choose random, tigers or goats.
+- **Join a friend** by typing the code.
+- **Online game:** the server checks every move with the same rules code as the app; illegal or out-of-turn moves are refused and the true position is sent back. Countdown on the turn badge. Chat card with 6 faces and 8 phrases, sent as numbers only, at most one every 1.5 seconds, and a switch to hide the other player's messages. Resign (with confirmation). Leaving counts as a loss.
+- **Connection drops:** the app reconnects by itself; the server holds the seat for 60 seconds, tells the other player, and gives the game away if the player doesn't return.
+- **Result:** online wording ("Riya wins", "You resigned", "ran out of time twice", "left the game"), rematch request with sides swapped, online wins counted separately.
+- **Privacy text** updated: online play sends name, avatar and moves to the server; nothing is stored afterwards.
+- **Protocol version** check, so an old app is asked to update instead of misbehaving.
+
+### Hostinger question (answered 2026-11-26)
+
+- No database is needed yet: rooms and games live in the server's memory. A database becomes useful with accounts, friends lists or rankings.
+- Hostinger's regular web hosting runs PHP pages on request and can't run a game server that keeps live connections open. A Hostinger **VPS** could host both the server and, later, a database.
+- Using the database of another project would mix two projects' data and security; keep them separate.
+
+### Before people outside your Wi-Fi can play
+
+| Step | Why |
+|---|---|
+| Rent a small VPS (about $5 a month) and run the server there | Reachable from anywhere |
+| A domain name and a secure connection (wss://) | Browsers and Play Store apps expect encrypted connections |
+| Report and block buttons, and a way to review reports | Needed once strangers' names are visible (D50) |
+| Server restarts without losing games | Currently a restart drops every game in progress |
+
+---
+
 ## Change log
 
 - **2026-11-14** — Document created from the first discussion.
@@ -973,4 +1016,5 @@ Decided 2026-11-26 after sketching five screens in the meadow style: home, game 
 - **2026-11-25** — Added section 23: global focus, English only (D40), name Tiger & Goat (D41), Fredoka and Figtree (D42), Plato-like play screen (D43). D7 and D30 replaced. Open question: one game or platform.
 - **2026-11-25** — D44: Tiger & Goat is the first game's name; the platform brand stays open (needed by week 11).
 - **2026-11-25** — Added section 24: "Hill and meadow" chosen as the default look (D45), with palette, pieces and updated theme plan.
+- **2026-11-26** — Added section 26: online play built (rooms, codes, quick match, chat, timer, reconnect); D50–D54; Hostinger answer.
 - **2026-11-26** — Added section 25: Plato-style app structure and screen map (D46–D49); phase 1 begins in `game/`.

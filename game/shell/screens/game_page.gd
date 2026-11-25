@@ -36,9 +36,9 @@ func _ready() -> void:
 	(cpu.get_meta("words") as VBoxContainer).add_child(chips)
 	col.add_child(cpu)
 	col.add_child(_mode_card("pass", "users", "Pass and play", "Two people, one phone"))
-	var online := _mode_card("online", "world", "Play a friend online", "")
-	online.modulate = Color(1, 1, 1, 0.6)
-	(online.get_meta("row") as HBoxContainer).add_child(Ui.soon_pill())
+	var online := _mode_card("online", "world", "Play online", "Find a player, or invite a friend with a code")
+	(online.get_meta("row") as HBoxContainer).add_child(Ui.icon("chevron-right", 48, Ui.MUTED))
+	Ui.on_tap(online, func() -> void: app.push(load("res://shell/screens/online_screen.gd").new()))
 	col.add_child(online)
 
 	_side_row = Ui.hbox(14)

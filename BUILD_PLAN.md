@@ -510,6 +510,7 @@ Add one line per working session: date, task, result, anything the next session 
 | 2026-11-16 | Plan written | — | Godot version not yet pinned; board not yet verified |
 | 2026-11-16 | Board verified | Matches the draft exactly | Picture saved at docs/board-reference.png |
 | 2026-11-16 | Tiger start confirmed | Points 0, 3 and 4 | Nothing about the board is open now |
+| 2026-11-26 | Online play (pulled forward, D54) | Server (`game/server/`, `tools/run_server.sh`), rooms with codes, quick match, server-checked moves, 45 s turns, chat faces and phrases, reconnect, rematch; 16 new tests including real-WebSocket end-to-end and app-screen tests; 42 tests pass; played live in the browser against a second connection | Server runs on this computer only; internet hosting, report/block and server restarts still to do |
 | 2026-11-26 | Phase 1 started in `game/` | Rules with 22 tests, app shell with all screens, interim computer opponent, app walk-through test; all 26 tests pass; web and Android builds work | Remaining in phase 1: golden games file; phone checks. Phone server is now `app-web-phone` on port 8061 |
 | 2026-11-25 | Trial redesign | Tiger & Goat, English only, Plato-like screen, "Hill and meadow" look | Decisions D40–D45 in DISCUSSION.md sections 23–24 |
 | 2026-11-19 | Trial T0.1–T0.3, T0.6, T0.7 | Playable board in brass and wood; exports work; look-ahead 6 moves in 1 s on the laptop's browser | Phone checks outstanding. Run the web build with the `trial-web` preview (`.claude/launch.json`) |

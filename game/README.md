@@ -9,6 +9,8 @@ The real game, Godot 4.7.2. Started 2026-11-26 (BUILD_PLAN.md phase 1, decision 
 | `shell/` | The app around the games: `app.gd` (tabs, screen stack, back button), `ui.gd` (style kit), `store.gd` (save file), `sfx.gd`, `modal.gd`, `screen.gd` |
 | `shell/screens/` | Home (Play tab), Daily, Friends, Profile, game page, play, result, settings |
 | `games/aadupuli/rules/` | The rules. Pure data, no screen code; the only place that knows what is legal |
+| `server/` | Online play: `lobby.gd` (all rules for rooms, matching, timer, chat; no networking) and `net_server.gd` (WebSocket front) |
+| `shared/` | Name filter |
 | `games/aadupuli/ai/` | Computer opponent (interim; phase 2 replaces it) |
 | `games/aadupuli/board/` | Board drawing ("Hill and meadow"), pieces, non-interactive preview |
 | `tests/` | gdUnit4 tests: every rule, plus an app walk-through |
@@ -40,6 +42,18 @@ godot --headless --path . --export-debug Android build/android/tiger-goat.apk
 ```
 
 Play on a phone on the same Wi-Fi: start the `app-web-phone` preview (`.claude/launch.json`) and open `http://<this computer's Wi-Fi address>:8061`.
+
+## Online server
+
+Start it (port 9080):
+
+```bash
+bash tools/run_server.sh
+```
+
+- The web build finds it automatically when served from this computer. On a phone app, set **Settings › Online › Game server** to this computer's Wi-Fi address, for example `10.125.113.231:9080`.
+- The first time, Windows may ask whether Godot may accept connections. Allowing it on private networks is enough for phones on your Wi-Fi.
+- Protocol: JSON text messages over WebSocket, version 1. See the message names in `server/lobby.gd`.
 
 ## Notes
 

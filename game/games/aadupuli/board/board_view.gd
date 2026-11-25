@@ -5,7 +5,8 @@ extends Node2D
 
 signal played(kind: String)  ## "place", "move" or "capture"
 signal changed
-signal before_move(state_before)  ## A human move is about to be played; used for undo.
+signal before_move(state_before)
+signal human_moved(move: int)  ## A move the player made by tapping (sent to the server online).  ## A human move is about to be played; used for undo.
 
 const R := preload("res://games/aadupuli/rules/aadupuli_rules.gd")
 const Piece := preload("res://games/aadupuli/board/piece.gd")
@@ -201,7 +202,9 @@ func _tap(p: int) -> void:
 		return
 	if targets.has(p):
 		before_move.emit(state)
-		_play(targets[p])
+		var m: int = targets[p]
+		_play(m)
+		human_moved.emit(m)
 		return
 	var own := R.tiger_at(state, p) if state.turn == R.TIGER else (R.goat_at(state, p) and state.in_hand == 0)
 	if own and p != selected:

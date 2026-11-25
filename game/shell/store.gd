@@ -25,8 +25,9 @@ func defaults() -> Dictionary:
 		"seen_rules": false,
 		"stats": {"played": 0, "wins": 0, "losses": 0, "streak": 0, "best_streak": 0,
 			"tiger_wins": 0, "tiger_losses": 0, "goat_wins": 0, "goat_losses": 0,
-			"pass_games": 0, "hardest": ""},
+			"pass_games": 0, "hardest": "", "online_wins": 0, "online_losses": 0},
 		"daily": {"streak": 0, "best": 0},
+		"online": {"token": "", "server": "", "muted": false, "search_side": "any", "room_side": "random"},
 	}
 
 
@@ -118,6 +119,10 @@ func record_game(mode: String, side: String, level: String, human_won: bool) -> 
 	s["played"] += 1
 	if mode == "pass":
 		s["pass_games"] += 1
+		save_data()
+		return
+	if mode == "online":
+		s["online_wins" if human_won else "online_losses"] += 1
 		save_data()
 		return
 	var key := "tiger_" if side == "tigers" else "goat_"

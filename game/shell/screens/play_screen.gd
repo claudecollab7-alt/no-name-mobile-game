@@ -1,7 +1,8 @@
 extends AppScreen
 ## The game itself: a panel per side with its goal, the board, a one-line hint (D43).
-## Modes: "computer" (human plays `human_side` against the interim opponent at `level`)
-## or "pass" (two people, one phone).
+## Modes: "computer" (human plays `human_side` against the interim opponent at `level`),
+## "pass" (two people, one phone) or "online" (against a person, through the server,
+## which checks every move; 45-second turns, set phrases and faces for chat).
 
 const R := preload("res://games/aadupuli/rules/aadupuli_rules.gd")
 const BoardView := preload("res://games/aadupuli/board/board_view.gd")
@@ -29,6 +30,10 @@ var _history: Array = []  ## States before each human move, for undo.
 var _thinking := false
 var _finished := false
 var _game_id := 0  ## Bumps on restart so a pending computer move is dropped.
+var opponent := {}  ## Online: {name, avatar, colour}
+var start_state := {}  ## Online: position sent by the server
+var _deadline := 0  ## Online: when the current turn runs out (ticks msec)
+var _notice_until := 0
 
 
 ## Five slots filling with fleeces as the tigers capture goats.
@@ -52,6 +57,17 @@ class CaptureDots extends Control:
 				draw_arc(c, s * 0.44, 0.0, TAU, 32, Color("#C8D6B4"), s * 0.1, true)
 
 
+## An online game, from the server's "start" message.
+static func create_online(msg: Dictionary) -> AppScreen:
+	var s: AppScreen = load("res://shell/screens/play_screen.gd").new()
+	s.mode = "online"
+	s.human_side = str(msg.get("you", "goats"))
+	s.opponent = msg.get("opponent", {})
+	s.start_state = msg.get("state", {})
+	s._deadline = Time.get_ticks_msec() + int(msg.get("turn_ms", 45000))
+	return s
+
+
 static func create(p_mode: String, p_level: String, p_side: String, p_tossed := false) -> AppScreen:
 	var s: AppScreen = load("res://shell/screens/play_screen.gd").new()
 	s.mode = p_mode
@@ -64,7 +80,18 @@ static func create(p_mode: String, p_level: String, p_side: String, p_tossed := 
 func _ready() -> void:
 	var col := page(false, 64, 40)
 	var title := "Pass and play" if mode == "pass" else tr("vs Computer · %s") % tr(LEVEL_NAMES.get(level, "Medium"))
-	col.add_child(top_bar(title, Ui.icon_button("help-circle", func() -> void: Modal.how_to_play(app))))
+	if mode == "online":
+		title = tr("vs %s") % str(opponent.get("name", "Player"))
+		var bar := Ui.hbox(24)
+		bar.add_child(Ui.icon_button("arrow-left", _confirm_leave))
+		var t := Ui.heading(title, 48)
+		t.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		t.clip_text = true
+		bar.add_child(t)
+		bar.add_child(Ui.icon_button("help-circle", func() -> void: Modal.how_to_play(app)))
+		col.add_child(bar)
+	else:
+		col.add_child(top_bar(title, Ui.icon_button("help-circle", func() -> void: Modal.how_to_play(app))))
 
 	var tparts := _player_chip(true)
 	_tiger_chip = tparts[0]
@@ -95,6 +122,9 @@ func _ready() -> void:
 	board.before_move.connect(func(s: R.State) -> void:
 		if mode == "computer":
 			_history.append(s))
+	board.human_moved.connect(func(m: int) -> void:
+		if mode == "online":
+			Online.send({"t": "move", "m": m}))
 
 	var gparts := _player_chip(false)
 	_goat_chip = gparts[0]
@@ -117,11 +147,19 @@ func _ready() -> void:
 	col.add_child(_hint)
 
 	var row := Ui.hbox(18)
-	row.add_child(Ui.button("Restart", _restart))
+	if mode == "online":
+		row.add_child(Ui.button("Chat", _open_chat))
+		row.add_child(Ui.button("Resign", _confirm_resign))
+		Online.message.connect(_on_online)
+	else:
+		row.add_child(Ui.button("Restart", _restart))
 	if mode == "computer":
 		row.add_child(Ui.button("Undo", _undo))
 	col.add_child(row)
-	board.new_game()
+	if mode == "online":
+		board.set_state(R.from_dict(start_state))
+	else:
+		board.new_game()
 	if tossed:
 		_hint.text = tr("Coin toss: you play the %s") % tr(human_side)
 
@@ -149,11 +187,15 @@ func _side_name(is_tiger: bool) -> String:
 	if mode != "computer":
 		return base
 	var mine := (human_side == "tigers") == is_tiger
-	return tr("You · %s") % tr(base) if mine else tr("Computer · %s") % tr(base)
+	if mine:
+		return tr("You · %s") % tr(base)
+	if mode == "online":
+		return "%s · %s" % [str(opponent.get("name", "Player")), tr(base)]
+	return tr("Computer · %s") % tr(base)
 
 
 func _human_turn() -> bool:
-	if mode != "computer":
+	if mode == "pass":
 		return true
 	return (board.state.turn == R.TIGER) == (human_side == "tigers")
 
@@ -168,7 +210,7 @@ func _on_changed() -> void:
 	_goat_chip.add_theme_stylebox_override("panel", Ui.box(Ui.PANEL, Ui.ACCENT if goat_active else Ui.LINE, 36, 4 if goat_active else 3, 22))
 	_tiger_pill.visible = tiger_active
 	_goat_pill.visible = goat_active
-	var pill_text := "Winner" if over else ("Your turn" if _human_turn() else "Thinking…")
+	var pill_text := "Winner" if over else ("Your turn" if _human_turn() else ("Their turn" if mode == "online" else "Thinking…"))
 	_tiger_pill.text = pill_text
 	_goat_pill.text = pill_text
 	_dots.count = s.captured
@@ -178,6 +220,14 @@ func _on_changed() -> void:
 	else:
 		_hand_count.text = str(R.goats_on_board(s))
 		_hand_caption.text = "on the hill"
+	if mode == "online":
+		board.interactive = not over and _human_turn()
+		if over:
+			_hint.text = "Game over"
+			return
+		if Time.get_ticks_msec() >= _notice_until:
+			_hint.text = "Your move" if _human_turn() else tr("Waiting for %s…") % str(opponent.get("name", "Player"))
+		return
 	if over:
 		_hint.text = "The tigers caught 5 goats." if res == R.TIGERS_WIN and s.captured >= s.capture_target else (
 			"The tigers are trapped." if res == R.GOATS_WIN else "The goats have no move left.")
@@ -243,3 +293,166 @@ func _finish(res: int) -> void:
 	await get_tree().create_timer(1.1).timeout
 	if is_inside_tree():
 		app.replace(ResultScreen.create(final_state, mode, level, human_side, tigers_won))
+
+
+
+# ---------- Online ----------
+
+func _process(_delta: float) -> void:
+	if mode != "online" or _finished or board == null or board.state == null:
+		return
+	var left := maxi(0, ceili((_deadline - Time.get_ticks_msec()) / 1000.0))
+	var text := (tr("Your turn · %d") if _human_turn() else tr("Their turn · %d")) % left
+	_tiger_pill.text = text
+	_goat_pill.text = text
+	if _notice_until != 0 and Time.get_ticks_msec() >= _notice_until:
+		_notice_until = 0
+		_on_changed()
+
+
+func _notice(text: String) -> void:
+	_hint.text = text
+	_notice_until = Time.get_ticks_msec() + 3500
+
+
+func _on_online(msg: Dictionary) -> void:
+	if not is_inside_tree() or _finished:
+		return
+	var them := str(opponent.get("name", "Player"))
+	match str(msg.get("t", "")):
+		"moved":
+			var server := R.from_dict(msg.get("state", {}))
+			if str(msg.get("by", "")) != human_side:
+				board.play_move(int(msg.get("m", -1)))
+			if R.position_key(board.state) != R.position_key(server) or board.state.moves_played != server.moves_played:
+				board.set_state(server)
+			else:
+				board.state.counts = server.counts
+			_deadline = Time.get_ticks_msec() + int(msg.get("turn_ms", 45000))
+			_on_changed()
+		"sync":
+			board.set_state(R.from_dict(msg.get("state", {})))
+			_deadline = Time.get_ticks_msec() + int(msg.get("turn_ms", 45000))
+		"timeout":
+			if str(msg.get("side", "")) == human_side:
+				_notice("Time ran out, so a move was played for you. Next time the game is lost.")
+			else:
+				_notice(tr("%s ran out of time. A move was played for them.") % them)
+		"chat":
+			if not bool(Store.data["online"]["muted"]):
+				_bubble(false, int(msg.get("id", -1)))
+		"opponent_away":
+			_notice(tr("%s lost connection. Waiting up to a minute for them…") % them)
+			_notice_until = Time.get_ticks_msec() + 60000
+		"opponent_back":
+			_notice(tr("%s is back.") % them)
+		"end":
+			_finish_online(msg)
+
+
+func _finish_online(msg: Dictionary) -> void:
+	_finished = true
+	board.interactive = false
+	var final_state := R.from_dict(msg.get("state", {}))
+	board.set_state(final_state)
+	var tigers_won := str(msg.get("winner", "")) == "tigers"
+	var human_won := (human_side == "tigers") == tigers_won
+	Store.record_game("online", human_side, "", human_won)
+	var delay := 1.1 if str(msg.get("reason", "")) in ["captured", "trapped", "stuck"] else 0.3
+	await get_tree().create_timer(delay).timeout
+	if is_inside_tree():
+		var r: AppScreen = ResultScreen.create(final_state, "online", "", human_side, tigers_won)
+		r.set("opponent", opponent)
+		r.set("reason", str(msg.get("reason", "")))
+		app.replace(r)
+
+
+func _confirm_leave() -> void:
+	if _finished:
+		app.pop()
+		return
+	Modal.show(app, "Leave this game?", [Modal.text("Leaving counts as a loss, and your opponent wins.")], [
+		["Stay", func() -> void: pass, true],
+		["Leave", func() -> void:
+			Online.send({"t": "leave"})
+			_finished = true
+			app.pop()],
+	])
+
+
+func _confirm_resign() -> void:
+	Modal.show(app, "Resign?", [Modal.text(tr("%s wins this game.") % str(opponent.get("name", "Player")))], [
+		["Keep playing", func() -> void: pass, true],
+		["Resign", func() -> void: Online.send({"t": "resign"})],
+	])
+
+
+func _open_chat() -> void:
+	var faces := Ui.hbox(14)
+	var phrases := GridContainer.new()
+	phrases.columns = 2
+	phrases.add_theme_constant_override("h_separation", 14)
+	phrases.add_theme_constant_override("v_separation", 14)
+	for id in OnlineChat.ITEMS.size():
+		var item := PanelContainer.new()
+		item.add_theme_stylebox_override("panel", Ui.box(Ui.PANEL, Ui.LINE, 30, 3, 16))
+		item.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		if OnlineChat.is_emote(id):
+			var ic := Ui.icon(OnlineChat.value(id), 64, Ui.ACCENT)
+			ic.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+			item.add_child(ic)
+			faces.add_child(item)
+		else:
+			var l := Ui.label(OnlineChat.value(id), 30, Ui.INK, "bold")
+			l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			item.add_child(l)
+			phrases.add_child(item)
+		Ui.on_tap(item, func() -> void:
+			Online.send({"t": "chat", "id": id})
+			_bubble(true, id)
+			Modal.close_top(app))
+	var mute_row := Ui.hbox(16)
+	var ml := Ui.label(tr("Hide messages from %s") % str(opponent.get("name", "Player")), 28, Ui.MUTED)
+	ml.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	ml.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	mute_row.add_child(ml)
+	var sw := UiSwitch.new()
+	sw.on = bool(Store.data["online"]["muted"])
+	sw.toggled.connect(func(on: bool) -> void:
+		Store.data["online"]["muted"] = on
+		Store.save_data())
+	mute_row.add_child(sw)
+	Modal.show(app, "Say something", [faces, phrases, mute_row], [["Close", func() -> void: pass]])
+
+
+## A speech bubble next to a player's panel for a few seconds.
+func _bubble(mine: bool, id: int) -> void:
+	if id < 0 or id >= OnlineChat.ITEMS.size():
+		return
+	var my_panel := _tiger_chip if human_side == "tigers" else _goat_chip
+	var their_panel := _goat_chip if human_side == "tigers" else _tiger_chip
+	var panel := my_panel if mine else their_panel
+	var b := PanelContainer.new()
+	b.add_theme_stylebox_override("panel", Ui.box(Ui.WHITE, Ui.ACCENT if not mine else Ui.LINE, 32, 4, 18))
+	if OnlineChat.is_emote(id):
+		b.add_child(Ui.icon(OnlineChat.value(id), 72, Ui.ACCENT))
+	else:
+		b.add_child(Ui.label(OnlineChat.value(id), 32, Ui.INK, "bold"))
+	b.z_index = 60
+	b.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(b)
+	await get_tree().process_frame
+	if not is_instance_valid(b) or not is_instance_valid(panel):
+		return
+	b.global_position = panel.global_position + Vector2(panel.size.x - b.size.x - 30, -b.size.y * 0.55)
+	if not mine:
+		Sfx.tap()
+	var tw := b.create_tween()
+	tw.tween_interval(2.6)
+	tw.tween_property(b, "modulate:a", 0.0, 0.4)
+	tw.tween_callback(b.queue_free)
+
+
+func _exit_tree() -> void:
+	if mode == "online" and not _finished:
+		Online.send({"t": "leave"})
