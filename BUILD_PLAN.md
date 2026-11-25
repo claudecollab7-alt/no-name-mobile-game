@@ -23,6 +23,7 @@ Anything marked *(verify)* is from memory and must be checked against the instal
 ### Ground rules for the code
 
 - **Rules and computer opponent are plain GDScript classes** (extending `RefCounted`), with no nodes, no scenes and no screen code. They must run from the command line.
+- **Check [docs/engine-reference](docs/engine-reference/README.md) before writing Godot code.** AI knowledge of Godot stops around 4.3–4.4; those notes list what changed up to 4.7 and which APIs are deprecated.
 - **Typed GDScript everywhere** (`var x: int`, typed arrays, return types).
 - **The shell knows nothing about Aadupuli.** It talks to a game only through the module contract in [section 3](#3-architecture).
 - **Every rule has a test.** A rule change without a test change is not done.
@@ -224,7 +225,7 @@ Still to do in the trial: T0.4 and the phone half of T0.5 (needs the test phone)
 
 | # | Task | Done when |
 |---|---|---|
-| 1.1 | Project set-up: real project in `game/`, folder layout, project settings as in T0.1, a test framework for GDScript (GUT or gdUnit4 *(pick whichever runs cleanly from the command line on the pinned version)*), and a `tools/run_tests` script | One command runs an example test and reports pass or fail |
+| 1.1 | Project set-up: real project in `game/`, folder layout, project settings as in T0.1, gdUnit4 6.2.x as the test framework (the engine reference records 6.2.2 running headless on Godot 4.7.2, with its exact command and exit codes; install it from the editor's Asset Store, which replaced the Asset Library in 4.7), and a `tools/run_tests` script | One command runs an example test and reports pass or fail |
 | 1.2 | Board data from the verified board: points with screen positions, connections, and the generated `NEIGHBOURS` and `JUMPS` tables. Also a printable numbered board image for the user | Tests confirm 23 points, the agreed connection count, and that every connection is two-way. User signs off the printout. |
 | 1.3 | Rules: state, `initial_state`, `legal_moves`, `apply_move`, `result` | All rule tests in 1.4 pass |
 | 1.4 | Rule tests (list below) plus a "golden games" file: complete games as move lists with the expected result | Tests pass from the command line; at least 10 golden games |

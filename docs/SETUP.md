@@ -17,6 +17,10 @@ Set up and verified on 2026-11-16 on Windows 11 (Intel i5-9300H, 16 GB memory).
 
 **Pinned engine version: Godot 4.7.2.** Do not upgrade the engine mid-release without a decision; a new version can change export behaviour.
 
+## Godot reference notes
+
+[docs/engine-reference](engine-reference/README.md) holds version notes for Godot 4.7 (breaking changes, deprecated APIs, current practice, per-area notes), copied from Claude Code Game Studios under the MIT License. Check them before writing Godot code.
+
 ## Android SDK packages
 
 Installed in `%LOCALAPPDATA%\Android\Sdk`. The Android SDK licences were accepted on 2026-11-16 with your permission.
