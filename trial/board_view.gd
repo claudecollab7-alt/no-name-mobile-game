@@ -1,5 +1,7 @@
 extends Node2D
-## Draws the brass-and-wood board, owns the piece nodes and turns taps into moves.
+## Draws the "hill and meadow" board (DISCUSSION.md section 24), owns the piece nodes
+## and turns taps into moves. The board is a place: the tigers' cave sits on the summit,
+## the paths are worn into a sandy hill, and the goats come up from the meadow.
 
 signal played(kind: String)  ## "place", "move" or "capture"
 signal changed
@@ -7,19 +9,23 @@ signal changed
 const R := preload("res://rules.gd")
 const Piece := preload("res://piece.gd")
 
-const WOOD := Color("#3A2415")
-const WOOD_EDGE := Color("#2A190E")
-const GRAIN := Color("#4B3120")
-const INLAY_SHADOW := Color("#1E1209")
-const BRASS := Color("#C99A45")
-const BRASS_LIGHT := Color("#E3BF73")
-const HINT := Color("#FFF3D6")
+const RIDGE := Color("#C9DCAE")
+const SUN := Color("#F6C66B")
+const BIRD := Color("#647A58")
+const SAND := Color("#EBD5A8")
+const SAND_EDGE := Color("#D9BE88")
+const CAVE := Color("#3A2A1E")
+const GRASS := Color("#6E9A4C")
+const PATH_EDGE := Color("#D5B47D")
+const PATH := Color("#FBF1DA")
+const STONE := Color("#B48D55")
+const HINT := Color("#FFFFFF")
 
 const SRC_MIN := Vector2(16, 22)
 const SRC_SIZE := Vector2(508, 327)
-const MARGIN := 40.0  ## Plank border around the lines, in board-picture units.
+const MARGIN := 40.0  ## Space around the lines for the hill, in board-picture units.
 const TIGER_R := 17.0  ## Piece sizes in board-picture units (closest points are 32 apart).
-const GOAT_R := 16.0
+const GOAT_R := 15.0
 const TAP_R := 30.0
 const MAX_STRETCH := 1.6
 
@@ -32,6 +38,7 @@ var pieces := {}  ## point -> Piece node
 var selected := -1
 var targets := {}  ## destination point -> move, for the selected piece or for placement
 var busy := false
+var _time := 0.0
 
 
 func new_game() -> void:
@@ -63,53 +70,89 @@ func layout(area: Vector2) -> void:
 
 
 func point_pos(i: int) -> Vector2:
-	var p := R.POINTS[i] - SRC_MIN
-	return origin + Vector2(p.x * unit, p.y * unit_y)
+	return _sp(R.POINTS[i])
+
+
+## Board-picture coordinates to screen coordinates.
+func _sp(v: Vector2) -> Vector2:
+	return origin + Vector2((v.x - SRC_MIN.x) * unit, (v.y - SRC_MIN.y) * unit_y)
+
+
+func _process(delta: float) -> void:
+	_time += delta
+	if not targets.is_empty():
+		queue_redraw()  # Only the hint pulse animates; skip redraws when there is none.
 
 
 func _draw() -> void:
 	if plank.size == Vector2.ZERO:
 		return
-	_draw_plank()
-	var line_w := 5.0 * unit
+	_draw_scene()
 	for line: Array in R.LINES:
 		var pts := PackedVector2Array()
-		var shadow := PackedVector2Array()
 		for i: int in line:
 			pts.append(point_pos(i))
-			shadow.append(point_pos(i) + Vector2(0, 1.6 * unit))
-		draw_polyline(shadow, INLAY_SHADOW, line_w + 2.5 * unit, true)
-		draw_polyline(pts, BRASS, line_w, true)
+		draw_polyline(pts, PATH_EDGE, 11.0 * unit, true)
+		draw_polyline(pts, PATH, 5.5 * unit, true)
 	for i in R.POINT_COUNT:
-		var c := point_pos(i)
-		draw_circle(c + Vector2(0, 1.2 * unit), 6.5 * unit, INLAY_SHADOW, true, -1.0, true)
-		draw_circle(c, 6.0 * unit, BRASS_LIGHT, true, -1.0, true)
+		draw_circle(point_pos(i), 5.5 * unit, STONE, true, -1.0, true)
+	var pulse := 0.5 + 0.5 * sin(_time * 3.4)
 	for p: int in targets:
 		var c := point_pos(p)
-		draw_circle(c, 13.0 * unit, Color(HINT, 0.28), true, -1.0, true)
-		draw_arc(c, 13.0 * unit, 0.0, TAU, 40, Color(HINT, 0.9), 2.2 * unit, true)
+		draw_circle(c, (8.5 + 2.5 * pulse) * unit, Color(HINT, 0.45 + 0.4 * pulse), true, -1.0, true)
 
 
-func _draw_plank() -> void:
-	var box := StyleBoxFlat.new()
-	box.bg_color = WOOD
-	box.border_color = WOOD_EDGE
-	box.set_border_width_all(int(round(4.0 * unit)))
-	box.set_corner_radius_all(int(round(18.0 * unit)))
-	box.shadow_color = Color(0, 0, 0, 0.28)
-	box.shadow_size = int(round(10.0 * unit))
-	box.shadow_offset = Vector2(0, 5.0 * unit)
-	box.anti_aliasing = true
-	draw_style_box(box, plank)
-	# A few hand-tuned grain lines instead of a photo texture.
-	var inset := 22.0 * unit
-	for k in 11:
-		var y := plank.position.y + inset + (plank.size.y - inset * 2.0) * (k + 0.5) / 11.0
-		var pts := PackedVector2Array()
-		for j in 33:
-			var x := plank.position.x + inset + (plank.size.x - inset * 2.0) * j / 32.0
-			pts.append(Vector2(x, y + sin(j * 0.55 + k * 1.7) * 2.6 * unit + sin(j * 0.17 + k) * 4.0 * unit))
-		draw_polyline(pts, GRAIN, 1.4 * unit, true)
+func _draw_scene() -> void:
+	# Setting sun behind a far green ridge, and two birds.
+	draw_circle(_sp(Vector2(486, 10)), 24.0 * unit, SUN, true, -1.0, true)
+	var ridge := _path([Vector2(-60, 400)], [
+		[Vector2(40, 0), Vector2(170, 32)], [Vector2(270, 62), Vector2(380, 26)],
+		[Vector2(490, -10), Vector2(600, 52)]])
+	ridge.append(_sp(Vector2(600, 400)))
+	draw_colored_polygon(ridge, RIDGE)
+	for b: Vector2 in [Vector2(70, 26), Vector2(108, 12)]:
+		var s := 8.0  # A gull: two wings arching up from the body.
+		var wing := PackedVector2Array()
+		for v: Vector2 in [Vector2(-s, -s * 0.1), Vector2(-s * 0.55, -s * 0.5), Vector2(-s * 0.15, -s * 0.3), Vector2(0, 0),
+				Vector2(s * 0.15, -s * 0.3), Vector2(s * 0.55, -s * 0.5), Vector2(s, -s * 0.1)]:
+			wing.append(_sp(b + v))
+		draw_polyline(wing, BIRD, 2.0 * unit, true)
+	# The sandy hill: a broad plateau carrying the rows, rising to a summit at the apex.
+	var hill := _path([Vector2(-26, 380)], [
+		[Vector2(-34, 180), Vector2(-16, 80)], [Vector2(-8, 60), Vector2(40, 60)],
+		[Vector2(200, 58), Vector2(248, 18)], [Vector2(278, -8), Vector2(308, 18)],
+		[Vector2(356, 58), Vector2(516, 60)], [Vector2(564, 60), Vector2(572, 80)],
+		[Vector2(590, 180), Vector2(582, 380)]])
+	draw_colored_polygon(hill, SAND)
+	hill.append(hill[0])
+	draw_polyline(hill, SAND_EDGE, 2.5 * unit, true)
+	# The tigers' cave on the summit, just behind the top point.
+	var cave := _path([Vector2(250, 12)], [[Vector2(278, -26), Vector2(306, 12)]])
+	draw_colored_polygon(cave, CAVE)
+	# Meadow grass along the foot of the hill.
+	for x: float in [-14.0, 30.0, 96.0, 150.0, 214.0, 262.0, 300.0, 376.0, 430.0, 490.0, 548.0]:
+		var base := Vector2(x, 381)
+		var tuft := PackedVector2Array()
+		for k in 7:
+			var dx := k * 3.0
+			tuft.append(_sp(base + Vector2(dx, -12.0 if k % 2 == 1 else 0.0) + Vector2(0, -4.0 if k == 3 else 0.0)))
+		draw_polyline(tuft, GRASS, 2.4 * unit, true)
+
+
+## Builds a closed outline from a start point and quadratic segments [control, end],
+## in board-picture coordinates.
+func _path(start: Array, segments: Array) -> PackedVector2Array:
+	var out := PackedVector2Array()
+	var p0: Vector2 = start[0]
+	out.append(_sp(p0))
+	for seg: Array in segments:
+		var c: Vector2 = seg[0]
+		var p1: Vector2 = seg[1]
+		for i in range(1, 13):
+			var t := i / 12.0
+			out.append(_sp(p0.lerp(c, t).lerp(c.lerp(p1, t), t)))
+		p0 = p1
+	return out
 
 
 func _unhandled_input(event: InputEvent) -> void:

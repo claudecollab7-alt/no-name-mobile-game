@@ -30,7 +30,7 @@ The short version of everything decided so far. Details and reasons are in the n
 | Tech | Godot (GDScript) for the game; Godot on a rented machine for the server; plain website with the game embedded. |
 | Money | No forced ads, ever. Cosmetics and coins; opt-in ads for extra coins. |
 | Chat | Preset phrases and emotes only. |
-| Look | Brass-and-wood board on a light, calm app; tigers and goats differ by shape and colour; kolam patterns as decoration; traditional boards as unlockable themes (section 22). |
+| Look | "Hill and meadow": the board is a sandy hill with the tigers' cave on the summit and a meadow below; orange tigers and fluffy goats; brass and wood becomes an unlockable theme (section 24). |
 | Empty lobbies | Clearly labelled computer opponents after a short wait. No disguised bots. |
 | Who builds | Opus writes the code; you review and test. 10–20 hours a week, almost no budget. |
 | If late | Cut features, keep the date. |
@@ -353,6 +353,7 @@ The server is the same `game/` project started in server mode, so it needs no fo
 | D34 | **Aadupuli starts on the classic 23-point board**, verified against your picture. More boards and piece-count options may be added later if needed. | 2026-11-16 |
 | D35 | **Fixed start confirmed:** tigers begin on the top point and the two centre points of the first row. | 2026-11-16 |
 | D36–D39 | Visual design: brass-and-wood board, pieces by shape and colour, light calm app, kolam patterns and unlockable themes. See [section 22](#22-visual-design-direction). D39 is narrowed by D40. | 2026-11-16 |
+| D45 | Default look is "Hill and meadow"; brass and wood becomes the Heirloom theme. See [section 24](#24-hill-and-meadow-look). | 2026-11-25 |
 | D40–D44 | Global focus: English only, Tiger & Goat as the first game's name, Fredoka and Figtree fonts, Plato-like play screen. See [section 23](#23-global-focus-and-the-name-tiger--goat). | 2026-11-25 |
 
 ---
@@ -871,6 +872,59 @@ Earlier decisions (D23, D25) describe one app that grows into a platform of many
 
 ---
 
+## 24. "Hill and meadow" look
+
+Decided 2026-11-25, chosen from four sketched directions (Heirloom, Hill and meadow, Ink and paper, Night lantern), all drawn on the same mid-game position.
+
+### Decision
+
+| # | Decision | Date |
+|---|---|---|
+| D45 | **The default look is "Hill and meadow".** The board is a place, not a diagram: the tigers start at a cave on the summit of a sandy hill, the lines are worn paths, and the goats come up from a grassy meadow, under a pale sky with a setting sun and birds. Replaces brass and wood (D36) as the default; brass and wood becomes the unlockable "Heirloom" theme. | 2026-11-25 |
+
+### Why this one
+
+- It's memorable and recognisable in a store screenshot.
+- The picture explains the rules: tigers come down from the hill, goats climb up to trap them.
+- It avoids the generic look of machine-made apps, because the board has a story and a sense of place.
+
+### Pieces
+
+- **Tigers:** round orange faces with ears, dark stripes, a white muzzle and nose. They "breathe" gently so the board feels alive.
+- **Goats:** fluffy white fleece with a dark face and ears.
+- Shape and colour both still differ (D37 stands).
+
+### Palette
+
+| Use | Colour | Hex |
+|---|---|---|
+| Page (pale meadow sky) | Pale green | `#E6EFDA` |
+| Panels and light buttons | Warm cream | `#F7F3E7` |
+| Main text | Deep green ink | `#2F4128` |
+| Secondary text | Muted green | `#647A58` |
+| Panel borders | Soft green | `#D3DFC1` |
+| Accent (turn badge, main button) | Tiger orange | `#E26F2A` |
+| Far ridge | Sage | `#C9DCAE` |
+| Hill | Sand | `#EBD5A8` |
+| Paths | Cream on tan | `#FBF1DA` on `#D5B47D` |
+| Points | Pebble | `#B48D55` |
+| Cave | Dark earth | `#3A2A1E` |
+| Tiger | Orange, dark stripes, cream muzzle | `#E8742A`, `#3A2416`, `#FFF4E4` |
+| Goat | White fleece, grey-brown edge, dark face | `#FFFFFF`, `#D6CBB7`, `#5A4C40` |
+
+Fonts stay Fredoka and Figtree (D42).
+
+### Theme plan, updated
+
+| Theme | When |
+|---|---|
+| Hill and meadow | Default |
+| Heirloom (brass and wood) | First unlockable theme (release 1 stretch item 2, replacing kolam chalk) |
+| Night lantern | Later update |
+| Ink and paper | Later, optional |
+
+---
+
 ## Change log
 
 - **2026-11-14** — Document created from the first discussion.
@@ -889,3 +943,4 @@ Earlier decisions (D23, D25) describe one app that grows into a platform of many
 - **2026-11-16** — Added section 22, visual design direction (D36–D39), with a starting palette, type candidates and a theme plan.
 - **2026-11-25** — Added section 23: global focus, English only (D40), name Tiger & Goat (D41), Fredoka and Figtree (D42), Plato-like play screen (D43). D7 and D30 replaced. Open question: one game or platform.
 - **2026-11-25** — D44: Tiger & Goat is the first game's name; the platform brand stays open (needed by week 11).
+- **2026-11-25** — Added section 24: "Hill and meadow" chosen as the default look (D45), with palette, pieces and updated theme plan.

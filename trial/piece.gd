@@ -1,15 +1,19 @@
 extends Node2D
-## A tiger or goat token drawn in code (brass-and-wood palette, DISCUSSION.md section 22).
-## Tigers: round copper tokens with stripes. Goats: ivory rounded squares with a brown rim.
+## A tiger or goat token drawn in code, "hill and meadow" style (DISCUSSION.md section 24).
+## Tigers: round orange faces with ears, stripes and a white muzzle; they breathe gently.
+## Goats: fluffy white fleece with a dark face. Shape and colour both differ (D37).
 
-const COPPER := Color("#D4682A")
-const COPPER_DARK := Color("#4A1D08")
-const IVORY := Color("#F1E6CF")
-const IVORY_RIM := Color("#8B6A3E")
-const GLOW := Color("#FFF3D6")
-const SHADOW := Color(0, 0, 0, 0.35)
+const TIGER := Color("#E8742A")
+const TIGER_DARK := Color("#3A2416")
+const MUZZLE := Color("#FFF4E4")
+const FLEECE := Color("#FFFFFF")
+const FLEECE_EDGE := Color("#D6CBB7")
+const GOAT_FACE := Color("#5A4C40")
+const GLOW := Color("#FFFFFF")
+const SHADOW := Color(0.23, 0.16, 0.09, 0.18)
 
 var is_tiger := false
+var breathe := true  ## Tigers on the board breathe; set false for static icons if wanted.
 var radius := 30.0:
 	set(value):
 		radius = value
@@ -18,45 +22,64 @@ var selected := false:
 	set(value):
 		selected = value
 		queue_redraw()
+var _time := randf() * TAU
+
+
+func _process(delta: float) -> void:
+	if is_tiger and breathe:
+		_time += delta
+		var s := 1.0 + 0.035 * sin(_time * 1.9)
+		scale = Vector2(s, s)
 
 
 func _draw() -> void:
 	var r := radius
 	if selected:
-		draw_circle(Vector2.ZERO, r * 1.45, Color(GLOW, 0.55), true, -1.0, true)
-		draw_arc(Vector2.ZERO, r * 1.45, 0.0, TAU, 48, GLOW, r * 0.12, true)
+		draw_circle(Vector2.ZERO, r * 1.5, Color(GLOW, 0.5), true, -1.0, true)
+		draw_arc(Vector2.ZERO, r * 1.5, 0.0, TAU, 48, GLOW, r * 0.12, true)
+	_ellipse(Vector2(0, r * 0.92), Vector2(r * 0.8, r * 0.22), SHADOW)
 	if is_tiger:
 		_draw_tiger(r)
 	else:
-		_draw_goat(r * 0.8)
+		_draw_goat(r)
 
 
 func _draw_tiger(r: float) -> void:
-	draw_circle(Vector2(0, r * 0.14), r, SHADOW, true, -1.0, true)
-	draw_circle(Vector2.ZERO, r, COPPER, true, -1.0, true)
-	draw_arc(Vector2.ZERO, r - r * 0.06, 0.0, TAU, 48, COPPER_DARK, r * 0.12, true)
-	var w := r * 0.13
-	# Three stripes: a short one down the forehead and one curving in from each side.
-	draw_line(Vector2(0, -r * 0.72), Vector2(0, -r * 0.18), COPPER_DARK, w, true)
-	draw_arc(Vector2(-r * 1.05, 0), r * 0.62, -0.75, 0.75, 16, COPPER_DARK, w, true)
-	draw_arc(Vector2(r * 1.05, 0), r * 0.62, PI - 0.75, PI + 0.75, 16, COPPER_DARK, w, true)
-	# Eyes, so it reads as a face at a glance.
-	draw_circle(Vector2(-r * 0.3, r * 0.08), r * 0.1, COPPER_DARK, true, -1.0, true)
-	draw_circle(Vector2(r * 0.3, r * 0.08), r * 0.1, COPPER_DARK, true, -1.0, true)
+	for side in [-1.0, 1.0]:
+		draw_circle(Vector2(side * r * 0.66, -r * 0.74), r * 0.32, TIGER, true, -1.0, true)
+		draw_circle(Vector2(side * r * 0.66, -r * 0.74), r * 0.15, MUZZLE, true, -1.0, true)
+	draw_circle(Vector2.ZERO, r, TIGER, true, -1.0, true)
+	var w := r * 0.14
+	draw_line(Vector2(0, -r * 0.78), Vector2(0, -r * 0.3), TIGER_DARK, w, true)
+	draw_arc(Vector2(-r * 1.05, 0), r * 0.62, -0.75, 0.75, 16, TIGER_DARK, w, true)
+	draw_arc(Vector2(r * 1.05, 0), r * 0.62, PI - 0.75, PI + 0.75, 16, TIGER_DARK, w, true)
+	_ellipse(Vector2(0, r * 0.5), Vector2(r * 0.46, r * 0.33), MUZZLE)
+	draw_circle(Vector2(-r * 0.3, -r * 0.02), r * 0.11, TIGER_DARK, true, -1.0, true)
+	draw_circle(Vector2(r * 0.3, -r * 0.02), r * 0.11, TIGER_DARK, true, -1.0, true)
+	draw_circle(Vector2(0, r * 0.36), r * 0.1, TIGER_DARK, true, -1.0, true)
 
 
-func _draw_goat(h: float) -> void:
-	var rect := Rect2(Vector2(-h, -h), Vector2(h * 2.0, h * 2.0))
-	draw_style_box(_box(SHADOW, SHADOW, 0.0, h), Rect2(rect.position + Vector2(0, h * 0.18), rect.size))
-	draw_style_box(_box(IVORY, IVORY_RIM, h * 0.14, h), rect)
-	draw_arc(Vector2.ZERO, h * 0.42, 0.0, TAU, 32, Color(IVORY_RIM, 0.7), h * 0.08, true)
+func _draw_goat(r: float) -> void:
+	# Fleece: a ring of puffs around a body, edge colour first so the outline looks soft.
+	var puffs := 9
+	for pass_index in 2:
+		var grow := r * 0.09 if pass_index == 0 else 0.0
+		var col := FLEECE_EDGE if pass_index == 0 else FLEECE
+		draw_circle(Vector2.ZERO, r * 0.8 + grow, col, true, -1.0, true)
+		for k in puffs:
+			var a := TAU * k / puffs
+			draw_circle(Vector2(cos(a), sin(a)) * r * 0.72, r * 0.34 + grow, col, true, -1.0, true)
+	# Ears, face and eyes.
+	_ellipse(Vector2(-r * 0.86, -r * 0.25), Vector2(r * 0.36, r * 0.17), GOAT_FACE)
+	_ellipse(Vector2(r * 0.86, -r * 0.25), Vector2(r * 0.36, r * 0.17), GOAT_FACE)
+	_ellipse(Vector2(0, r * 0.08), Vector2(r * 0.48, r * 0.6), GOAT_FACE)
+	draw_circle(Vector2(-r * 0.19, -r * 0.05), r * 0.1, FLEECE, true, -1.0, true)
+	draw_circle(Vector2(r * 0.19, -r * 0.05), r * 0.1, FLEECE, true, -1.0, true)
 
 
-func _box(fill: Color, border: Color, border_width: float, h: float) -> StyleBoxFlat:
-	var b := StyleBoxFlat.new()
-	b.bg_color = fill
-	b.border_color = border
-	b.set_border_width_all(int(round(border_width)))
-	b.set_corner_radius_all(int(round(h * 0.45)))
-	b.anti_aliasing = true
-	return b
+func _ellipse(center: Vector2, radii: Vector2, color: Color) -> void:
+	var pts := PackedVector2Array()
+	for i in 28:
+		var a := TAU * i / 28.0
+		pts.append(center + Vector2(cos(a) * radii.x, sin(a) * radii.y))
+	draw_colored_polygon(pts, color)

@@ -1,5 +1,5 @@
 extends Control
-## Trial screen, redesigned for a global audience (DISCUSSION.md sections 22–23).
+## Trial screen, "hill and meadow" design for a global audience (DISCUSSION.md sections 23–24).
 ## Plato-like layout: a player panel for each side with its goal, the board between them,
 ## a one-screen "How to play" card, and very little text to read.
 ## The bottom line keeps the trial measurements: platform, start-up, fps, look-ahead.
@@ -12,14 +12,15 @@ const Piece := preload("res://piece.gd")
 const DISPLAY_FONT := "res://assets/fonts/Fredoka-Variable.ttf"
 const BODY_FONT := "res://assets/fonts/Figtree-Variable.ttf"
 
-const CREAM := Color("#FAF6EE")
+const MEADOW := Color("#E6EFDA")  ## Page background: pale meadow sky.
+const PANEL := Color("#F7F3E7")  ## Panels and light buttons.
+const CARD := Color("#FFFCF4")
 const WHITE := Color("#FFFFFF")
-const INK := Color("#2B2118")
-const MUTED := Color("#6E6254")
-const LINE := Color("#EADFCF")
-const COPPER := Color("#C25A22")
-const IVORY := Color("#F1E6CF")
-const IVORY_RIM := Color("#8B6A3E")
+const INK := Color("#2F4128")
+const MUTED := Color("#647A58")
+const LINE := Color("#D3DFC1")
+const ACCENT := Color("#E26F2A")  ## Tiger orange: turn badge, main button.
+const ACCENT_DOWN := Color("#C95E1F")
 
 var display_font: FontVariation
 var body_font: FontVariation
@@ -53,18 +54,13 @@ class CaptureDots extends Control:
 		var gap := s * 0.32
 		var x := size.x - (n * s + (n - 1) * gap)
 		for i in n:
-			var box := StyleBoxFlat.new()
-			box.set_corner_radius_all(int(s * 0.3))
-			box.anti_aliasing = true
-			if i < count:
-				box.bg_color = Color("#F1E6CF")
-				box.border_color = Color("#8B6A3E")
-				box.set_border_width_all(3)
+			var c := Vector2(x + i * (s + gap) + s / 2.0, size.y / 2.0)
+			if i < count:  # A captured goat: a little fleece.
+				draw_circle(c, s * 0.5, Color("#B9AE99"), true, -1.0, true)
+				draw_circle(c, s * 0.42, Color("#FFFFFF"), true, -1.0, true)
+				draw_circle(c + Vector2(0, s * 0.04), s * 0.17, Color("#5A4C40"), true, -1.0, true)
 			else:
-				box.bg_color = Color(0, 0, 0, 0)
-				box.border_color = Color("#D9CBB6")
-				box.set_border_width_all(3)
-			draw_style_box(box, Rect2(Vector2(x + i * (s + gap), (size.y - s) / 2.0), Vector2(s, s)))
+				draw_arc(c, s * 0.44, 0.0, TAU, 32, Color("#C8D6B4"), s * 0.1, true)
 
 
 func _ready() -> void:
@@ -83,7 +79,7 @@ func _ready() -> void:
 func _build_ui() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var bg := ColorRect.new()
-	bg.color = CREAM
+	bg.color = MEADOW
 	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(bg)
@@ -169,7 +165,7 @@ func _build_ui() -> void:
 	row.add_theme_constant_override("separation", 18)
 	col.add_child(row)
 	row.add_child(_button("New game", func() -> void: board.new_game()))
-	row.add_child(_button("How to play", _show_rules))
+	row.add_child(_primary(_button("How to play", _show_rules)))
 
 	# Trial measurements, kept small and out of the way.
 	var dev := HBoxContainer.new()
@@ -209,9 +205,9 @@ func _player_chip(is_tiger: bool, title: String, goal: String) -> Array:
 	var name_label := _label(title, 42, INK, display_font)
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	name_row.add_child(name_label)
-	var pill := _label("To play", 24, WHITE, display_font)
+	var pill := _label("Your turn", 24, WHITE, display_font)
 	var pill_box := StyleBoxFlat.new()
-	pill_box.bg_color = COPPER
+	pill_box.bg_color = ACCENT
 	pill_box.set_corner_radius_all(22)
 	pill_box.content_margin_left = 18
 	pill_box.content_margin_right = 18
@@ -240,8 +236,8 @@ func _token_icon(is_tiger: bool, side: float) -> Control:
 
 func _chip_box(active: bool) -> StyleBoxFlat:
 	var b := StyleBoxFlat.new()
-	b.bg_color = WHITE
-	b.border_color = COPPER if active else LINE
+	b.bg_color = PANEL
+	b.border_color = ACCENT if active else LINE
 	b.set_border_width_all(4 if active else 3)
 	b.set_corner_radius_all(36)
 	b.content_margin_left = 26
@@ -271,6 +267,17 @@ func _button(text: String, action: Callable) -> Button:
 	return b
 
 
+## Turns a button into the orange main action.
+func _primary(b: Button) -> Button:
+	b.add_theme_stylebox_override("normal", _button_box(ACCENT, ACCENT))
+	b.add_theme_stylebox_override("focus", _button_box(ACCENT, ACCENT))
+	b.add_theme_stylebox_override("hover", _button_box(ACCENT_DOWN, ACCENT_DOWN))
+	b.add_theme_stylebox_override("pressed", _button_box(ACCENT_DOWN, ACCENT_DOWN))
+	for color_name in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
+		b.add_theme_color_override(color_name, WHITE)
+	return b
+
+
 func _font(path: String, weight: int) -> FontVariation:
 	var f := FontVariation.new()
 	f.base_font = load(path)
@@ -282,9 +289,9 @@ func _apply_theme() -> void:
 	var t := Theme.new()
 	t.default_font = body_font
 	t.default_font_size = 32
-	var normal := _button_box(WHITE, LINE)
-	var hover := _button_box(Color("#FFF8EE"), Color(COPPER, 0.6))
-	var pressed := _button_box(Color("#F6E7D6"), COPPER)
+	var normal := _button_box(PANEL, LINE)
+	var hover := _button_box(WHITE, Color(ACCENT, 0.6))
+	var pressed := _button_box(Color("#EEE7D4"), ACCENT)
 	for state_name in ["normal", "focus"]:
 		t.set_stylebox(state_name, "Button", normal)
 	t.set_stylebox("hover", "Button", hover)
@@ -315,7 +322,7 @@ func _show_rules() -> void:
 	overlay.z_index = 100  # Pieces use z_index 1–2, so the card must sit above them.
 	add_child(overlay)
 	var dim := ColorRect.new()
-	dim.color = Color(0.11, 0.07, 0.04, 0.55)
+	dim.color = Color(0.12, 0.17, 0.1, 0.55)
 	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	overlay.add_child(dim)
 	var center := CenterContainer.new()
@@ -324,7 +331,7 @@ func _show_rules() -> void:
 
 	var card := PanelContainer.new()
 	var card_box := StyleBoxFlat.new()
-	card_box.bg_color = WHITE
+	card_box.bg_color = CARD
 	card_box.set_corner_radius_all(44)
 	for side in ["left", "right", "top", "bottom"]:
 		card_box.set("content_margin_" + side, 52)
@@ -361,14 +368,7 @@ func _show_rules() -> void:
 		body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		body.custom_minimum_size.x = 700
 		words.add_child(body)
-	var ok := _button("Got it", overlay.queue_free)
-	var ok_box := _button_box(COPPER, COPPER)
-	ok.add_theme_stylebox_override("normal", ok_box)
-	ok.add_theme_stylebox_override("hover", _button_box(Color("#B04F1C"), Color("#B04F1C")))
-	ok.add_theme_stylebox_override("pressed", _button_box(Color("#9C4618"), Color("#9C4618")))
-	for color_name in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
-		ok.add_theme_color_override(color_name, WHITE)
-	col.add_child(ok)
+	col.add_child(_primary(_button("Got it", overlay.queue_free)))
 
 
 # ---------- Game state on screen ----------
@@ -381,8 +381,8 @@ func _update_panels() -> void:
 	goat_chip.add_theme_stylebox_override("panel", _chip_box(not over and s.turn == R.GOAT or res == R.GOATS_WIN))
 	tiger_turn.visible = (not over and s.turn == R.TIGER) or res == R.TIGERS_WIN
 	goat_turn.visible = (not over and s.turn == R.GOAT) or res == R.GOATS_WIN
-	tiger_turn.text = "Winner" if res == R.TIGERS_WIN else "To play"
-	goat_turn.text = "Winner" if res == R.GOATS_WIN else "To play"
+	tiger_turn.text = "Winner" if res == R.TIGERS_WIN else "Your turn"
+	goat_turn.text = "Winner" if res == R.GOATS_WIN else "Your turn"
 	capture_dots.count = s.captured
 	if s.in_hand > 0:
 		in_hand_label.text = str(s.in_hand)

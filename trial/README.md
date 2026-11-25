@@ -4,7 +4,7 @@ The one-week Godot go/no-go proof from [BUILD_PLAN.md](../BUILD_PLAN.md) section
 
 What it contains:
 
-- The verified 23-point board drawn in code in the brass-and-wood palette.
+- The verified 23-point board drawn in code in the "Hill and meadow" look: tigers' cave on the summit, worn paths, meadow below.
 - Playable pass-and-play Aadupuli: goats place, then move; tigers move and jump. No undo, no repeat rule.
 - Fredoka (headings, buttons) and Figtree (text) fonts.
 - Plato-like play screen: a panel per side with its goal, a "How to play" card, and a one-line hint.

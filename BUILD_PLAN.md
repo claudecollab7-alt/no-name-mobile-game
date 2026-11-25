@@ -171,7 +171,7 @@ A throwaway proof. Its code is not kept. Its only job is a go or no-go on Godot.
 |---|---|---|
 | T0.1 | New Godot project: Compatibility renderer, portrait, 1080×1920 base size with stretch enabled | Project opens and runs on the PC |
 | T0.2 | Draw the draft board in code; place 3 tigers and a few goats; tap a piece, tap a point, it slides there | Pieces move smoothly on the PC |
-| T0.3 | Bundled fonts, one sound on move, one vibration on capture. Draw the board in the brass-and-wood starting palette (DISCUSSION.md section 22). *(Changed 2026-11-25: Tamil text dropped for the global focus; fonts are now Fredoka and Figtree.)* | Text, sound and vibration all present; board readable on the cheap phone indoors and in sunlight |
+| T0.3 | Bundled fonts, one sound on move, one vibration on capture. Draw the board in the starting palette (now "Hill and meadow", DISCUSSION.md section 24). *(Changed 2026-11-25: Tamil text dropped for the global focus; fonts are now Fredoka and Figtree.)* | Text, sound and vibration all present; board readable on the cheap phone indoors and in sunlight |
 | T0.4 | Export to Android and install on the cheap phone | The app runs on the phone |
 | T0.5 | Export to web; serve it locally; open it in the phone's browser | The game loads and plays in the browser |
 | T0.6 | Timing test: a rough move generator and a simple look-ahead, run on the phone | Numbers recorded for depth reached in 1 second |
@@ -339,7 +339,7 @@ https://<site>/daily
 ### Stretch order (from DISCUSSION.md section 18)
 
 1. Opponent ladder: each opponent "cleared" by beating them as tigers and as goats.
-2. One unlockable board theme: kolam chalk (proposal: earned by a 7-day puzzle streak).
+2. One unlockable board theme: Heirloom, the brass-and-wood look (proposal: earned by a 7-day puzzle streak).
 3. Google sign-in backup through Play Games saved games, Android only.
 4. Replay with one hint after a loss.
 
@@ -388,7 +388,7 @@ Board and pieces are drawn in code. AI-generated images are used only for backgr
 | Go or no-go on Godot | End of week 1 | Everything |
 | Capture target (4, 5, 6 or 7) from the self-play table | End of week 6 | Tutorial wording, puzzles |
 | Names and personalities of the three opponents | Week 5 | Task 2.3 |
-| Palette and piece style direction | Done 2026-11-16 (brass and wood, DISCUSSION.md section 22) | — |
+| Palette and piece style direction | Done 2026-11-25 ("Hill and meadow", DISCUSSION.md section 24; replaced brass and wood from 2026-11-16) | — |
 | Font choice from the trial comparison | End of week 1 | Every screen |
 | **Platform brand name** (Tiger & Goat is the game's name, D44) | **Week 11** | The permanent app identifier, the website address |
 | Which stretch items made it | End of week 12 | Store description |
@@ -510,6 +510,7 @@ Add one line per working session: date, task, result, anything the next session 
 | 2026-11-16 | Plan written | — | Godot version not yet pinned; board not yet verified |
 | 2026-11-16 | Board verified | Matches the draft exactly | Picture saved at docs/board-reference.png |
 | 2026-11-16 | Tiger start confirmed | Points 0, 3 and 4 | Nothing about the board is open now |
+| 2026-11-25 | Trial redesign | Tiger & Goat, English only, Plato-like screen, "Hill and meadow" look | Decisions D40–D45 in DISCUSSION.md sections 23–24 |
 | 2026-11-19 | Trial T0.1–T0.3, T0.6, T0.7 | Playable board in brass and wood; exports work; look-ahead 6 moves in 1 s on the laptop's browser | Phone checks outstanding. Run the web build with the `trial-web` preview (`.claude/launch.json`) |
 | 2026-11-16 | Design direction | Brass-and-wood board, light app, shapes plus colour, kolam decoration | Starting palette in DISCUSSION.md section 22 |
 | 2026-11-16 | Tools set up | Godot 4.7.2, JDK 17, Android SDK (API 35 and 36, NDK r28b), Android Studio, GitHub CLI; local Git repository | Empty test app: Android 27 MB, web 9.8 MB compressed. Android size will be near the trial's limit. Details in docs/SETUP.md |
