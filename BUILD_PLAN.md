@@ -468,11 +468,11 @@ Board and pieces are drawn in code. AI-generated images are used only for backgr
 
 ### Phase 4 — daily puzzle
 
-- [ ] 4.1 Puzzle format
-- [ ] 4.2 Puzzle generator, 120 puzzles
-- [ ] 4.3 Puzzle screen
-- [ ] 4.4 Daily choice and streak
-- [ ] 4.5 Sharing — **Checkpoint D**
+- [x] 4.1 Puzzle format (2026-11-27: goals capture / safe / trap, with n moves, difficulty and answer)
+- [x] 4.2 Puzzle generator, 194 puzzles (every one proven: forced solution, exactly one correct first move)
+- [x] 4.3 Puzzle screen (toughest computer defence, tries, wrong-move explanations, Show answer)
+- [x] 4.4 Daily choice and streak (same puzzle for everyone by date, easier early in the week, works offline)
+- [x] 4.5 Sharing — **Checkpoint D** (Copy result to paste in WhatsApp; a link waits for the website)
 
 ### Phase 5 — polish, website, stretch
 
@@ -510,6 +510,7 @@ Add one line per working session: date, task, result, anything the next session 
 | 2026-11-16 | Plan written | — | Godot version not yet pinned; board not yet verified |
 | 2026-11-16 | Board verified | Matches the draft exactly | Picture saved at docs/board-reference.png |
 | 2026-11-16 | Tiger start confirmed | Points 0, 3 and 4 | Nothing about the board is open now |
+| 2026-11-27 | Daily puzzle | 194 proven puzzles from 300 self-play games; Daily tab with today's puzzle, streak, best, practice; home card shows today's number; 64 tests pass | Puzzle #1 date is 2026-11-01 for now; reset to the launch date before release. Sharing copies text only until the website exists |
 | 2026-11-27 | Tutorial | Five hands-on lessons; welcome card on first launch; Learn to play card on the game page, How to play card and Settings; fixed goats not placeable with Move hints off; 58 tests pass | First-timer timing (under 90 s) still to check with real people (Checkpoint C) |
 | 2026-11-26 | Phase 2: computer opponent | New opponent with position table and background thinking; self-play tool (`game/tools/self_play.gd`); 5 captures kept; goats win after 40 tiger moves without a capture; summit spacing; 53 tests pass | Checkpoint B still needs the phone (levels feel, speed) |
 | 2026-11-26 | End-of-game popup | Result now pops up over the board (confetti on a win) instead of a separate page; shown the moment the game ends and fades in after the last move; pieces no longer draw over it; 2 new tests (44 pass) | The browser pane was too laggy to replay the manual win reliably; the automated in-browser win showed the popup |

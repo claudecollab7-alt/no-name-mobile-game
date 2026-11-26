@@ -27,7 +27,7 @@ func defaults() -> Dictionary:
 		"stats": {"played": 0, "wins": 0, "losses": 0, "streak": 0, "best_streak": 0,
 			"tiger_wins": 0, "tiger_losses": 0, "goat_wins": 0, "goat_losses": 0,
 			"pass_games": 0, "hardest": "", "online_wins": 0, "online_losses": 0},
-		"daily": {"streak": 0, "best": 0},
+		"daily": {"streak": 0, "best": 0, "last_date": "", "solved": {}},
 		"online": {"token": "", "server": "", "muted": false, "search_side": "any", "room_side": "random"},
 	}
 

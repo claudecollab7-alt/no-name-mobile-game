@@ -7,6 +7,9 @@ const GamePage := preload("res://shell/screens/game_page.gd")
 var _hello: Label
 var _greet: Label
 var _avatar_slot: Control
+var _daily_title: Label
+var _daily_sub: Label
+var _daily_slot: Control
 
 
 func _ready() -> void:
@@ -31,10 +34,13 @@ func _ready() -> void:
 	drow.add_child(Ui.icon("flame", 64, Ui.ACCENT))
 	var dw := Ui.vbox(0)
 	dw.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	dw.add_child(Ui.heading("Daily puzzle", 36))
-	dw.add_child(Ui.muted("A new challenge every day. Build your streak.", 26))
+	_daily_title = Ui.heading("Daily puzzle", 36)
+	dw.add_child(_daily_title)
+	_daily_sub = Ui.muted("A new challenge every day. Build your streak.", 26)
+	dw.add_child(_daily_sub)
 	drow.add_child(dw)
-	drow.add_child(Ui.soon_pill())
+	_daily_slot = Ui.hbox(0)
+	drow.add_child(_daily_slot)
 	daily.add_child(drow)
 	Ui.on_tap(daily, func() -> void: app.show_tab(1))
 	col.add_child(daily)
@@ -100,6 +106,19 @@ func on_show() -> void:
 	for c in _avatar_slot.get_children():
 		c.queue_free()
 	_avatar_slot.add_child(Ui.avatar(Store.avatar(), Store.avatar_colour(), 120))
+	var day := Daily.day_number()
+	var done := Daily.tries_on(day) > 0
+	var streak := Daily.streak()
+	_daily_title.text = tr("Daily puzzle #%d") % day
+	if done:
+		_daily_sub.text = tr("Solved. %d-day streak, back tomorrow.") % streak
+	elif streak > 0:
+		_daily_sub.text = tr("Keep your %d-day streak going.") % streak
+	else:
+		_daily_sub.text = "A new challenge every day. Build your streak."
+	for c in _daily_slot.get_children():
+		c.queue_free()
+	_daily_slot.add_child(Ui.pill("Done", Ui.SOFT, Color("#3B6D11"), 24) if done else Ui.pill("Solve", Ui.ACCENT, Ui.WHITE, 24))
 
 
 func _open_game() -> void:
