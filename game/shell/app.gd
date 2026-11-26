@@ -41,8 +41,8 @@ func _ready() -> void:
 		_tab_screens.append(s)
 	_build_tab_bar()
 	show_tab(0)
-	if not Store.data["seen_rules"]:
-		Modal.how_to_play(self)
+	if not Store.data["seen_rules"] and not Store.data["tutorial_done"]:
+		Modal.welcome(self)
 
 
 func _build_tab_bar() -> void:

@@ -22,6 +22,7 @@ const PATH_EDGE := Color("#D5B47D")
 const PATH := Color("#FBF1DA")
 const STONE := Color("#B48D55")
 const HINT := Color("#FFFFFF")
+const FOCUS := Color("#E26F2A")
 
 const SRC_MIN := Vector2(16, 22)
 const SRC_SIZE := Vector2(508, 327)
@@ -43,6 +44,8 @@ var busy := false
 var interactive := true  ## False for the result screen and while the computer thinks.
 var show_hints := true
 var reduce_motion := false
+var only_moves := PackedInt32Array()  ## When set, only these moves are allowed (tutorial).
+var focus_points := PackedInt32Array()  ## Points ringed in orange to show where to look (tutorial).
 var _time := 0.0
 
 
@@ -98,8 +101,8 @@ func _sp(v: Vector2) -> Vector2:
 
 func _process(delta: float) -> void:
 	_time += delta
-	if not targets.is_empty():
-		queue_redraw()  # Only the hint pulse animates; skip redraws when there is none.
+	if not targets.is_empty() or not focus_points.is_empty():
+		queue_redraw()  # Only the pulses animate; skip redraws when there are none.
 
 
 func _draw() -> void:
@@ -115,9 +118,13 @@ func _draw() -> void:
 	for i in R.POINT_COUNT:
 		draw_circle(point_pos(i), 5.5 * unit, STONE, true, -1.0, true)
 	var pulse := 0.5 + 0.5 * sin(_time * 3.4)
-	for p: int in targets:
-		var c := point_pos(p)
-		draw_circle(c, (8.5 + 2.5 * pulse) * unit, Color(HINT, 0.45 + 0.4 * pulse), true, -1.0, true)
+	# Placement targets are a hint and follow the setting; a selected piece always shows its moves.
+	if show_hints or selected >= 0:
+		for p: int in targets:
+			var c := point_pos(p)
+			draw_circle(c, (8.5 + 2.5 * pulse) * unit, Color(HINT, 0.45 + 0.4 * pulse), true, -1.0, true)
+	for p in focus_points:
+		draw_arc(point_pos(p), (23.0 + 3.0 * pulse) * unit, 0.0, TAU, 48, Color(FOCUS, 0.55 + 0.45 * pulse), 3.2 * unit, true)
 
 
 func _draw_scene() -> void:
@@ -207,6 +214,8 @@ func _tap(p: int) -> void:
 		human_moved.emit(m)
 		return
 	var own := R.tiger_at(state, p) if state.turn == R.TIGER else (R.goat_at(state, p) and state.in_hand == 0)
+	if own and not only_moves.is_empty():
+		own = Array(only_moves).any(func(m: int) -> bool: return R.move_from(m) == p)
 	if own and p != selected:
 		_select(p)
 	else:
@@ -232,7 +241,9 @@ func _refresh_targets() -> void:
 	if state != null and interactive and R.result(state) == R.ONGOING:
 		var placing := state.turn == R.GOAT and state.in_hand > 0
 		for m: int in R.legal_moves(state):
-			if (placing and show_hints) or R.move_from(m) == selected:
+			if not only_moves.is_empty() and not only_moves.has(m):
+				continue
+			if placing or R.move_from(m) == selected:
 				targets[R.move_to(m)] = m
 	queue_redraw()
 

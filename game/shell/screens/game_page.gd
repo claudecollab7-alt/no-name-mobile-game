@@ -24,6 +24,18 @@ func _ready() -> void:
 	art.add_child(BoardPreview.create(R.new_game(), 380))
 	col.add_child(art)
 	col.add_child(Ui.muted("Three tigers hunt fifteen goats on a hill. Tigers win by capturing 5 goats; goats win by trapping every tiger.", 28))
+	var learn := Ui.card(Ui.WARM, Ui.ACCENT_LINE, 24)
+	var lrow := Ui.hbox(20)
+	lrow.add_child(Ui.icon("bulb", 56, Ui.ACCENT))
+	var lw := Ui.vbox(0)
+	lw.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	lw.add_child(Ui.heading("Learn to play", 34))
+	lw.add_child(Ui.muted("Five tiny lessons on the real board, about a minute.", 26))
+	lrow.add_child(lw)
+	lrow.add_child(Ui.icon("chevron-right", 48, Ui.MUTED))
+	learn.add_child(lrow)
+	Ui.on_tap(learn, func() -> void: app.push(load("res://shell/screens/tutorial_screen.gd").new()))
+	col.add_child(learn)
 
 	col.add_child(section("Play"))
 	var cpu := _mode_card("computer", "robot", "Against the computer", "")

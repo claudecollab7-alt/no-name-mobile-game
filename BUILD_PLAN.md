@@ -459,8 +459,8 @@ Board and pieces are drawn in code. AI-generated images are used only for backgr
 
 ### Phase 3 — tutorial, first run, text
 
-- [ ] 3.1 Tutorial engine
-- [ ] 3.2 Aadupuli tutorial
+- [x] 3.1 Tutorial engine (2026-11-27: lessons are data; the board can limit moves and spotlight points)
+- [x] 3.2 Aadupuli tutorial (5 lessons: place, step, capture, goats move, trap; ends in a first game vs Easy as tigers)
 - [ ] 3.3 Rules summary and story
 - [ ] 3.4 Text system
 - [ ] 3.5 First-run flow
@@ -510,6 +510,7 @@ Add one line per working session: date, task, result, anything the next session 
 | 2026-11-16 | Plan written | — | Godot version not yet pinned; board not yet verified |
 | 2026-11-16 | Board verified | Matches the draft exactly | Picture saved at docs/board-reference.png |
 | 2026-11-16 | Tiger start confirmed | Points 0, 3 and 4 | Nothing about the board is open now |
+| 2026-11-27 | Tutorial | Five hands-on lessons; welcome card on first launch; Learn to play card on the game page, How to play card and Settings; fixed goats not placeable with Move hints off; 58 tests pass | First-timer timing (under 90 s) still to check with real people (Checkpoint C) |
 | 2026-11-26 | Phase 2: computer opponent | New opponent with position table and background thinking; self-play tool (`game/tools/self_play.gd`); 5 captures kept; goats win after 40 tiger moves without a capture; summit spacing; 53 tests pass | Checkpoint B still needs the phone (levels feel, speed) |
 | 2026-11-26 | End-of-game popup | Result now pops up over the board (confetti on a win) instead of a separate page; shown the moment the game ends and fades in after the last move; pieces no longer draw over it; 2 new tests (44 pass) | The browser pane was too laggy to replay the manual win reliably; the automated in-browser win showed the popup |
 | 2026-11-26 | Online play (pulled forward, D54) | Server (`game/server/`, `tools/run_server.sh`), rooms with codes, quick match, server-checked moves, 45 s turns, chat faces and phrases, reconnect, rematch; 16 new tests including real-WebSocket end-to-end and app-screen tests; 42 tests pass; played live in the browser against a second connection | Server runs on this computer only; internet hosting, report/block and server restarts still to do |

@@ -73,6 +73,26 @@ static func how_to_play(host: Node) -> void:
 		words.add_child(body)
 		row.add_child(words)
 		rows.append(row)
-	show(host, "How to play", rows, [["Got it", func() -> void: pass, true]])
+	show(host, "How to play", rows, [
+		["Try the tutorial", func() -> void: host.push(load("res://shell/screens/tutorial_screen.gd").new())],
+		["Got it", func() -> void: pass, true],
+	])
+	Store.data["seen_rules"] = true
+	Store.save_data()
+
+
+
+## First launch: offer the hands-on tutorial, or the one-screen rules.
+static func welcome(host: Node) -> void:
+	var art := Ui.hbox(18)
+	art.alignment = BoxContainer.ALIGNMENT_CENTER
+	art.add_child(Ui.avatar("tiger", 0, 150))
+	art.add_child(Ui.avatar("goat", 1, 150))
+	var body := text("Three tigers hunt fifteen goats on a hill. Learn it in about a minute with five tiny lessons, played on the real board.")
+	body.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	show(host, "Welcome to Tiger & Goat", [art, body], [
+		["Just the rules", func() -> void: how_to_play(host)],
+		["Start the tutorial", func() -> void: host.push(load("res://shell/screens/tutorial_screen.gd").new()), true],
+	])
 	Store.data["seen_rules"] = true
 	Store.save_data()

@@ -33,6 +33,7 @@ func _ready() -> void:
 
 	col.add_child(section("About"))
 	var about := _group()
+	_row(about, "Tutorial", Ui.icon("chevron-right", 44, Ui.MUTED), func() -> void: app.push(load("res://shell/screens/tutorial_screen.gd").new()))
 	_row(about, "How to play", Ui.icon("chevron-right", 44, Ui.MUTED), func() -> void: Modal.how_to_play(app))
 	_row(about, "Privacy", Ui.icon("chevron-right", 44, Ui.MUTED), _privacy)
 	_row(about, "Credits", Ui.label("v" + VERSION, 26, Ui.MUTED), _credits)

@@ -23,6 +23,7 @@ func defaults() -> Dictionary:
 		"settings": {"sound": true, "vibration": true, "hints": true, "reduce_motion": false, "theme": "meadow"},
 		"last": {"mode": "computer", "level": "medium", "side": "goats"},
 		"seen_rules": false,
+		"tutorial_done": false,
 		"stats": {"played": 0, "wins": 0, "losses": 0, "streak": 0, "best_streak": 0,
 			"tiger_wins": 0, "tiger_losses": 0, "goat_wins": 0, "goat_losses": 0,
 			"pass_games": 0, "hardest": "", "online_wins": 0, "online_losses": 0},
