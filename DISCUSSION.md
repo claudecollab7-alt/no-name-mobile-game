@@ -1209,11 +1209,19 @@ Hard now uses its full thinking time (9 moves deep at the start), each level bea
 ### In the app (built 2026-11-27)
 
 - **Home:** Mancala and Pallanguzhi sit side by side under Tiger & Goat, each showing its board mid-game. The "Soon" row now shows Ludo, Four in a Row and More.
-- **Game page:** board picture, one-line description, a "How to play" rules card, then the same play choices as Tiger & Goat: against the computer (Easy, Medium, Hard) or pass and play. Online shows "Soon" until the server learns which game a room plays (G2.6).
+- **Game page:** board picture, one-line description, a "How to play" rules card, then the same play choices as Tiger & Goat: against the computer (Easy, Medium, Hard), pass and play, or online (see below).
 - **Who starts takes turns** from game to game (remembered per game), and the page says so. In a computer game you are always the bottom row.
 - **Play screen:** the opponent's panel on top, the board, your panel below, each with seeds won; a hint line ("Go again!", "The computer starts this game", whose turn in pass and play); Restart, and Undo against the computer.
 - **Result:** the shared end-of-game popup (now one base for every game) with the seed score, Rules, Home and Play again, and who starts next.
 - **Records:** each game keeps wins, losses, draws and pass-and-play games; they also count towards the overall totals, streak and badges. The profile has a "Seed games" card.
+
+### Online (built 2026-11-27)
+
+- **One server for every game.** Each room remembers its game ("aadupuli", "kalah" or "pallanguzhi"); an app that sends no game gets Tiger & Goat, so older builds keep working (protocol stays version 1). Quick match only pairs players looking for the same game; a room code works whichever game page you join from, because the room decides.
+- **Sides are "first" and "second"** in the seed games: random in a new room, and a **rematch swaps them**, so who starts alternates online too. There is no side choice for these games.
+- Same rules as Tiger & Goat online: the server checks every move, 45-second turns (first time-out plays a random pit, the second loses), set phrases and faces for chat, a minute to reconnect, resign, rematch. The result card says why ("You resigned", "ran out of time twice", "left the game") and counts online wins.
+- **Your own row is always at the bottom**, even when you are the second player.
+- Checked live in the browser against a scripted player: room code, join, moves both ways, chat bubble, resign, result.
 
 ### How game 2 will be built
 
@@ -1248,6 +1256,7 @@ One **pits-and-seeds engine** serves both (and Oware later):
 - **2026-11-25** — Added section 23: global focus, English only (D40), name Tiger & Goat (D41), Fredoka and Figtree (D42), Plato-like play screen (D43). D7 and D30 replaced. Open question: one game or platform.
 - **2026-11-25** — D44: Tiger & Goat is the first game's name; the platform brand stays open (needed by week 11).
 - **2026-11-25** — Added section 24: "Hill and meadow" chosen as the default look (D45), with palette, pieces and updated theme plan.
+- **2026-11-27** — Section 29: Mancala and Pallanguzhi online: rooms and quick match know their game; first and second sides swap on rematch.
 - **2026-11-27** — Section 29: Mancala and Pallanguzhi are playable in the app (home cards, game page, play, result, records).
 - **2026-11-27** — D63 revised: Pallanguzhi pasu goes to the pit's owner; forced win gone, ladder clean.
 - **2026-11-27** — Section 29: computer opponent built; found a 7-move forced first-player win in Pallanguzhi as ruled; variants compared, decision pending.

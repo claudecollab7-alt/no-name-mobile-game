@@ -413,69 +413,16 @@ func _confirm_resign() -> void:
 
 
 func _open_chat() -> void:
-	var faces := Ui.hbox(14)
-	var phrases := GridContainer.new()
-	phrases.columns = 2
-	phrases.add_theme_constant_override("h_separation", 14)
-	phrases.add_theme_constant_override("v_separation", 14)
-	for id in OnlineChat.ITEMS.size():
-		var item := PanelContainer.new()
-		item.add_theme_stylebox_override("panel", Ui.box(Ui.PANEL, Ui.LINE, 30, 3, 16))
-		item.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		if OnlineChat.is_emote(id):
-			var ic := Ui.icon(OnlineChat.value(id), 64, Ui.ACCENT)
-			ic.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-			item.add_child(ic)
-			faces.add_child(item)
-		else:
-			var l := Ui.label(OnlineChat.value(id), 30, Ui.INK, "bold")
-			l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-			item.add_child(l)
-			phrases.add_child(item)
-		Ui.on_tap(item, func() -> void:
-			Online.send({"t": "chat", "id": id})
-			_bubble(true, id)
-			Modal.close_top(app))
-	var mute_row := Ui.hbox(16)
-	var ml := Ui.label(tr("Hide messages from %s") % str(opponent.get("name", "Player")), 28, Ui.MUTED)
-	ml.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	ml.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	mute_row.add_child(ml)
-	var sw := UiSwitch.new()
-	sw.on = bool(Store.data["online"]["muted"])
-	sw.toggled.connect(func(on: bool) -> void:
-		Store.data["online"]["muted"] = on
-		Store.save_data())
-	mute_row.add_child(sw)
-	Modal.show(app, "Say something", [faces, phrases, mute_row], [["Close", func() -> void: pass]])
+	OnlineChat.open_picker(app, str(opponent.get("name", "Player")), func(id: int) -> void:
+		Online.send({"t": "chat", "id": id})
+		_bubble(true, id))
 
 
 ## A speech bubble next to a player's panel for a few seconds.
 func _bubble(mine: bool, id: int) -> void:
-	if id < 0 or id >= OnlineChat.ITEMS.size():
-		return
 	var my_panel := _tiger_chip if human_side == "tigers" else _goat_chip
 	var their_panel := _goat_chip if human_side == "tigers" else _tiger_chip
-	var panel := my_panel if mine else their_panel
-	var b := PanelContainer.new()
-	b.add_theme_stylebox_override("panel", Ui.box(Ui.WHITE, Ui.ACCENT if not mine else Ui.LINE, 32, 4, 18))
-	if OnlineChat.is_emote(id):
-		b.add_child(Ui.icon(OnlineChat.value(id), 72, Ui.ACCENT))
-	else:
-		b.add_child(Ui.label(OnlineChat.value(id), 32, Ui.INK, "bold"))
-	b.z_index = 60
-	b.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(b)
-	await get_tree().process_frame
-	if not is_instance_valid(b) or not is_instance_valid(panel):
-		return
-	b.global_position = panel.global_position + Vector2(panel.size.x - b.size.x - 30, -b.size.y * 0.55)
-	if not mine:
-		Sfx.tap()
-	var tw := b.create_tween()
-	tw.tween_interval(2.6)
-	tw.tween_property(b, "modulate:a", 0.0, 0.4)
-	tw.tween_callback(b.queue_free)
+	OnlineChat.bubble(self, my_panel if mine else their_panel, mine, id)
 
 
 func _exit_tree() -> void:

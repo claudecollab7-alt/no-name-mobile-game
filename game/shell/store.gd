@@ -157,6 +157,12 @@ func record_result(game: String, mode: String, level: String, outcome: String) -
 	if mode == "pass":
 		g["pass_games"] += 1
 		s["pass_games"] += 1
+	elif mode == "online":  # Like Tiger & Goat: online results don't touch the computer streak.
+		if outcome == "draw":
+			g["draws"] += 1
+		else:
+			g["wins" if outcome == "win" else "losses"] += 1
+			s["online_wins" if outcome == "win" else "online_losses"] += 1
 	elif outcome == "draw":
 		g["draws"] += 1
 	elif outcome == "win":

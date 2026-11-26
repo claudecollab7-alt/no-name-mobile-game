@@ -3,11 +3,13 @@ extends AppScreen
 ## 20 seconds, D5), a room code to share, or joining a friend's room.
 
 const PlayScreen := preload("res://shell/screens/play_screen.gd")
+const SowingPlayScreen := preload("res://shell/screens/sowing_play_screen.gd")
 const GamePage := preload("res://shell/screens/game_page.gd")
 const OFFER_AFTER := 20.0
 
 var kind := "search"  ## "search", "room" or "join"
 var arg := ""  ## side for search/room, code for join
+var game_id := "aadupuli"  ## The game asked for (a joined room's own game wins).
 var _title: Label
 var _sub: Label
 var _code_box: Control
@@ -18,10 +20,11 @@ var _elapsed := 0.0
 var _sent := false
 
 
-static func create(p_kind: String, p_arg: String) -> AppScreen:
+static func create(p_kind: String, p_arg: String, p_game := "aadupuli") -> AppScreen:
 	var s: AppScreen = load("res://shell/screens/waiting_screen.gd").new()
 	s.kind = p_kind
 	s.arg = p_arg
+	s.game_id = p_game
 	return s
 
 
@@ -107,8 +110,8 @@ func _on_status(s: String) -> void:
 func _send_request() -> void:
 	_sent = true
 	match kind:
-		"search": Online.send({"t": "search", "side": arg})
-		"room": Online.send({"t": "create", "side": arg})
+		"search": Online.send({"t": "search", "side": arg, "game": game_id})
+		"room": Online.send({"t": "create", "side": arg, "game": game_id})
 		"join": Online.send({"t": "join", "code": arg})
 
 
@@ -141,7 +144,10 @@ func _on_message(msg: Dictionary) -> void:
 			_code_label.text = str(msg.get("code", ""))
 			_code_box.visible = true
 		"start":
-			app.replace(PlayScreen.create_online(msg))
+			if str(msg.get("game", "aadupuli")) == "aadupuli":
+				app.replace(PlayScreen.create_online(msg))
+			else:
+				app.replace(SowingPlayScreen.create_online(msg))
 		"error":
 			var texts := {"no_room": "There's no room with that code. Check it with your friend.", "room_full": "That room already has two players."}
 			if texts.has(msg.get("code")):
@@ -149,7 +155,8 @@ func _on_message(msg: Dictionary) -> void:
 
 
 func _copy_invite() -> void:
-	DisplayServer.clipboard_set(tr("Play Tiger & Goat with me! Open the app, tap Play online, then Join a friend and enter code %s") % _code_label.text)
+	var title := "Tiger & Goat" if game_id == "aadupuli" else tr(Games.title(game_id))
+	DisplayServer.clipboard_set(tr("Play %s with me! Open the app, tap Play online, then Join a friend and enter code %s") % [title, _code_label.text])
 	Modal.show(app, "Copied", [Modal.text("The invite is copied. Paste it into WhatsApp or any message to your friend.")], [["OK", func() -> void: pass, true]])
 
 
@@ -160,6 +167,9 @@ func _cancel() -> void:
 
 func _play_computer() -> void:
 	Online.send({"t": "cancel"})
+	if game_id != "aadupuli":
+		app.replace(SowingPlayScreen.create(game_id, "computer", Store.last("level")))
+		return
 	var side := arg if arg in ["tigers", "goats"] else "goats"
 	app.replace(PlayScreen.create("computer", Store.last("level"), side))
 

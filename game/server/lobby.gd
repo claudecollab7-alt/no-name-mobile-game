@@ -9,8 +9,15 @@ extends RefCounted
 ## sent as ids (D29); 45-second turns, first time-out plays a random move and warns,
 ## second forfeits (D51); names filtered (D50); empty quick match is handled on the
 ## phone by offering the computer after 20 seconds (D5).
+##
+## Several games share the lobby: each room plays one game ("aadupuli", "kalah" or
+## "pallanguzhi"; old clients send none and get Tiger & Goat). Sides are "tigers" and
+## "goats" in Tiger & Goat, "first" and "second" in the seed games (who moves first;
+## a rematch swaps them, so the start alternates). Quick match pairs the same game only.
 
 const R := preload("res://games/aadupuli/rules/aadupuli_rules.gd")
+const S := preload("res://games/sowing/sowing_rules.gd")
+const GAMES := ["aadupuli", "kalah", "pallanguzhi"]
 
 const PROTOCOL := 1
 const TURN_MS := 45000
@@ -20,7 +27,7 @@ const CHAT_IDS := 14  ## Phrases and emotes are numbered 0..13 on the phone (she
 
 var players := {}  ## peer -> {name, avatar, colour, token, room, chat_at}
 var rooms := {}  ## code -> room Dictionary
-var queue: Array = []  ## [{peer, side}] waiting for quick match
+var queue: Array = []  ## [{peer, side, game}] waiting for quick match
 var tokens := {}  ## token -> peer, for reconnecting
 var _rng := RandomNumberGenerator.new()
 var _out: Array = []
@@ -43,9 +50,9 @@ func handle(peer: int, msg: Dictionary, now: int) -> Array:
 		return _out
 	match t:
 		"hello": _hello(peer, msg, now)
-		"create": _create(peer, str(msg.get("side", "random")))
+		"create": _create(peer, str(msg.get("side", "random")), _game_of(msg))
 		"join": _join(peer, str(msg.get("code", "")).to_upper().strip_edges(), now)
-		"search": _search(peer, str(msg.get("side", "any")), now)
+		"search": _search(peer, str(msg.get("side", "any")), _game_of(msg), now)
 		"cancel": _cancel_search(peer)
 		"leave": _leave(peer, now)
 		"move": _move(peer, int(msg.get("m", -1)), now)
@@ -148,16 +155,16 @@ func _public(peer: int) -> Dictionary:
 
 # ---------- Rooms ----------
 
-func _create(peer: int, side: String) -> void:
+func _create(peer: int, side: String, game: String) -> void:
 	_leave(peer, 0)
 	var code := _new_code()
 	rooms[code] = {
-		"code": code, "players": [peer], "host_side": side if side in ["tigers", "goats"] else "random",
+		"code": code, "game": game, "players": [peer], "host_side": side if side in sides_of(game) else "random",
 		"sides": {}, "status": "waiting", "state": null, "deadline": 0, "timeouts": {},
 		"away": {}, "rematch": [], "private": true,
 	}
 	players[peer]["room"] = code
-	_send(peer, {"t": "room", "code": code, "status": "waiting"})
+	_send(peer, {"t": "room", "code": code, "status": "waiting", "game": game})
 
 
 func _join(peer: int, code: String, now: int) -> void:
@@ -174,19 +181,21 @@ func _join(peer: int, code: String, now: int) -> void:
 	_begin(room, now)
 
 
-func _search(peer: int, side: String, now: int) -> void:
+func _search(peer: int, side: String, game: String, now: int) -> void:
 	_leave(peer, now)
 	_cancel_search(peer)
-	var want := side if side in ["tigers", "goats"] else "any"
+	var want := side if side in sides_of(game) else "any"
 	for i in queue.size():
 		var other: Dictionary = queue[i]
+		if other["game"] != game:
+			continue
 		var their: String = other["side"]
 		if their == "any" or want == "any" or their != want:
 			queue.remove_at(i)
 			var code := _new_code()
-			var host_side := their if their != "any" else ("random" if want == "any" else ("goats" if want == "tigers" else "tigers"))
+			var host_side := their if their != "any" else ("random" if want == "any" else _other_side(game, want))
 			rooms[code] = {
-				"code": code, "players": [other["peer"], peer], "host_side": host_side,
+				"code": code, "game": game, "players": [other["peer"], peer], "host_side": host_side,
 				"sides": {}, "status": "waiting", "state": null, "deadline": 0, "timeouts": {},
 				"away": {}, "rematch": [], "private": false,
 			}
@@ -194,7 +203,7 @@ func _search(peer: int, side: String, now: int) -> void:
 			players[peer]["room"] = code
 			_begin(rooms[code], now)
 			return
-	queue.append({"peer": peer, "side": want})
+	queue.append({"peer": peer, "side": want, "game": game})
 	_send(peer, {"t": "searching"})
 
 
@@ -234,11 +243,12 @@ func _new_code() -> String:
 func _begin(room: Dictionary, now: int) -> void:
 	var host: int = room["players"][0]
 	var guest: int = room["players"][1]
+	var game: String = room["game"]
 	var host_side: String = room["host_side"]
 	if host_side == "random":
-		host_side = "tigers" if _rng.randi() % 2 == 0 else "goats"
-	room["sides"] = {host: host_side, guest: "goats" if host_side == "tigers" else "tigers"}
-	room["state"] = R.new_game()
+		host_side = sides_of(game)[_rng.randi() % 2]
+	room["sides"] = {host: host_side, guest: _other_side(game, host_side)}
+	room["state"] = _new_state(game)
 	room["status"] = "playing"
 	room["timeouts"] = {host: 0, guest: 0}
 	room["rematch"] = []
@@ -250,8 +260,8 @@ func _begin(room: Dictionary, now: int) -> void:
 func _start_msg(room: Dictionary, peer: int, now: int) -> Dictionary:
 	var opp := _opponent(room, peer)
 	return {
-		"t": "start", "code": room["code"], "private": room["private"], "you": room["sides"][peer],
-		"opponent": _public(opp) if opp != 0 else {}, "state": R.to_dict(room["state"]),
+		"t": "start", "code": room["code"], "game": room["game"], "private": room["private"], "you": room["sides"][peer],
+		"opponent": _public(opp) if opp != 0 else {}, "state": _dict(room),
 		"turn_ms": maxi(0, int(room["deadline"]) - now),
 	}
 
@@ -261,36 +271,33 @@ func _move(peer: int, m: int, now: int) -> void:
 	if room.is_empty() or room["status"] != "playing":
 		_send(peer, {"t": "error", "code": "not_playing"})
 		return
-	var s: R.State = room["state"]
-	if _turn_side(s) != room["sides"][peer] or not R.legal_moves(s).has(m):
-		_send(peer, {"t": "sync", "state": R.to_dict(s), "turn_ms": maxi(0, int(room["deadline"]) - now)})
+	if _turn_side(room) != room["sides"][peer] or not _legal(room).has(m):
+		_send(peer, {"t": "sync", "state": _dict(room), "turn_ms": maxi(0, int(room["deadline"]) - now)})
 		return
 	_apply(room, m, peer, now)
 
 
 func _apply(room: Dictionary, m: int, by: int, now: int) -> void:
-	room["state"] = R.apply(room["state"], m)
+	if room["game"] == "aadupuli":
+		room["state"] = R.apply(room["state"], m)
+	else:
+		room["state"] = S.after(room["state"], m)
 	room["deadline"] = now + TURN_MS
 	for p: int in room["players"]:
-		_send(p, {"t": "moved", "m": m, "by": room["sides"][by], "turn_ms": TURN_MS,
-			"state": R.to_dict(room["state"])})
-	var res := R.result(room["state"])
-	if res != R.ONGOING:
-		var s: R.State = room["state"]
-		var reason := "captured" if res == R.TIGERS_WIN and s.captured >= s.capture_target else (
-			"held" if res == R.GOATS_WIN and R.held(s) else ("trapped" if res == R.GOATS_WIN else "stuck"))
-		_end(room, "tigers" if res == R.TIGERS_WIN else "goats", reason)
+		_send(p, {"t": "moved", "m": m, "by": room["sides"][by], "turn_ms": TURN_MS, "state": _dict(room)})
+	var outcome := _outcome(room)
+	if not outcome.is_empty():
+		_end(room, outcome[0], outcome[1])
 
 
 func _timeout(room: Dictionary, now: int) -> void:
-	var s: R.State = room["state"]
-	var side := _turn_side(s)
+	var side := _turn_side(room)
 	var peer := _peer_with_side(room, side)
 	room["timeouts"][peer] = int(room["timeouts"].get(peer, 0)) + 1
 	if room["timeouts"][peer] >= 2:
-		_end(room, "goats" if side == "tigers" else "tigers", "timeout")
+		_end(room, _other_side(room["game"], side), "timeout")
 		return
-	var moves := R.legal_moves(s)
+	var moves := _legal(room)
 	for p: int in room["players"]:
 		_send(p, {"t": "timeout", "side": side})
 	_apply(room, moves[_rng.randi_range(0, moves.size() - 1)], peer, now)
@@ -307,7 +314,7 @@ func _end(room: Dictionary, winner: String, reason: String) -> void:
 	room["away"] = {}
 	for p: int in room["players"]:
 		if players.has(p):
-			_send(p, {"t": "end", "winner": winner, "reason": reason, "state": R.to_dict(room["state"])})
+			_send(p, {"t": "end", "winner": winner, "reason": reason, "state": _dict(room)})
 
 
 func _rematch(peer: int, now: int) -> void:
@@ -322,7 +329,7 @@ func _rematch(peer: int, now: int) -> void:
 		return
 	# Swap sides for the rematch.
 	var host: int = room["players"][0]
-	room["host_side"] = "goats" if room["sides"][host] == "tigers" else "tigers"
+	room["host_side"] = _other_side(room["game"], room["sides"][host])
 	_begin(room, now)
 
 
@@ -368,5 +375,61 @@ func _peer_with_side(room: Dictionary, side: String) -> int:
 	return 0
 
 
-func _turn_side(s: R.State) -> String:
-	return "tigers" if s.turn == R.TIGER else "goats"
+# ---------- Per-game rules ----------
+
+static func sides_of(game: String) -> Array:
+	return ["tigers", "goats"] if game == "aadupuli" else ["first", "second"]
+
+
+func _other_side(game: String, side: String) -> String:
+	var both := sides_of(game)
+	return both[1] if side == both[0] else both[0]
+
+
+func _game_of(msg: Dictionary) -> String:
+	var g := str(msg.get("game", "aadupuli"))
+	return g if g in GAMES else "aadupuli"
+
+
+func _new_state(game: String) -> Variant:
+	if game == "aadupuli":
+		return R.new_game()
+	return S.new_game(S.KALAH if game == "kalah" else S.PALLANGUZHI, 0)
+
+
+func _turn_side(room: Dictionary) -> String:
+	if room["game"] == "aadupuli":
+		return "tigers" if (room["state"] as R.State).turn == R.TIGER else "goats"
+	return "first" if (room["state"] as S.State).turn == 0 else "second"
+
+
+func _legal(room: Dictionary) -> PackedInt32Array:
+	if room["game"] == "aadupuli":
+		return R.legal_moves(room["state"])
+	return S.legal_moves(room["state"])
+
+
+func _dict(room: Dictionary) -> Dictionary:
+	if room["game"] == "aadupuli":
+		return R.to_dict(room["state"])
+	return S.to_dict(room["state"])
+
+
+## [winner side or "draw", reason] once the game is over, else [].
+func _outcome(room: Dictionary) -> Array:
+	if room["game"] == "aadupuli":
+		var s: R.State = room["state"]
+		var res := R.result(s)
+		if res == R.ONGOING:
+			return []
+		var reason := "captured" if res == R.TIGERS_WIN and s.captured >= s.capture_target else (
+			"held" if res == R.GOATS_WIN and R.held(s) else ("trapped" if res == R.GOATS_WIN else "stuck"))
+		return ["tigers" if res == R.TIGERS_WIN else "goats", reason]
+	match S.result(room["state"]):
+		S.WIN_0:
+			return ["first", "seeds"]
+		S.WIN_1:
+			return ["second", "seeds"]
+		S.DRAW:
+			return ["draw", "seeds"]
+	return []

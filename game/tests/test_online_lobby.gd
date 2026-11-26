@@ -150,3 +150,80 @@ func test_full_game_over_the_lobby_ends_with_a_result() -> void:
 		if not ended.is_empty():
 			break
 	assert_dict(ended).is_not_empty()
+
+
+# ---------- Seed games ----------
+
+const S := preload("res://games/sowing/sowing_rules.gd")
+
+
+func _start_seed_room(game: String, side := "first") -> Array:
+	_hello(1, "Ana")
+	_hello(2, "Ben")
+	var code: String = _to(lobby.handle(1, {"t": "create", "side": side, "game": game}, now), 1, "room")["code"]
+	return lobby.handle(2, {"t": "join", "code": code}, now)
+
+
+func test_a_room_plays_the_game_it_was_created_for() -> void:
+	var out := _start_seed_room("pallanguzhi")
+	var start := _to(out, 2, "start")
+	assert_str(start["game"]).is_equal("pallanguzhi")
+	assert_str(start["you"]).is_equal("second")
+	assert_str(_to(out, 1, "start")["you"]).is_equal("first")
+	assert_int((start["state"]["pits"] as Array).size()).is_equal(14)
+
+
+func test_old_clients_without_a_game_get_tiger_and_goat() -> void:
+	var out := _start_room()
+	assert_str(_to(out, 1, "start")["game"]).is_equal("aadupuli")
+
+
+func test_quick_match_only_pairs_players_of_the_same_game() -> void:
+	_hello(1)
+	_hello(2)
+	_hello(3)
+	lobby.handle(1, {"t": "search", "side": "any", "game": "kalah"}, now)
+	assert_dict(_to(lobby.handle(2, {"t": "search", "side": "any", "game": "pallanguzhi"}, now), 2, "searching")).is_not_empty()
+	var out := lobby.handle(3, {"t": "search", "side": "any", "game": "kalah"}, now)
+	assert_str(_to(out, 1, "start")["game"]).is_equal("kalah")
+	assert_str(_to(out, 3, "start")["game"]).is_equal("kalah")
+
+
+func test_seed_moves_are_checked_and_an_extra_turn_keeps_the_same_mover() -> void:
+	_start_seed_room("kalah")
+	assert_dict(_to(lobby.handle(2, {"t": "move", "m": 7}, now), 2, "sync")).is_not_empty()  # Not Ben's turn.
+	var out := lobby.handle(1, {"t": "move", "m": 2}, now)  # Lands in Ana's store: she goes again.
+	assert_str(_to(out, 2, "moved")["by"]).is_equal("first")
+	assert_int(int(_to(out, 2, "moved")["state"]["turn"])).is_equal(0)
+	assert_dict(_to(lobby.handle(2, {"t": "move", "m": 7}, now), 2, "sync")).is_not_empty()
+	assert_dict(_to(lobby.handle(1, {"t": "move", "m": 5}, now), 2, "moved")).is_not_empty()
+
+
+func test_a_seed_game_over_the_lobby_ends_with_a_winner_or_draw_and_rematch_swaps_who_starts() -> void:
+	for game: String in ["kalah", "pallanguzhi"]:
+		before_test()
+		_start_seed_room(game, "first")
+		var rng := RandomNumberGenerator.new()
+		rng.seed = 8
+		var ended := {}
+		for i in 500:
+			var room: Dictionary = lobby.rooms.values()[0]
+			var s: S.State = room["state"]
+			var mover := 1 if s.turn == 0 else 2
+			var moves := S.legal_moves(s)
+			var out := lobby.handle(mover, {"t": "move", "m": moves[rng.randi_range(0, moves.size() - 1)]}, now)
+			ended = _to(out, 2, "end")
+			if not ended.is_empty():
+				break
+		assert_bool(str(ended.get("winner", "")) in ["first", "second", "draw"]).is_true()
+		lobby.handle(1, {"t": "rematch"}, now)
+		var again := lobby.handle(2, {"t": "rematch"}, now)
+		assert_str(_to(again, 1, "start")["you"]).is_equal("second")
+
+
+func test_a_seed_time_out_plays_a_random_pit_for_the_slow_player() -> void:
+	_start_seed_room("pallanguzhi")
+	now += OnlineLobby.TURN_MS
+	var out := lobby.tick(now)
+	assert_str(_to(out, 2, "timeout")["side"]).is_equal("first")
+	assert_dict(_to(out, 2, "moved")).is_not_empty()
