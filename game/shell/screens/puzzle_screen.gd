@@ -147,6 +147,7 @@ func _on_move(m: int) -> void:
 
 ## Shows why the move fails, then resets for another try.
 func _wrong(after: R.State) -> void:
+	Sfx.play("nope")
 	_busy = true
 	board.interactive = false
 	match str(puzzle["goal"]):
@@ -188,6 +189,7 @@ func _solved() -> void:
 	board.interactive = false
 	_busy = true
 	Sfx.vibrate(40)
+	Sfx.play("solved")
 	_feedback.text = ""
 	var counts_for_streak := day > 0 and not revealed
 	if counts_for_streak:

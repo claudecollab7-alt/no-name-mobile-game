@@ -62,6 +62,7 @@ func _ready() -> void:
 	col.add_child(w)
 	if mode != "pass" and human_won:
 		Sfx.vibrate(40)
+	_play_sound.call_deferred("win" if mode == "pass" or human_won else "lose")
 
 	var badge := Ui.token(tigers_won, 70)
 	badge.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
@@ -208,3 +209,10 @@ func _on_online(msg: Dictionary) -> void:
 func _exit_tree() -> void:
 	if mode == "online" and not _moving_on:
 		Online.send({"t": "leave"})
+
+
+
+func _play_sound(kind: String) -> void:
+	await get_tree().create_timer(0.55).timeout  # In step with the card popping in.
+	if is_inside_tree():
+		Sfx.play(kind)

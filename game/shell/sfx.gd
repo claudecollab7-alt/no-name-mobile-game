@@ -5,6 +5,11 @@ const STREAMS := {
 	"place": preload("res://assets/sounds/place.wav"),
 	"move": preload("res://assets/sounds/move.wav"),
 	"capture": preload("res://assets/sounds/capture.wav"),
+	"win": preload("res://assets/sounds/win.wav"),
+	"lose": preload("res://assets/sounds/lose.wav"),
+	"select": preload("res://assets/sounds/select.wav"),
+	"solved": preload("res://assets/sounds/solved.wav"),
+	"nope": preload("res://assets/sounds/nope.wav"),
 }
 
 var _players := {}

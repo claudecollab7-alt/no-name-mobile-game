@@ -6,7 +6,8 @@ extends Node2D
 signal played(kind: String)  ## "place", "move" or "capture"
 signal changed
 signal before_move(state_before)
-signal human_moved(move: int)  ## A move the player made by tapping (sent to the server online).  ## A human move is about to be played; used for undo.
+signal human_moved(move: int)
+signal no_moves(point: int)  ## The player picked a piece that has nowhere to go.  ## A move the player made by tapping (sent to the server online).  ## A human move is about to be played; used for undo.
 
 const R := preload("res://games/aadupuli/rules/aadupuli_rules.gd")
 const Piece := preload("res://games/aadupuli/board/piece.gd")
@@ -23,6 +24,7 @@ const PATH := Color("#FBF1DA")
 const STONE := Color("#B48D55")
 const HINT := Color("#FFFFFF")
 const FOCUS := Color("#E26F2A")
+const LAST := Color("#8A6A3A")  ## Last-move trail: a darker sand, quiet but visible.
 
 const SRC_MIN := Vector2(16, 22)
 const SRC_SIZE := Vector2(508, 327)
@@ -46,6 +48,8 @@ var show_hints := true
 var reduce_motion := false
 var only_moves := PackedInt32Array()  ## When set, only these moves are allowed (tutorial).
 var focus_points := PackedInt32Array()  ## Points ringed in orange to show where to look (tutorial).
+var last_move := -1  ## Marked on the board so players see what just happened.
+var _area := Vector2.ZERO
 var _time := 0.0
 
 
@@ -59,6 +63,7 @@ func set_state(s: R.State) -> void:
 		pieces[p].queue_free()
 	pieces.clear()
 	state = s
+	last_move = -1
 	for t in state.tigers:
 		_spawn(t, true)
 	for p in R.POINT_COUNT:
@@ -75,6 +80,7 @@ func play_move(m: int) -> void:
 
 
 func layout(area: Vector2) -> void:
+	_area = area
 	var full := SRC_SIZE + Vector2(MARGIN, MARGIN) * 2.0
 	unit = minf(area.x / full.x, area.y / full.y)
 	# On tall phones, stretch the board vertically (up to MAX_STRETCH) instead of
@@ -117,6 +123,7 @@ func _draw() -> void:
 		draw_polyline(pts, PATH, 5.5 * unit, true)
 	for i in R.POINT_COUNT:
 		draw_circle(point_pos(i), 5.5 * unit, STONE, true, -1.0, true)
+	_draw_last_move()
 	var pulse := 0.5 + 0.5 * sin(_time * 3.4)
 	# Placement targets are a hint and follow the setting; a selected piece always shows its moves.
 	if show_hints or selected >= 0:
@@ -134,6 +141,11 @@ func _draw_scene() -> void:
 		[Vector2(40, 0), Vector2(170, 32)], [Vector2(270, 62), Vector2(380, 26)],
 		[Vector2(490, -10), Vector2(600, 52)]])
 	ridge.append(_sp(Vector2(600, 400)))
+	# Distant meadow runs edge to edge behind the ridge, so wide screens and cards have no bare sides.
+	if _area.x > 0.0:
+		var top := _sp(Vector2(0, 62)).y
+		var bottom := maxf(_area.y, _sp(Vector2(0, 400)).y)
+		draw_rect(Rect2(0, top, _area.x, bottom - top), RIDGE)
 	draw_colored_polygon(ridge, RIDGE)
 	for b: Vector2 in [Vector2(70, 26), Vector2(108, 12)]:
 		var s := 8.0  # A gull: two wings arching up from the body.
@@ -216,8 +228,15 @@ func _tap(p: int) -> void:
 	var own := R.tiger_at(state, p) if state.turn == R.TIGER else (R.goat_at(state, p) and state.in_hand == 0)
 	if own and not only_moves.is_empty():
 		own = Array(only_moves).any(func(m: int) -> bool: return R.move_from(m) == p)
+	if own and p != selected and not _has_moves(p):
+		_clear_selection()
+		_refresh_targets()
+		no_moves.emit(p)
+		played.emit("nope")
+		return
 	if own and p != selected:
 		_select(p)
+		played.emit("select")
 	else:
 		_clear_selection()
 		_refresh_targets()
@@ -253,6 +272,7 @@ func _play(m: int) -> void:
 	var to := R.move_to(m)
 	var over := R.move_over(m)
 	state = R.apply(state, m)
+	last_move = m
 	_clear_selection()
 	if from == R.NONE:
 		var goat := _spawn(to, false)
@@ -299,3 +319,25 @@ func _spawn(p: int, tiger: bool) -> Piece:
 func refresh_targets() -> void:
 	_clear_selection()
 	_refresh_targets()
+
+
+
+func _has_moves(p: int) -> bool:
+	for m in R.legal_moves(state):
+		if R.move_from(m) == p and (only_moves.is_empty() or only_moves.has(m)):
+			return true
+	return false
+
+
+## A soft trail from where the last piece came from to where it landed.
+func _draw_last_move() -> void:
+	if last_move < 0:
+		return
+	var to := point_pos(R.move_to(last_move))
+	var from_index := R.move_from(last_move)
+	var mark := Color(LAST, 0.85)
+	if from_index != R.NONE:
+		var from := point_pos(from_index)
+		draw_line(from, to, Color(LAST, 0.35), 7.0 * unit, true)
+		draw_arc(from, 11.0 * unit, 0.0, TAU, 32, mark, 2.4 * unit, true)
+	draw_circle(to, 22.0 * unit, Color(LAST, 0.22), true, -1.0, true)

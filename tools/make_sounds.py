@@ -66,7 +66,27 @@ def main() -> None:
     move = mix(slide, tone(700, 0.015, 0.1, 0.8), tone(1400, 0.008, 0.1, 0.3), offset=[0, int(RATE * 0.09), int(RATE * 0.09)])
     # Capture: a heavier, lower knock with a short rattle.
     capture = mix(tone(190, 0.09, 0.35, 1.0), tone(380, 0.05, 0.35, 0.5), noise(0.06, 0.02, 0.6, 0.5, 3), tone(760, 0.012, 0.2, 0.4))
-    for name, data in (("place", place), ("move", move), ("capture", capture)):
+    # Marimba-like note: wooden fundamental plus a soft fourth harmonic.
+    def note(freq: float, length: float = 0.5, amp: float = 1.0) -> list[float]:
+        return mix(tone(freq, 0.16, length, amp), tone(freq * 4, 0.02, length, amp * 0.25))
+
+    def at(seconds: float) -> int:
+        return int(RATE * seconds)
+
+    # Win: a rising four-note phrase (C E G C).
+    win = mix(note(523.3), note(659.3), note(784.0), note(1046.5, 0.8),
+              offset=[0, at(0.11), at(0.22), at(0.33)])
+    # Lose: two gentle falling notes, not harsh.
+    lose = mix(note(392.0, 0.5, 0.8), note(311.1, 0.7, 0.8), offset=[0, at(0.18)])
+    # Select: a tiny high tick when a piece is picked up.
+    select = mix(tone(1320, 0.008, 0.06, 0.7), noise(0.01, 0.003, 0.3, 0.2, 4))
+    # Solved: a quick sparkle for a finished puzzle.
+    solved = mix(note(784.0, 0.4, 0.8), note(1046.5, 0.4, 0.8), note(1568.0, 0.6, 0.7),
+                 offset=[0, at(0.07), at(0.14)])
+    # Nope: a soft low bump for a move that isn't allowed or a wrong puzzle answer.
+    nope = mix(tone(160, 0.05, 0.16, 0.9), tone(120, 0.06, 0.18, 0.6), offset=[0, at(0.05)])
+    for name, data in (("place", place), ("move", move), ("capture", capture), ("win", win),
+                       ("lose", lose), ("select", select), ("solved", solved), ("nope", nope)):
         write(out / f"{name}.wav", fade(data))
         print(f"{name}.wav  {len(data) / RATE * 1000:.0f} ms")
 

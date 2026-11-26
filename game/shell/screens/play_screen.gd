@@ -121,6 +121,8 @@ func _ready() -> void:
 	area.resized.connect(func() -> void: board.layout(area.size))
 	board.changed.connect(_on_changed)
 	board.played.connect(func(kind: String) -> void: Sfx.play(kind))
+	board.no_moves.connect(func(_p: int) -> void:
+		_hint.text = "That piece has nowhere to go right now. Try another.")
 	board.before_move.connect(func(s: R.State) -> void:
 		if mode == "computer":
 			_history.append(s))

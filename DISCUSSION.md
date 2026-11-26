@@ -1113,6 +1113,7 @@ Slow and steady, one game properly finished before the next (your words: "do one
 - **2026-11-25** — Added section 23: global focus, English only (D40), name Tiger & Goat (D41), Fredoka and Figtree (D42), Plato-like play screen (D43). D7 and D30 replaced. Open question: one game or platform.
 - **2026-11-25** — D44: Tiger & Goat is the first game's name; the platform brand stays open (needed by week 11).
 - **2026-11-25** — Added section 24: "Hill and meadow" chosen as the default look (D45), with palette, pieces and updated theme plan.
+- **2026-11-27** — Polish pass: eight sounds, last-move trail, full-width meadow, pick-up bounce, stuck-piece hint, branded start screen.
 - **2026-11-27** — Daily puzzle built: 194 proven puzzles (find the only safe move, capture in two, trap in one or two), streaks, practice, copy-to-share.
 - **2026-11-27** — Tutorial built: five hands-on lessons, offered on first launch and from the game page, How to play card and Settings.
 - **2026-11-26** — Added section 28: self-play results, 5 captures kept, 40-move holding-out rule, summit spacing, launch with 17 games (D10, D58–D60).

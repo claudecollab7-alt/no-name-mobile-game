@@ -20,18 +20,26 @@ var radius := 30.0:
 		queue_redraw()
 var selected := false:
 	set(value):
+		if value and not selected:
+			_pop = 1.0  # A small bounce when picked up.
 		selected = value
 		queue_redraw()
+var _pop := 0.0
 var _time := randf() * TAU
 
 
 func _process(delta: float) -> void:
+	var bump := 1.0
+	var popping := _pop > 0.0
+	if popping:
+		_pop = maxf(0.0, _pop - delta * 5.0)
+		bump = 1.0 + 0.14 * sin(_pop * PI)  # Ends at exactly 1.0 when the bounce is over.
 	if is_tiger and breathe:
 		_time += delta
-		var s := 1.0 + 0.035 * sin(_time * 1.9)
+		var s := (1.0 + 0.035 * sin(_time * 1.9)) * bump
 		scale = Vector2(s, s)
-	elif is_tiger and scale != Vector2.ONE:
-		scale = Vector2.ONE
+	elif popping:
+		scale = Vector2(bump, bump)
 
 
 func _draw() -> void:

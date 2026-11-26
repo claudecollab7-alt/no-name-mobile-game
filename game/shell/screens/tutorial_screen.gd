@@ -105,6 +105,7 @@ func _on_moved(_m: int) -> void:
 	else:
 		Store.data["tutorial_done"] = true
 		Store.save_data()
+		Sfx.play("solved")
 		_done_text.text = tr("%s You're ready to play.") % step["done"]
 		_next_row.add_child(Ui.button("Home", func() -> void: app.home(), false, 108))
 		_next_row.add_child(Ui.button("Play the computer", _first_game, true, 108))
