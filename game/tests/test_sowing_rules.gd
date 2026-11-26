@@ -118,6 +118,20 @@ func test_pallanguzhi_pasu_a_pit_reaching_six_goes_to_the_sower() -> void:
 	assert_int(s.stores[0]).is_equal(6 + 3)
 
 
+func test_pallanguzhi_pasu_can_go_to_the_pits_owner_instead() -> void:
+	# Player 0 sows pit 6's seed into player 1's pit 7, making 6. Next pit 8 is empty,
+	# so pit 9 (2 seeds) is captured. Who gets the pasu depends on the house rule.
+	var pits := [1, 0, 0, 0, 0, 0, 1, 5, 0, 2, 1, 1, 1, 1]
+	var sower := S.after(_pall(pits), 6)
+	assert_array(Array(sower.stores)).is_equal([8, 0])
+	var game: Dictionary = S.PALLANGUZHI.duplicate()
+	game["pasu_to"] = "owner"
+	var s := _pall(pits)
+	s.game = game
+	var owner := S.after(s, 6)
+	assert_array(Array(owner.stores)).is_equal([2, 6])
+
+
 func test_pallanguzhi_ends_when_the_player_to_move_has_no_seeds() -> void:
 	# Player 0 captures pit 4 with their last seeds; player 1's side is empty.
 	var pits := [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]

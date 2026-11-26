@@ -115,14 +115,15 @@ static func result(s: State) -> int:
 	return DRAW
 
 
-## Plays pit `pit` for the player to move. Returns [new_state, steps].
-static func apply(s: State, pit: int) -> Array:
+## Plays pit `pit` for the player to move. Returns [new_state, steps]. With record
+## false the steps are not collected (the computer's search plays thousands of moves).
+static func apply(s: State, pit: int, record := true) -> Array:
 	var n := s.copy()
 	var steps: Array = []
-	if str(s.game["id"]) == "kalah" or bool(s.game["store_in_path"]):
-		_sow_kalah(n, pit, steps)
+	if bool(s.game["store_in_path"]):
+		_sow_kalah(n, pit, steps, record)
 	else:
-		_sow_relay(n, pit, steps)
+		_sow_relay(n, pit, steps, record)
 	n.moves_played = s.moves_played + 1
 	_check_end(n, steps)
 	return [n, steps]
@@ -130,12 +131,12 @@ static func apply(s: State, pit: int) -> Array:
 
 ## Convenience for search and tests: the position after a move, without the steps.
 static func after(s: State, pit: int) -> State:
-	return apply(s, pit)[0]
+	return apply(s, pit, false)[0]
 
 
 # ---------- Kalah ----------
 
-static func _sow_kalah(s: State, pit: int, steps: Array) -> void:
+static func _sow_kalah(s: State, pit: int, steps: Array, record: bool) -> void:
 	var me := s.turn
 	var size := s.pits.size()
 	var half := size / 2
@@ -154,7 +155,8 @@ static func _sow_kalah(s: State, pit: int, steps: Array) -> void:
 			s.stores[where - STORE_0] += 1
 		else:
 			s.pits[where] += 1
-		steps.append([DROP, where])
+		if record:
+			steps.append([DROP, where])
 		seeds -= 1
 		last = where
 	if last == (STORE_0 if me == 0 else STORE_1) and bool(s.game["extra_turn"]):
@@ -188,7 +190,7 @@ static func _place_of(pos: int, half: int) -> int:
 
 # ---------- Pallanguzhi ----------
 
-static func _sow_relay(s: State, pit: int, steps: Array) -> void:
+static func _sow_relay(s: State, pit: int, steps: Array, record: bool) -> void:
 	var me := s.turn
 	var size := s.pits.size()
 	var pasu := int(s.game["pasu"])
@@ -203,10 +205,12 @@ static func _sow_relay(s: State, pit: int, steps: Array) -> void:
 			s.pits[pos] += 1
 			seeds -= 1
 			drops += 1
-			steps.append([DROP, pos])
+			if record:
+				steps.append([DROP, pos])
 			if pasu > 0 and s.pits[pos] == pasu:
-				s.stores[me] += pasu
-				steps.append([PASU, pos, pasu, me])
+				var taker := owner(s, pos) if str(s.game.get("pasu_to", "sower")) == "owner" else me
+				s.stores[taker] += pasu
+				steps.append([PASU, pos, pasu, taker])
 				s.pits[pos] = 0
 		if drops >= MAX_DROPS:
 			break

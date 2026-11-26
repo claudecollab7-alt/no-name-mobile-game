@@ -1164,6 +1164,38 @@ Researched and decided 2026-11-27.
 - **One tap plays a pit.** Playable pits glow (follows the Move hints setting); the pit you last played from has a gold ring.
 - **Seeds move one by one:** a handful lifts out of the pit and travels round, dropping one seed in each pit with a soft pebble click; captures fly to the store or pile. Long Pallanguzhi relays speed up so a turn stays under about 4 seconds, and **tapping the board skips to the end** of a move.
 
+### Computer opponent (built 2026-11-27)
+
+Same approach as Tiger & Goat: look-ahead search with a position memory. Kalah's extra turn is handled (the same player can move twice in a row). Score = seeds won, plus a little for seeds on your own side. Levels: easy looks 2 moves ahead and slips sometimes, medium 5 ahead, hard as deep as 1.2 s allows (about 9 moves in Kalah on the laptop).
+
+Ladder, 12 games each, sides and first player swapped every game:
+
+| Game | Match | Result | First player won |
+|---|---|---|---|
+| Kalah | easy vs medium | 0 – 11, 1 draw | 5 of 12 |
+| Kalah | medium vs hard | 2 – 9, 1 draw | 7 of 12 |
+| Kalah | hard vs hard | 6 – 6 | 12 of 12 |
+
+Kalah behaves as expected: each level beats the one below, and between equals the first player wins (Kalah is a known first-player win), which is why the first player alternates.
+
+### Open question: Pallanguzhi has a quick forced win (found 2026-11-27)
+
+With our rules (6 seeds, pasu at 6 to the sower, turn ends after a capture, one round), **the first player can force a win from the start in 7 moves by opening with the third pit**. The hard computer finds it, so whenever it moves first it always wins, and the levels stop mattering (medium vs hard 6 – 6, first player won 12 of 12).
+
+Variants checked (forced win searched 9 moves deep; then 12 hard-vs-hard games):
+
+| Variant | Quick forced win? | First player won | Average moves |
+|---|---|---|---|
+| **Now:** 6 seeds, pasu at 6 to the sower | **Yes**, open with pit 3 | 12 of 12 | 23 |
+| 6 seeds, pasu at 6 **to the pit's owner** | No | 1 of 12 | 27 |
+| 6 seeds, **no pasu** | No | 7 of 12 | 51 |
+| 6 seeds, pasu at 4 to the pit's owner | No | 1 of 12 | 28 |
+| 4 seeds, pasu at 4 to the sower | No | 0 of 12 | 66 |
+| 4 seeds, pasu at 4 to the pit's owner | No | 12 of 12 | 14 |
+| 5 seeds (either pasu) | Broken: the first move ends the game | 12 of 12 | 1 |
+
+The rules engine now supports "pasu to the pit's owner" as an option. **Decision needed** (replaces or confirms D63).
+
 ### How game 2 will be built
 
 One **pits-and-seeds engine** serves both (and Oware later):
@@ -1197,6 +1229,7 @@ One **pits-and-seeds engine** serves both (and Oware later):
 - **2026-11-25** — Added section 23: global focus, English only (D40), name Tiger & Goat (D41), Fredoka and Figtree (D42), Plato-like play screen (D43). D7 and D30 replaced. Open question: one game or platform.
 - **2026-11-25** — D44: Tiger & Goat is the first game's name; the platform brand stays open (needed by week 11).
 - **2026-11-25** — Added section 24: "Hill and meadow" chosen as the default look (D45), with palette, pieces and updated theme plan.
+- **2026-11-27** — Section 29: computer opponent built; found a 7-move forced first-player win in Pallanguzhi as ruled; variants compared, decision pending.
 - **2026-11-27** — Section 29: the sowing board is built (wooden tray, pebble seeds, counts, seed-by-seed animation, tap to skip).
 - **2026-11-27** — Section 29: pits-and-seeds rules built and checked by self-play; first player alternates in both games.
 - **2026-11-27** — Added section 29: Mancala and Pallanguzhi rules from sources, D61–D64, and the plan for the pits-and-seeds engine.
