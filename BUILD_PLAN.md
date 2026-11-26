@@ -494,7 +494,8 @@ Board and pieces are drawn in code. AI-generated images are used only for backgr
 - [x] G2.3 Computer opponent (2026-11-27: `games/sowing/ai/sowing_opponent.gd`, easy/medium/hard; ladder in DISCUSSION.md section 29)
 - [x] G2.3b Pallanguzhi rule fix (2026-11-27: pasu goes to the pit's owner, D63 revised; no forced win, ladder clean)
 - [x] G2.4 In the app (2026-11-27: home cards, game page with rules card, play vs computer or pass and play, result popup, per-game records; online shows Soon)
-- [ ] G2.5 Tutorial and puzzles
+- [x] G2.5a Tutorial (2026-11-27: four lessons per game, offered once on first play, leads into a first game vs Easy)
+- [ ] G2.5b Puzzles
 - [x] G2.6 Online (2026-11-27: rooms and quick match carry the game; first/second sides swap on rematch; chat picker shared by all games; checked live)
 
 ### Phases 6 and 7 — closed test and release
@@ -520,6 +521,7 @@ Add one line per working session: date, task, result, anything the next session 
 | 2026-11-16 | Plan written | — | Godot version not yet pinned; board not yet verified |
 | 2026-11-16 | Board verified | Matches the draft exactly | Picture saved at docs/board-reference.png |
 | 2026-11-16 | Tiger start confirmed | Points 0, 3 and 4 | Nothing about the board is open now |
+| 2026-11-27 | Game 2 lessons | Four hands-on lessons each for Mancala and Pallanguzhi (sow, go again or relay, capture or pasu, the end); Learn to play card, Try the tutorial on the rules card, one-time offer on first play; checked in the browser; 115 tests pass | Puzzles for the seed games (G2.5b) still to do; lesson timing to check with real first-timers |
 | 2026-11-27 | Game 2 online | Server rooms and quick match know their game (old apps get Tiger & Goat); seed games online with timer, chat, resign, reconnect, rematch that swaps who starts; chat picker moved to shared code; checked live against a scripted player; 111 tests pass | Still to do for game 2: tutorial and puzzles (G2.5). Restart the game server after pulling (the running one must have the new lobby) |
 | 2026-11-27 | Game 2 in the app | Both games playable: home cards, game page, play screen with panels and hints, result popup (shared base with Tiger & Goat), records and profile card; first player alternates per game; tried in the browser; 104 tests pass | Online (G2.6) and tutorial/puzzles (G2.5) still to do; timing in the browser pane was throttled, so feel needs checking on the phone |
 | 2026-11-27 | Pallanguzhi pasu fix | Pasu now goes to the pit's owner (D63 revised); hard searches 9 deep, ladder clean, hard vs hard close (11 of 24 drawn); 98 tests pass | Next: put both games in the app (G2.4) |

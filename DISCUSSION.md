@@ -1223,6 +1223,21 @@ Hard now uses its full thinking time (9 moves deep at the start), each level bea
 - **Your own row is always at the bottom**, even when you are the second player.
 - Checked live in the browser against a scripted player: room code, join, moves both ways, chat bubble, resign, result.
 
+### Lessons (built 2026-11-27)
+
+Four hands-on lessons per game, on the real board, in the same style as Tiger & Goat's tutorial: one instruction, only the teaching move allowed (it glows, and orange rings show where to look), then one line on what happened once the seeds have landed.
+
+| Mancala | Pallanguzhi |
+|---|---|
+| 1. Sow your seeds (any pit, from the start) | 1. Sow and capture (the pit beyond an empty one) |
+| 2. Land in your store: go again | 2. Keep sowing (relay from pit to pit) |
+| 3. Capture the pit opposite | 3. Pasu: a pit reaching six goes to its owner |
+| 4. The end: leftovers stay on their side | 4. The end: the player to move has no seeds |
+
+- Opened from **Learn to play** on the game page and **Try the tutorial** on the rules card.
+- The **first time** you press Play in a seed game, a card offers the lessons once ("Learn first" or "Just play").
+- The last lesson leads into a first game against Easy, and you start it.
+
 ### How game 2 will be built
 
 One **pits-and-seeds engine** serves both (and Oware later):
@@ -1256,6 +1271,7 @@ One **pits-and-seeds engine** serves both (and Oware later):
 - **2026-11-25** — Added section 23: global focus, English only (D40), name Tiger & Goat (D41), Fredoka and Figtree (D42), Plato-like play screen (D43). D7 and D30 replaced. Open question: one game or platform.
 - **2026-11-25** — D44: Tiger & Goat is the first game's name; the platform brand stays open (needed by week 11).
 - **2026-11-25** — Added section 24: "Hill and meadow" chosen as the default look (D45), with palette, pieces and updated theme plan.
+- **2026-11-27** — Section 29: lessons for Mancala and Pallanguzhi (four each), offered once on first play.
 - **2026-11-27** — Section 29: Mancala and Pallanguzhi online: rooms and quick match know their game; first and second sides swap on rematch.
 - **2026-11-27** — Section 29: Mancala and Pallanguzhi are playable in the app (home cards, game page, play, result, records).
 - **2026-11-27** — D63 revised: Pallanguzhi pasu goes to the pit's owner; forced win gone, ladder clean.

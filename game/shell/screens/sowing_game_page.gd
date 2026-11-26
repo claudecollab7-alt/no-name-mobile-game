@@ -35,12 +35,12 @@ func _ready() -> void:
 	lrow.add_child(Ui.icon("bulb", 56, Ui.ACCENT))
 	var lw := Ui.vbox(0)
 	lw.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	lw.add_child(Ui.heading("How to play", 34))
-	lw.add_child(Ui.muted("The rules on one card. Playable pits glow during a game.", 26))
+	lw.add_child(Ui.heading("Learn to play", 34))
+	lw.add_child(Ui.muted("Four tiny lessons on the real board, about a minute.", 26))
 	lrow.add_child(lw)
 	lrow.add_child(Ui.icon("chevron-right", 48, Ui.MUTED))
 	learn.add_child(lrow)
-	Ui.on_tap(learn, func() -> void: Games.how_to_play(app, game_id))
+	Ui.on_tap(learn, _learn)
 	col.add_child(learn)
 
 	col.add_child(section("Play"))
@@ -115,7 +115,21 @@ func _refresh() -> void:
 		(chip.get_child(0) as Label).add_theme_color_override("font_color", Color("#B5501A") if on else Ui.INK)
 
 
+func _learn() -> void:
+	app.push(load("res://shell/screens/sowing_tutorial_screen.gd").create(game_id))
+
+
 func _start() -> void:
 	Store.set_last("mode", mode)
 	Store.set_last("level", level)
+	var g: Dictionary = Store.data["games"][game_id]
+	# The first time someone plays a seed game, offer the lessons once.
+	if not bool(g["tutorial_done"]) and not bool(g["tutorial_offered"]) and int(g["played"]) == 0:
+		g["tutorial_offered"] = true
+		Store.save_data()
+		Modal.show(app, tr("New to %s?") % tr(Games.title(game_id)), [Modal.text("Four tiny lessons on the real board teach it in about a minute.")], [
+			["Just play", func() -> void: app.push(PlayScreen.create(game_id, mode, level))],
+			["Learn first", _learn, true],
+		])
+		return
 	app.push(PlayScreen.create(game_id, mode, level))

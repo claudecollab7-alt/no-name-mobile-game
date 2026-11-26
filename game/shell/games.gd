@@ -62,4 +62,7 @@ static func how_to_play(host: Node, id: String) -> void:
 		words.add_child(body)
 		row.add_child(words)
 		rows.append(row)
-	Modal.show(host, TranslationServer.translate("How to play %s") % TranslationServer.translate(title(id)), rows, [["Got it", func() -> void: pass, true]])
+	Modal.show(host, TranslationServer.translate("How to play %s") % TranslationServer.translate(title(id)), rows, [
+		["Try the tutorial", func() -> void: host.push(load("res://shell/screens/sowing_tutorial_screen.gd").create(id))],
+		["Got it", func() -> void: pass, true],
+	])

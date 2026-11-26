@@ -30,8 +30,10 @@ func defaults() -> Dictionary:
 		"daily": {"streak": 0, "best": 0, "last_date": "", "solved": {}},
 		# Per-game records for the games after Tiger & Goat (its record lives in "stats").
 		"games": {
-			"kalah": {"played": 0, "wins": 0, "losses": 0, "draws": 0, "pass_games": 0, "next_first": 0},
-			"pallanguzhi": {"played": 0, "wins": 0, "losses": 0, "draws": 0, "pass_games": 0, "next_first": 0},
+			"kalah": {"played": 0, "wins": 0, "losses": 0, "draws": 0, "pass_games": 0, "next_first": 0,
+				"tutorial_done": false, "tutorial_offered": false},
+			"pallanguzhi": {"played": 0, "wins": 0, "losses": 0, "draws": 0, "pass_games": 0, "next_first": 0,
+				"tutorial_done": false, "tutorial_offered": false},
 		},
 		"online": {"token": "", "server": "", "muted": false, "search_side": "any", "room_side": "random"},
 	}

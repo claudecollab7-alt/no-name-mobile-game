@@ -25,6 +25,7 @@ func _top() -> Node:
 
 
 func _open_play(id: String, mode: String, level := "easy") -> Node:
+	Store.data["games"][id]["tutorial_offered"] = true  # Skip the one-time lessons offer.
 	Store.set_last("mode", mode)
 	Store.set_last("level", level)
 	app.push(SowingGamePage.create(id))
