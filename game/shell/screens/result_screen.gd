@@ -1,5 +1,6 @@
 extends AppScreen
-## End of a game: who won and why, the final board, three numbers, and what next.
+## End-of-game popup over the board: who won and why, three numbers, and what next.
+## The finished board stays visible behind the card; a win gets a burst of confetti.
 
 const R := preload("res://games/aadupuli/rules/aadupuli_rules.gd")
 
@@ -26,7 +27,7 @@ static func create(s: R.State, p_mode: String, p_level: String, p_side: String, 
 
 
 func _ready() -> void:
-	var col := page(true, 96, 40)
+	var col := _popup()
 	var human_won := (human_side == "tigers") == tigers_won
 
 	var them := str(opponent.get("name", "Player"))
@@ -44,7 +45,7 @@ func _ready() -> void:
 		headline = "You win!" if human_won else "The computer wins"
 	else:
 		headline = "The tigers win!" if tigers_won else "The goats win!"
-	var h := Ui.heading(headline, 76)
+	var h := Ui.heading(headline, 70)
 	h.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	col.add_child(h)
 	var why := "The tigers captured 5 goats." if tigers_won and final_state.captured >= final_state.capture_target else (
@@ -61,9 +62,13 @@ func _ready() -> void:
 	if mode != "pass" and human_won:
 		Sfx.vibrate(40)
 
-	var art := Ui.card(Ui.MEADOW_DEEP, Color(0, 0, 0, 0), 0, 34)
-	art.add_child(BoardPreview.create(final_state, 600))
-	col.add_child(art)
+	var badge := Ui.token(tigers_won, 70)
+	badge.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	col.move_child(top, 0)
+	col.add_child(badge)
+	col.move_child(badge, 0)
+	if mode == "pass" or human_won:
+		_confetti()
 
 	var nums := Ui.hbox(16)
 	var third: Array = ["Win streak", str(Store.stat("streak"))] if mode == "computer" else ["Goats left", str(R.goats_on_board(final_state))]
@@ -107,7 +112,70 @@ func _ready() -> void:
 
 func _again(side: String) -> void:
 	var play: Script = load("res://shell/screens/play_screen.gd")
-	app.replace(play.create(mode, level, side))
+	app.pop()  # This popup...
+	app.replace(play.create(mode, level, side))  # ...then the finished game beneath it.
+
+
+func _init() -> void:
+	super()
+	is_overlay = true
+	z_index = 90  # Above the board's pieces (z 1-2), below cards opened from it (z 100).
+
+
+## Dimmed backdrop and a centred card that pops in; returns the card's column.
+func _popup() -> VBoxContainer:
+	var dim := ColorRect.new()
+	dim.color = Color(0.12, 0.17, 0.1, 0.45)
+	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	dim.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(dim)
+	var center := CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(center)
+	var card := Ui.card(Ui.CARD, Color(0, 0, 0, 0), 48, 48)
+	card.custom_minimum_size.x = 960
+	center.add_child(card)
+	var col := Ui.vbox(22)
+	card.add_child(col)
+	card.pivot_offset = Vector2(480, 400)
+	card.scale = Vector2(0.86, 0.86)
+	card.modulate.a = 0.0
+	dim.modulate.a = 0.0
+	# Pause briefly so the winning move finishes animating, then pop in.
+	var tw := create_tween().set_parallel(true)
+	tw.tween_property(dim, "modulate:a", 1.0, 0.25).set_delay(0.6)
+	tw.tween_property(card, "scale", Vector2.ONE, 0.32).set_delay(0.6).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tw.tween_property(card, "modulate:a", 1.0, 0.2).set_delay(0.6)
+	card.resized.connect(func() -> void: card.pivot_offset = card.size / 2.0)
+	return col
+
+
+func _confetti() -> void:
+	var c := CPUParticles2D.new()
+	c.z_index = 120
+	c.amount = 90
+	c.one_shot = true
+	c.explosiveness = 0.92
+	c.lifetime = 2.4
+	c.direction = Vector2(0, -1)
+	c.spread = 70.0
+	c.initial_velocity_min = 700.0
+	c.initial_velocity_max = 1300.0
+	c.gravity = Vector2(0, 1500)
+	c.angular_velocity_min = -360.0
+	c.angular_velocity_max = 360.0
+	c.scale_amount_min = 9.0
+	c.scale_amount_max = 18.0
+	var ramp := Gradient.new()
+	ramp.offsets = PackedFloat32Array([0.0, 0.25, 0.5, 0.75, 1.0])
+	ramp.colors = PackedColorArray([Ui.ACCENT, Color("#F6C66B"), Color("#FFFFFF"), Color("#6E9A4C"), Ui.ACCENT])
+	c.color_initial_ramp = ramp
+	add_child(c)
+	await get_tree().create_timer(0.65).timeout
+	if is_inside_tree():
+		c.position = Vector2(size.x / 2.0, size.y * 0.42)
+		c.emitting = true
 
 
 
@@ -132,6 +200,7 @@ func _on_online(msg: Dictionary) -> void:
 		"start":
 			_moving_on = true
 			var play: Script = load("res://shell/screens/play_screen.gd")
+			app.pop()
 			app.replace(play.create_online(msg))
 
 

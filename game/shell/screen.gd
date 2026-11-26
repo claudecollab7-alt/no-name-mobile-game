@@ -3,6 +3,7 @@ extends Control
 ## Base for every screen. The app sets `app`; screens build their layout in build().
 
 var app: Node  ## shell/app.gd
+var is_overlay := false  ## True for popups that keep the screen beneath visible (game result).
 
 
 func _init() -> void:

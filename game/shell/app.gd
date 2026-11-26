@@ -97,8 +97,9 @@ func show_tab(i: int) -> void:
 ## Opens a full-screen page over the tabs (game page, play, result, settings).
 func push(screen: AppScreen) -> void:
 	screen.app = self
-	for s in _stack:
-		s.visible = false
+	if not screen.is_overlay:
+		for s in _stack:
+			s.visible = false
 	_tab_screens[_current_tab].visible = false
 	_tab_bar.visible = false
 	_root.offset_bottom = 0

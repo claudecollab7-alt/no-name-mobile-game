@@ -353,6 +353,7 @@ The server is the same `game/` project started in server mode, so it needs no fo
 | D34 | **Aadupuli starts on the classic 23-point board**, verified against your picture. More boards and piece-count options may be added later if needed. | 2026-11-16 |
 | D35 | **Fixed start confirmed:** tigers begin on the top point and the two centre points of the first row. | 2026-11-16 |
 | D36–D39 | Visual design: brass-and-wood board, pieces by shape and colour, light calm app, kolam patterns and unlockable themes. See [section 22](#22-visual-design-direction). D39 is narrowed by D40. | 2026-11-16 |
+| D55–D57 | Next games: Mancala with Pallanguzhi next; all four game families in year one; launch Tiger & Goat first. See [section 27](#27-the-next-games). | 2026-11-26 |
 | D50–D54 | Online play: filtered names, 45-second turns, server on this computer for now, computer offer after 20 s, online before Mancala. See [section 26](#26-online-play). | 2026-11-26 |
 | D46–D49 | App structure: four tabs, optional name and avatar, "Soon" items, phase 1 starts now. See [section 25](#25-app-structure-plato-style). | 2026-11-26 |
 | D45 | Default look is "Hill and meadow"; brass and wood becomes the Heirloom theme. See [section 24](#24-hill-and-meadow-look). | 2026-11-25 |
@@ -997,6 +998,46 @@ Built 2026-11-26, ahead of Mancala: you asked for online play next, so it moves 
 
 ---
 
+## 27. The next games
+
+Discussed 2026-11-26.
+
+### Decisions
+
+| # | Decision | Date |
+|---|---|---|
+| D55 | **Game 2 is Mancala with Pallanguzhi** (confirms D28). | 2026-11-26 |
+| D56 | **The first year covers all four families:** more heritage hunt games, quick grid classics, dice race games, and more sowing games. | 2026-11-26 |
+| D57 | **Launch Tiger & Goat on the Play Store when it is "pretty good"**, then rent the server; more games arrive as updates. | 2026-11-26 |
+
+### Four engines, many games
+
+Each family shares one "engine" (board model, move rules framework, drawing, computer opponent). The first game in a family pays for the engine; the rest are mostly rules and art.
+
+| Engine | Status | Games |
+|---|---|---|
+| **Points and lines** (hunt games) | Built (Tiger & Goat) | Bagh-Chal (Nepal: 4 tigers, 20 goats, 5×5 board), Fox and Geese (Europe), Fanorona (Madagascar), Nine Men's Morris |
+| **Pits and seeds** (sowing games) | Next | Kalah (the "Mancala" most people know), Pallanguzhi, Oware (West Africa), Bao (East Africa, advanced) |
+| **Square grid** (quick classics) | Later | Four in a Row, Reversi, Checkers, Dots and Boxes |
+| **Track and dice** (race games) | Later | Ludo with Dayakattam, Snakes and Ladders with Paramapadham, Pachisi. Needs visibly fair dice and 4-player online rooms |
+
+Generic names only for trademarked classics: "Four in a Row" (not Connect Four), "Reversi" (not Othello).
+
+### Proposed order (estimates at 10–20 hours a week)
+
+| When | Work | Why this order |
+|---|---|---|
+| Now | Finish Tiger & Goat to "pretty good": real computer opponent, daily puzzle, polish, phone checks; then Play Store launch (D57) | One excellent game beats three rough ones |
+| Next ~2 months | **Mancala + Pallanguzhi** (sowing engine) | Decided; worldwide search demand; 2 players fits online as built |
+| +1–2 weeks | **Bagh-Chal** as a second board inside Tiger & Goat | Uses the existing engine; fulfils "more boards later" (D34) |
+| +1–1.5 months | **Four in a Row**, then **Reversi** (grid engine) | Fast, familiar, ideal for quick online matches and new players |
+| +2.5–3 months | **Ludo + Dayakattam**, then **Snakes and Ladders + Paramapadham** (dice engine) | Biggest audience, but needs fair dice and 4-player rooms, so it comes once the platform is steady |
+| Afterwards | Oware, Checkers, Fox and Geese, Fanorona, Dots and Boxes, Nine Men's Morris | Mostly rules and art on existing engines |
+
+Open question for later: whether the home shelf groups games by family ("Hunt", "Sow", "Race", "Quick") once there are more than about six.
+
+---
+
 ## Change log
 
 - **2026-11-14** — Document created from the first discussion.
@@ -1016,5 +1057,6 @@ Built 2026-11-26, ahead of Mancala: you asked for online play next, so it moves 
 - **2026-11-25** — Added section 23: global focus, English only (D40), name Tiger & Goat (D41), Fredoka and Figtree (D42), Plato-like play screen (D43). D7 and D30 replaced. Open question: one game or platform.
 - **2026-11-25** — D44: Tiger & Goat is the first game's name; the platform brand stays open (needed by week 11).
 - **2026-11-25** — Added section 24: "Hill and meadow" chosen as the default look (D45), with palette, pieces and updated theme plan.
+- **2026-11-26** — Added section 27: next games and the four engines (D55–D57). End-of-game popup added to Tiger & Goat.
 - **2026-11-26** — Added section 26: online play built (rooms, codes, quick match, chat, timer, reconnect); D50–D54; Hostinger answer.
 - **2026-11-26** — Added section 25: Plato-style app structure and screen map (D46–D49); phase 1 begins in `game/`.

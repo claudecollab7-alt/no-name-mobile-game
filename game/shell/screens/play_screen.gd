@@ -290,9 +290,10 @@ func _finish(res: int) -> void:
 	var human_won := (human_side == "tigers") == tigers_won
 	Store.record_game(mode, human_side, level, human_won)
 	var final_state := board.state
-	await get_tree().create_timer(1.1).timeout
-	if is_inside_tree():
-		app.replace(ResultScreen.create(final_state, mode, level, human_side, tigers_won))
+	_hint.text = "Game over"
+	# Show the popup straight away; it waits a moment before fading in, so the last
+	# move can finish animating. No timer to depend on.
+	app.push.call_deferred(ResultScreen.create(final_state, mode, level, human_side, tigers_won))
 
 
 
@@ -358,13 +359,10 @@ func _finish_online(msg: Dictionary) -> void:
 	var tigers_won := str(msg.get("winner", "")) == "tigers"
 	var human_won := (human_side == "tigers") == tigers_won
 	Store.record_game("online", human_side, "", human_won)
-	var delay := 1.1 if str(msg.get("reason", "")) in ["captured", "trapped", "stuck"] else 0.3
-	await get_tree().create_timer(delay).timeout
-	if is_inside_tree():
-		var r: AppScreen = ResultScreen.create(final_state, "online", "", human_side, tigers_won)
-		r.set("opponent", opponent)
-		r.set("reason", str(msg.get("reason", "")))
-		app.replace(r)
+	var r: AppScreen = ResultScreen.create(final_state, "online", "", human_side, tigers_won)
+	r.set("opponent", opponent)
+	r.set("reason", str(msg.get("reason", "")))
+	app.push.call_deferred(r)
 
 
 func _confirm_leave() -> void:
