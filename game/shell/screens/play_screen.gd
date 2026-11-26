@@ -21,6 +21,7 @@ var _opponent := Opponent.new()
 var _tiger_chip: PanelContainer
 var _goat_chip: PanelContainer
 var _tiger_pill: Label
+var _tiger_goal: Label
 var _goat_pill: Label
 var _dots: CaptureDots
 var _hand_count: Label
@@ -30,6 +31,7 @@ var _history: Array = []  ## States before each human move, for undo.
 var _thinking := false
 var _finished := false
 var _game_id := 0  ## Bumps on restart so a pending computer move is dropped.
+var _thread: Thread
 var opponent := {}  ## Online: {name, avatar, colour}
 var start_state := {}  ## Online: position sent by the server
 var _deadline := 0  ## Online: when the current turn runs out (ticks msec)
@@ -178,7 +180,10 @@ func _player_chip(is_tiger: bool) -> Array:
 	name_row.add_child(Ui.heading(_side_name(is_tiger), 40))
 	var pill := Ui.pill("Your turn")
 	name_row.add_child(pill)
-	text.add_child(Ui.label("Capture 5 goats to win" if is_tiger else "Trap all 3 tigers to win", 26, Ui.MUTED))
+	var goal := Ui.label("Capture 5 goats to win" if is_tiger else "Trap all 3 tigers to win", 26, Ui.MUTED)
+	text.add_child(goal)
+	if is_tiger:
+		_tiger_goal = goal
 	return [panel, pill, row]
 
 
@@ -214,6 +219,13 @@ func _on_changed() -> void:
 	_tiger_pill.text = pill_text
 	_goat_pill.text = pill_text
 	_dots.count = s.captured
+	var left := R.quiet_left(s)
+	if left >= 0 and not over:
+		_tiger_goal.text = tr("Capture 5 goats · %d moves left") % left
+		_tiger_goal.add_theme_color_override("font_color", Ui.ACCENT if left <= 10 else Ui.MUTED)
+	else:
+		_tiger_goal.text = "Capture 5 goats to win"
+		_tiger_goal.add_theme_color_override("font_color", Ui.MUTED)
 	if s.in_hand > 0:
 		_hand_count.text = str(s.in_hand)
 		_hand_caption.text = "to place"
@@ -230,7 +242,7 @@ func _on_changed() -> void:
 		return
 	if over:
 		_hint.text = "The tigers caught 5 goats." if res == R.TIGERS_WIN and s.captured >= s.capture_target else (
-			"The tigers are trapped." if res == R.GOATS_WIN else "The goats have no move left.")
+			"The goats held the hill." if R.held(s) else ("The tigers are trapped." if res == R.GOATS_WIN else "The goats have no move left."))
 		_finish(res)
 		return
 	if not _human_turn():
@@ -256,7 +268,20 @@ func _computer_move() -> void:
 	await get_tree().create_timer(0.35).timeout  # Let the last move finish animating.
 	if not is_inside_tree() or _finished or id != _game_id:
 		return
-	var m := _opponent.choose_move(board.state, level)
+	var snapshot := board.state
+	var m: int
+	if OS.has_feature("web"):
+		m = _opponent.choose_move(snapshot, level, 700)  # Single-threaded: keep pauses short.
+	else:
+		# Think on a worker thread so the screen keeps animating.
+		_thread = Thread.new()
+		_thread.start(_opponent.choose_move.bind(snapshot, level))
+		while _thread.is_alive():
+			await get_tree().process_frame
+		m = _thread.wait_to_finish()
+		_thread = null
+	if not is_inside_tree() or _finished or id != _game_id:
+		return
 	_thinking = false
 	board.play_move(m)
 	if not _finished:
@@ -452,5 +477,7 @@ func _bubble(mine: bool, id: int) -> void:
 
 
 func _exit_tree() -> void:
+	if _thread != null and _thread.is_started():
+		_thread.wait_to_finish()
 	if mode == "online" and not _finished:
 		Online.send({"t": "leave"})

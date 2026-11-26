@@ -451,10 +451,10 @@ Board and pieces are drawn in code. AI-generated images are used only for backgr
 
 ### Phase 2 — computer opponents
 
-- [ ] 2.1 Search
-- [ ] 2.2 Position scoring
-- [ ] 2.3 Three levels
-- [ ] 2.4 Self-play table; capture target chosen
+- [x] 2.1 Search (2026-11-26: position table, move ordering, worker thread on phones, short cap in browsers)
+- [x] 2.2 Position scoring (captures, tiger freedom, threatened goats, trapped tigers, goat links, moves without a capture)
+- [x] 2.3 Three levels (easy 2 deep with slips, medium 4 deep, hard as deep as 1.2 s allows)
+- [x] 2.4 Self-play table; capture target chosen (5 kept; 40-move rule added; DISCUSSION.md section 28)
 - [ ] 2.5 Versus-computer mode — **Checkpoint B** (screen, levels, thinking indicator and undo built with an interim opponent 2026-11-26; real opponent work 2.1–2.4 still to do)
 
 ### Phase 3 — tutorial, first run, text
@@ -510,6 +510,7 @@ Add one line per working session: date, task, result, anything the next session 
 | 2026-11-16 | Plan written | — | Godot version not yet pinned; board not yet verified |
 | 2026-11-16 | Board verified | Matches the draft exactly | Picture saved at docs/board-reference.png |
 | 2026-11-16 | Tiger start confirmed | Points 0, 3 and 4 | Nothing about the board is open now |
+| 2026-11-26 | Phase 2: computer opponent | New opponent with position table and background thinking; self-play tool (`game/tools/self_play.gd`); 5 captures kept; goats win after 40 tiger moves without a capture; summit spacing; 53 tests pass | Checkpoint B still needs the phone (levels feel, speed) |
 | 2026-11-26 | End-of-game popup | Result now pops up over the board (confetti on a win) instead of a separate page; shown the moment the game ends and fades in after the last move; pieces no longer draw over it; 2 new tests (44 pass) | The browser pane was too laggy to replay the manual win reliably; the automated in-browser win showed the popup |
 | 2026-11-26 | Online play (pulled forward, D54) | Server (`game/server/`, `tools/run_server.sh`), rooms with codes, quick match, server-checked moves, 45 s turns, chat faces and phrases, reconnect, rematch; 16 new tests including real-WebSocket end-to-end and app-screen tests; 42 tests pass; played live in the browser against a second connection | Server runs on this computer only; internet hosting, report/block and server restarts still to do |
 | 2026-11-26 | Phase 1 started in `game/` | Rules with 22 tests, app shell with all screens, interim computer opponent, app walk-through test; all 26 tests pass; web and Android builds work | Remaining in phase 1: golden games file; phone checks. Phone server is now `app-web-phone` on port 8061 |

@@ -197,3 +197,33 @@ func test_saving_and_loading_a_state_gives_back_the_same_state() -> void:
 	var back := R.from_dict(JSON.parse_string(JSON.stringify(R.to_dict(s))))
 	assert_dict(R.to_dict(back)).is_equal(R.to_dict(s))
 	assert_array(Array(R.legal_moves(back))).is_equal(Array(R.legal_moves(s)))
+
+
+# ---------- Holding out (D59) ----------
+
+func test_goats_win_when_tigers_make_40_moves_without_a_capture() -> void:
+	var s := _state([0, 3, 4], [19, 22], 0, R.TIGER)
+	s.quiet = 39
+	assert_int(R.result(s)).is_equal(R.ONGOING)
+	var after := R.apply(s, R.encode(0, 2, R.NONE))
+	assert_int(after.quiet).is_equal(40)
+	assert_bool(R.held(after)).is_true()
+	assert_int(R.result(after)).is_equal(R.GOATS_WIN)
+
+
+func test_a_capture_resets_the_holding_out_count() -> void:
+	var s := _state([3, 13, 18], [9], 0, R.TIGER)
+	s.quiet = 30
+	assert_int(R.apply(s, R.encode(3, 15, 9)).quiet).is_equal(0)
+
+
+func test_tiger_moves_during_placement_do_not_count() -> void:
+	var s := _state([0, 3, 4], [19], 14, R.TIGER)
+	assert_int(R.apply(s, R.encode(0, 2, R.NONE)).quiet).is_equal(0)
+	assert_int(R.quiet_left(s)).is_equal(-1)
+
+
+func test_holding_out_count_survives_save_and_load() -> void:
+	var s := _state([0, 3, 4], [19], 0, R.TIGER)
+	s.quiet = 17
+	assert_int(R.from_dict(JSON.parse_string(JSON.stringify(R.to_dict(s)))).quiet).is_equal(17)

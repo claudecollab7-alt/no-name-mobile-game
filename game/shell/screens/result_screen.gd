@@ -49,7 +49,8 @@ func _ready() -> void:
 	h.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	col.add_child(h)
 	var why := "The tigers captured 5 goats." if tigers_won and final_state.captured >= final_state.capture_target else (
-		"All three tigers are trapped." if not tigers_won else "The goats had no move left.")
+		"The goats held the hill: 40 tiger moves without a capture." if not tigers_won and R.held(final_state) else (
+		"All three tigers are trapped." if not tigers_won else "The goats had no move left."))
 	if mode == "online":
 		var whose := "You" if not human_won else them
 		match reason:

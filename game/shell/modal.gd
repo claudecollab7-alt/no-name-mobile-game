@@ -59,7 +59,7 @@ static func how_to_play(host: Node) -> void:
 		[false, "Goats go first", "Place one goat per turn on any empty point. Goats can't move until all 15 are on the board."],
 		[true, "Tigers hunt", "Move one step along a path, or jump over a goat to the empty point behind it to capture it."],
 		[true, "Tigers win", "by capturing 5 goats."],
-		[false, "Goats win", "by trapping all 3 tigers so none can move."],
+		[false, "Goats win", "by trapping all 3 tigers so none can move, or by holding out: once all goats are placed, if the tigers make 40 moves without a capture, the goats win."],
 		[false, "No endless shuffling", "You can't make a move that repeats the same position a third time."],
 	]
 	for step: Array in steps:

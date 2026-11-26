@@ -8,7 +8,9 @@ extends RefCounted
 ## and cannot move until all are placed; tigers move one step or jump one goat;
 ## captures are optional; tigers win at CAPTURE_TARGET captures; goats win when
 ## no tiger can move; a move that would recreate a position for the third time
-## is not allowed, and a side left with no legal move loses.
+## is not allowed, and a side left with no legal move loses. Once every goat is placed,
+## if the tigers make QUIET_LIMIT moves in a row without a capture, the goats have held
+## the hill and win (D59).
 ##
 ## Moves are packed ints: from | to << 5 | over << 10, with NONE (31) for "no point".
 
@@ -26,12 +28,15 @@ const DEFAULT_OPTIONS := {
 	"repeat_limit": 3,  # D12: the third occurrence of a position is illegal.
 	"goat_count": 15,  # D34: other counts may come later.
 	"start_tigers": [0, 3, 4],  # D35: fixed start.
+	"quiet_limit": 40,  # D59: goats win after this many tiger moves without a capture.
 }
 
-## Point positions from the verified board picture (docs/board-reference.png).
+## Point positions from the verified board picture (docs/board-reference.png). The first row
+## is drawn a little lower than in the picture (y 112, not 97), each point kept on its fan
+## line, so pieces near the summit don't touch (D58). Connections are unchanged.
 const POINTS: Array[Vector2] = [
 	Vector2(278, 22),
-	Vector2(16, 97), Vector2(224, 97), Vector2(256, 97), Vector2(293, 97), Vector2(333, 97), Vector2(524, 97),
+	Vector2(16, 112), Vector2(215, 112), Vector2(251, 112), Vector2(296, 112), Vector2(341, 112), Vector2(524, 112),
 	Vector2(16, 150), Vector2(185, 150), Vector2(239, 150), Vector2(305, 150), Vector2(372, 150), Vector2(524, 150),
 	Vector2(16, 209), Vector2(143, 209), Vector2(221, 209), Vector2(317, 209), Vector2(410, 209), Vector2(524, 209),
 	Vector2(50, 349), Vector2(179, 349), Vector2(344, 349), Vector2(506, 349),
@@ -60,6 +65,8 @@ class State:
 	var capture_target := 5
 	var repeat_limit := 3
 	var goat_count := 15
+	var quiet := 0  ## Tiger moves since the last capture, counted once all goats are placed.
+	var quiet_limit := 40
 	var counts := {}  ## position key -> times seen, for the no-repeat rule
 
 	func copy() -> State:
@@ -73,6 +80,8 @@ class State:
 		s.capture_target = capture_target
 		s.repeat_limit = repeat_limit
 		s.goat_count = goat_count
+		s.quiet = quiet
+		s.quiet_limit = quiet_limit
 		s.counts = counts  # Shared until apply() records a new position (copy-on-write).
 		return s
 
@@ -116,6 +125,7 @@ static func new_game(options: Dictionary = {}) -> State:
 	s.in_hand = s.goat_count
 	s.capture_target = o["capture_target"]
 	s.repeat_limit = o["repeat_limit"]
+	s.quiet_limit = o["quiet_limit"]
 	s.counts = {position_key(s): 1}
 	return s
 
@@ -239,6 +249,9 @@ static func apply(s: State, m: int, record := true) -> State:
 		if over != NONE:
 			n.goats &= ~(1 << over)
 			n.captured += 1
+			n.quiet = 0
+		elif s.in_hand == 0:
+			n.quiet = s.quiet + 1
 	n.turn = 1 - s.turn
 	n.moves_played = s.moves_played + 1
 	if record:
@@ -251,9 +264,23 @@ static func apply(s: State, m: int, record := true) -> State:
 static func result(s: State) -> int:
 	if s.captured >= s.capture_target:
 		return TIGERS_WIN
+	if held(s):
+		return GOATS_WIN
 	if legal_moves(s).is_empty():
 		return GOATS_WIN if s.turn == TIGER else TIGERS_WIN
 	return ONGOING
+
+
+## True when the goats have held out: the tigers used up their moves without a capture.
+static func held(s: State) -> bool:
+	return s.quiet_limit > 0 and s.quiet >= s.quiet_limit
+
+
+## Tiger moves left before the goats win by holding out (-1 while goats are still placing).
+static func quiet_left(s: State) -> int:
+	if s.in_hand > 0 or s.quiet_limit <= 0:
+		return -1
+	return maxi(0, s.quiet_limit - s.quiet)
 
 
 static func to_dict(s: State) -> Dictionary:
@@ -263,7 +290,8 @@ static func to_dict(s: State) -> Dictionary:
 	return {
 		"tigers": Array(s.tigers), "goats": s.goats, "in_hand": s.in_hand, "captured": s.captured,
 		"turn": s.turn, "moves_played": s.moves_played, "capture_target": s.capture_target,
-		"repeat_limit": s.repeat_limit, "goat_count": s.goat_count, "counts": counts,
+		"repeat_limit": s.repeat_limit, "goat_count": s.goat_count, "quiet": s.quiet,
+		"quiet_limit": s.quiet_limit, "counts": counts,
 	}
 
 
@@ -279,6 +307,8 @@ static func from_dict(d: Dictionary) -> State:
 	s.capture_target = int(d.get("capture_target", 5))
 	s.repeat_limit = int(d.get("repeat_limit", 3))
 	s.goat_count = int(d.get("goat_count", 15))
+	s.quiet = int(d.get("quiet", 0))
+	s.quiet_limit = int(d.get("quiet_limit", 40))
 	s.counts = {}
 	var counts: Dictionary = d.get("counts", {})
 	for k in counts:

@@ -22,6 +22,7 @@ The short version of everything decided so far. Details and reasons are in the n
 | Audience | Players worldwide, English-speaking first. |
 | First game | Aadupuli, sold as "Tigers & Goats". Rules in section 17. |
 | Second game | Mancala, with Pallanguzhi as the unique variant. |
+| Launch | All 17 games (D60): 8 popular, 9 unique. See section 28. |
 | Release 1 (about month 4) | Shell plus Aadupuli: versus computer, pass-and-play, tutorial, daily puzzle. No online play, no money features. |
 | Later releases | Online play (friends and quick match) is built and in testing (section 26). Then Mancala and Pallanguzhi; then ranks, coins, cosmetics, opt-in ads. |
 | Name | **Tiger & Goat** is the first game's name and its store title. The platform brand (and the permanent app identifier) is still open (D44). |
@@ -353,6 +354,7 @@ The server is the same `game/` project started in server mode, so it needs no fo
 | D34 | **Aadupuli starts on the classic 23-point board**, verified against your picture. More boards and piece-count options may be added later if needed. | 2026-11-16 |
 | D35 | **Fixed start confirmed:** tigers begin on the top point and the two centre points of the first row. | 2026-11-16 |
 | D36–D39 | Visual design: brass-and-wood board, pieces by shape and colour, light calm app, kolam patterns and unlockable themes. See [section 22](#22-visual-design-direction). D39 is narrowed by D40. | 2026-11-16 |
+| D10, D58–D60 | 5 captures kept; summit spacing; goats win after 40 tiger moves without a capture; launch with all 17 games. See [section 28](#28-balance-the-40-move-rule-and-launching-with-17-games). | 2026-11-26 |
 | D55–D57 | Next games: Mancala with Pallanguzhi next; all four game families in year one; launch Tiger & Goat first. See [section 27](#27-the-next-games). | 2026-11-26 |
 | D50–D54 | Online play: filtered names, 45-second turns, server on this computer for now, computer offer after 20 s, online before Mancala. See [section 26](#26-online-play). | 2026-11-26 |
 | D46–D49 | App structure: four tabs, optional name and avatar, "Soon" items, phase 1 starts now. See [section 25](#25-app-structure-plato-style). | 2026-11-26 |
@@ -1038,6 +1040,60 @@ Open question for later: whether the home shelf groups games by family ("Hunt", 
 
 ---
 
+## 28. Balance, the 40-move rule, and launching with 17 games
+
+Decided 2026-11-26/27, after the new computer opponent played itself.
+
+### Self-play results (80 games per row, both sides searching 3 moves ahead)
+
+| Tigers need | Tigers win | Goats win | Unfinished (250+ moves) | Average length |
+|---|---|---|---|---|
+| 4 captures | 30% | 59% | 9 | 141 moves |
+| 5 captures | 18% | 59% | 19 | 161 moves |
+| 6 captures | 19% | 53% | 23 | 167 moves |
+| 7 captures | 6% | 64% | 24 | 164 moves |
+| **5 captures + 40-move rule** | **25%** | **74%** | **1** | **117 moves** |
+
+With strong play on both sides the goats are favoured at every target. Beginners tend to find the tigers easier (2018 study), so for people this evens out more; the computer levels handle difficulty.
+
+### Decisions
+
+| # | Decision | Date |
+|---|---|---|
+| D10 (settled) | **Tigers win at 5 captures**, the traditional rule. A 4-capture "quick game" can be a house rule later. | 2026-11-26 |
+| D58 | **The first row is drawn a little lower on the hill** (y 112 instead of 97 in the picture), each point kept on its fan line, so the starting tigers no longer touch. Connections unchanged. | 2026-11-26 |
+| D59 | **Goats win by holding out:** once every goat is placed, if the tigers make 40 moves in a row without a capture, the goats win. The tigers' panel counts down the moves left (orange at 10 or fewer). | 2026-11-26 |
+| D60 | **Launch with all 17 games** (replaces D57's "launch Tiger & Goat first"). | 2026-11-26 |
+
+### The 17 launch games
+
+| Popular | Unique |
+|---|---|
+| Ludo | Tiger & Goat (built) |
+| Checkers | Pallanguzhi |
+| Four in a Row | Dayakattam |
+| Reversi | Paramapadham |
+| Mancala (Kalah) | Bagh-Chal |
+| Snakes and Ladders | Fanorona |
+| Dots and Boxes | Hnefatafl |
+| Nine Men's Morris | Oware |
+| | Pachisi |
+
+### By engine
+
+| Engine | Games | Built? |
+|---|---|---|
+| Points and lines | Tiger & Goat, Bagh-Chal, Fanorona, Nine Men's Morris | Yes (with Tiger & Goat) |
+| Pits and seeds | Mancala, Pallanguzhi, Oware | Next |
+| Square grid | Checkers, Four in a Row, Reversi, Dots and Boxes, Hnefatafl | Later |
+| Track and dice | Ludo, Dayakattam, Pachisi, Snakes and Ladders, Paramapadham | Later |
+
+### Pace
+
+Slow and steady, one game properly finished before the next (your words: "do one by one slow and steady don't rush it"). At 10–20 hours a week this is well over a year of work; shared engines make games after the first in each family much quicker.
+
+---
+
 ## Change log
 
 - **2026-11-14** — Document created from the first discussion.
@@ -1057,6 +1113,7 @@ Open question for later: whether the home shelf groups games by family ("Hunt", 
 - **2026-11-25** — Added section 23: global focus, English only (D40), name Tiger & Goat (D41), Fredoka and Figtree (D42), Plato-like play screen (D43). D7 and D30 replaced. Open question: one game or platform.
 - **2026-11-25** — D44: Tiger & Goat is the first game's name; the platform brand stays open (needed by week 11).
 - **2026-11-25** — Added section 24: "Hill and meadow" chosen as the default look (D45), with palette, pieces and updated theme plan.
+- **2026-11-26** — Added section 28: self-play results, 5 captures kept, 40-move holding-out rule, summit spacing, launch with 17 games (D10, D58–D60).
 - **2026-11-26** — Added section 27: next games and the four engines (D55–D57). End-of-game popup added to Tiger & Goat.
 - **2026-11-26** — Added section 26: online play built (rooms, codes, quick match, chat, timer, reconnect); D50–D54; Hostinger answer.
 - **2026-11-26** — Added section 25: Plato-style app structure and screen map (D46–D49); phase 1 begins in `game/`.

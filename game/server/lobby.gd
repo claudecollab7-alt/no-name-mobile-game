@@ -277,7 +277,8 @@ func _apply(room: Dictionary, m: int, by: int, now: int) -> void:
 	var res := R.result(room["state"])
 	if res != R.ONGOING:
 		var s: R.State = room["state"]
-		var reason := "captured" if res == R.TIGERS_WIN and s.captured >= s.capture_target else ("trapped" if res == R.GOATS_WIN else "stuck")
+		var reason := "captured" if res == R.TIGERS_WIN and s.captured >= s.capture_target else (
+			"held" if res == R.GOATS_WIN and R.held(s) else ("trapped" if res == R.GOATS_WIN else "stuck"))
 		_end(room, "tigers" if res == R.TIGERS_WIN else "goats", reason)
 
 
