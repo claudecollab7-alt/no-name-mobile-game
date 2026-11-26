@@ -1128,6 +1128,20 @@ Researched and decided 2026-11-27.
 - Safety rule for the computer: a single turn that would go on for 400 drops ends there (relay sowing can, very rarely, loop).
 - Later, as house rules: rounds with rubbish pits, 4-seed pasu taken by the pit's owner, 5 or 12 seeds.
 
+### Rules check by self-play (2026-11-27)
+
+`game/tools/sowing_stats.gd`, 1,000 games per row, same player always first:
+
+| Game | Players | First wins | Second wins | Draws | Average moves | Longest |
+|---|---|---|---|---|---|---|
+| Kalah | random | 49% | 46% | 5% | 44 | 82 |
+| Kalah | greedy | 58% | 32% | 10% | 29 | 47 |
+| Pallanguzhi | random | 58% | 40% | 2% | 37 | 168 |
+| Pallanguzhi | greedy | 84% | 12% | 4% | 20 | 46 |
+
+- Every game ended; no seed was ever lost; relay sowing never hit the 400-drop safety stop.
+- Moving first is a real advantage in both games, much stronger in Pallanguzhi. So in **both** games the first player alternates (online, against the computer, and in pass-and-play rematches). Checked again with the real computer opponent.
+
 ### Decisions
 
 | # | Decision | Date |
@@ -1170,6 +1184,7 @@ One **pits-and-seeds engine** serves both (and Oware later):
 - **2026-11-25** — Added section 23: global focus, English only (D40), name Tiger & Goat (D41), Fredoka and Figtree (D42), Plato-like play screen (D43). D7 and D30 replaced. Open question: one game or platform.
 - **2026-11-25** — D44: Tiger & Goat is the first game's name; the platform brand stays open (needed by week 11).
 - **2026-11-25** — Added section 24: "Hill and meadow" chosen as the default look (D45), with palette, pieces and updated theme plan.
+- **2026-11-27** — Section 29: pits-and-seeds rules built and checked by self-play; first player alternates in both games.
 - **2026-11-27** — Added section 29: Mancala and Pallanguzhi rules from sources, D61–D64, and the plan for the pits-and-seeds engine.
 - **2026-11-27** — Polish pass: eight sounds, last-move trail, full-width meadow, pick-up bounce, stuck-piece hint, branded start screen.
 - **2026-11-27** — Daily puzzle built: 194 proven puzzles (find the only safe move, capture in two, trap in one or two), streaks, practice, copy-to-share.
