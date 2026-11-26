@@ -354,6 +354,7 @@ The server is the same `game/` project started in server mode, so it needs no fo
 | D34 | **Aadupuli starts on the classic 23-point board**, verified against your picture. More boards and piece-count options may be added later if needed. | 2026-11-16 |
 | D35 | **Fixed start confirmed:** tigers begin on the top point and the two centre points of the first row. | 2026-11-16 |
 | D36–D39 | Visual design: brass-and-wood board, pieces by shape and colour, light calm app, kolam patterns and unlockable themes. See [section 22](#22-visual-design-direction). D39 is narrowed by D40. | 2026-11-16 |
+| D61–D64 | Mancala: 4 seeds; Pallanguzhi: turn ends after capture, pasu (Wikipedia version), one round. See [section 29](#29-game-2-mancala-kalah-and-pallanguzhi-rules). | 2026-11-27 |
 | D10, D58–D60 | 5 captures kept; summit spacing; goats win after 40 tiger moves without a capture; launch with all 17 games. See [section 28](#28-balance-the-40-move-rule-and-launching-with-17-games). | 2026-11-26 |
 | D55–D57 | Next games: Mancala with Pallanguzhi next; all four game families in year one; launch Tiger & Goat first. See [section 27](#27-the-next-games). | 2026-11-26 |
 | D50–D54 | Online play: filtered names, 45-second turns, server on this computer for now, computer offer after 20 s, online before Mancala. See [section 26](#26-online-play). | 2026-11-26 |
@@ -1094,6 +1095,62 @@ Slow and steady, one game properly finished before the next (your words: "do one
 
 ---
 
+## 29. Game 2: Mancala (Kalah) and Pallanguzhi rules
+
+Researched and decided 2026-11-27.
+
+### Sources
+
+| Source | Gave us | Reliability |
+|---|---|---|
+| [Wikipedia, "Kalah"](https://en.wikipedia.org/wiki/Kalah) and its talk page | Standard Kalah rules; variants for leftover seeds | Good; matches Board Game Arena and other rule sheets |
+| [Wikipedia, "Pallanguzhi"](https://en.wikipedia.org/wiki/Pallanguzhi) | 2 × 7 board; relay sowing; capture beyond an empty pit; pasu at 6; rounds with rubbish holes | Tagged "needs citations"; some internal contradictions |
+| [Teacher Plus, "Pallankuzhi – a school math project" (Jayasree S, R. Ramanujam)](https://www.teacherplus.org/?p=27679) | 7 pits a side, 6 seeds each, anticlockwise from the next pit, relay sowing, capture the pit beyond the empty one and the turn ends | Clear, single-round version |
+| [Bharatiya Khel, "Pallanguli"](https://bharatiyakhel.in/pallanguli/) | 6 seeds common (also 5, 7, 12); regional names (Ali Guli Mane, Vamana Guntalu, Kuzhipara) | General overview, little rule detail |
+
+### Kalah (sold as "Mancala")
+
+- 6 pits a side, a store at each end, **4 seeds per pit** (D61).
+- Pick up all seeds from one of your pits and sow anticlockwise, one per pit, into your own store but **skipping your opponent's store**.
+- **Last seed in your own store:** you play again.
+- **Last seed in one of your own empty pits, with seeds opposite:** capture both into your store.
+- **End:** when either side's pits are all empty, each player keeps the seeds still on their own side (the standard "Champion" rule). Most seeds wins; equal is a draw.
+- Kalah with 6 pits and 4 seeds is mathematically a first-player win with perfect play, so online and against the computer the **first player alternates** each game.
+
+### Pallanguzhi
+
+- 7 pits a side, **6 seeds per pit** (two sources agree), no stores on the board: captured seeds go to each player's pile.
+- Pick up all seeds from one of your own pits and sow anticlockwise, **starting with the next pit**.
+- **Relay:** when the last seed drops, pick up all seeds in the next pit and keep sowing.
+- **Capture:** if the next pit is empty, capture everything in the pit after it (even if that is empty too), and **your turn ends** (D62).
+- **Pasu (Wikipedia version, D63):** whenever a seed you drop makes any pit hold exactly 6, you take those 6 at once.
+- **One round, most seeds wins (D64):** the game ends when the player to move has no seeds in their pits; seeds left on the board go to the owner of the side they are on.
+- Safety rule for the computer: a single turn that would go on for 400 drops ends there (relay sowing can, very rarely, loop).
+- Later, as house rules: rounds with rubbish pits, 4-seed pasu taken by the pit's owner, 5 or 12 seeds.
+
+### Decisions
+
+| # | Decision | Date |
+|---|---|---|
+| D61 | Kalah starts with **4 seeds per pit** | 2026-11-27 |
+| D62 | Pallanguzhi: **the turn ends after a capture** | 2026-11-27 |
+| D63 | Pallanguzhi: **pasu included, Wikipedia version** (a pit reaching 6 goes to whoever dropped the seed) | 2026-11-27 |
+| D64 | Pallanguzhi: **one round, most seeds wins** | 2026-11-27 |
+
+### How game 2 will be built
+
+One **pits-and-seeds engine** serves both (and Oware later):
+
+| Part | What |
+|---|---|
+| Rules | A shared sowing core: pits in anticlockwise order, stores optional, a move is "pick a pit". Each game is a small rules file: Kalah, Pallanguzhi. Every sowing step is recorded (pick up, drop, relay, capture, pasu, extra turn), so the board can animate the seeds one by one |
+| Board | A wooden-tray look that fits the meadow world, seeds drawn as small pebbles or tamarind seeds with counts shown, captured piles beside each player |
+| Computer | The same search approach as Tiger & Goat; score = seeds captured |
+| App | A second card on the home shelf; game page, play, result, tutorial, puzzles reuse the shell |
+| Online | The server learns which game a room is playing (needed before any second game goes online) |
+
+---
+
 ## Change log
 
 - **2026-11-14** — Document created from the first discussion.
@@ -1113,6 +1170,7 @@ Slow and steady, one game properly finished before the next (your words: "do one
 - **2026-11-25** — Added section 23: global focus, English only (D40), name Tiger & Goat (D41), Fredoka and Figtree (D42), Plato-like play screen (D43). D7 and D30 replaced. Open question: one game or platform.
 - **2026-11-25** — D44: Tiger & Goat is the first game's name; the platform brand stays open (needed by week 11).
 - **2026-11-25** — Added section 24: "Hill and meadow" chosen as the default look (D45), with palette, pieces and updated theme plan.
+- **2026-11-27** — Added section 29: Mancala and Pallanguzhi rules from sources, D61–D64, and the plan for the pits-and-seeds engine.
 - **2026-11-27** — Polish pass: eight sounds, last-move trail, full-width meadow, pick-up bounce, stuck-piece hint, branded start screen.
 - **2026-11-27** — Daily puzzle built: 194 proven puzzles (find the only safe move, capture in two, trap in one or two), streaks, practice, copy-to-share.
 - **2026-11-27** — Tutorial built: five hands-on lessons, offered on first launch and from the game page, How to play card and Settings.
