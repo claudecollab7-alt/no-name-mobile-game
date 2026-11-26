@@ -85,7 +85,9 @@ def main() -> None:
                  offset=[0, at(0.07), at(0.14)])
     # Nope: a soft low bump for a move that isn't allowed or a wrong puzzle answer.
     nope = mix(tone(160, 0.05, 0.16, 0.9), tone(120, 0.06, 0.18, 0.6), offset=[0, at(0.05)])
-    for name, data in (("place", place), ("move", move), ("capture", capture), ("win", win),
+    # Seed: a tiny pebble click for each seed dropped into a pit (played with slight pitch changes).
+    seed = mix(tone(2100, 0.006, 0.05, 0.55), tone(3300, 0.003, 0.04, 0.25), noise(0.012, 0.003, 0.35, 0.15, 5))
+    for name, data in (("seed", seed), ("place", place), ("move", move), ("capture", capture), ("win", win),
                        ("lose", lose), ("select", select), ("solved", solved), ("nope", nope)):
         write(out / f"{name}.wav", fade(data))
         print(f"{name}.wav  {len(data) / RATE * 1000:.0f} ms")

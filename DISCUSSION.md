@@ -1151,6 +1151,19 @@ Researched and decided 2026-11-27.
 | D63 | Pallanguzhi: **pasu included, Wikipedia version** (a pit reaching 6 goes to whoever dropped the seed) | 2026-11-27 |
 | D64 | Pallanguzhi: **one round, most seeds wins** | 2026-11-27 |
 
+### The board (built 2026-11-27)
+
+| Kalah | Pallanguzhi |
+|---|---|
+| ![Kalah board](docs/game2/kalah_start.png) | ![Pallanguzhi board](docs/game2/pallanguzhi_start.png) |
+
+- A carved wooden tray lying on a band of meadow, in the same world as Tiger & Goat. Seeds are small mixed pebbles (cream, tan, chestnut, sage, terracotta) so the board feels alive without being busy.
+- **Your row is always along the bottom**, left to right; the opponent's row is on top. The board turns round when you play the second side.
+- Every pit shows its **count in a small chip**, so nobody has to count pebbles.
+- Kalah stores sit at the ends of the tray (yours on the right). Pallanguzhi has no stores on the board: captured seeds pile up on the meadow beside each player.
+- **One tap plays a pit.** Playable pits glow (follows the Move hints setting); the pit you last played from has a gold ring.
+- **Seeds move one by one:** a handful lifts out of the pit and travels round, dropping one seed in each pit with a soft pebble click; captures fly to the store or pile. Long Pallanguzhi relays speed up so a turn stays under about 4 seconds, and **tapping the board skips to the end** of a move.
+
 ### How game 2 will be built
 
 One **pits-and-seeds engine** serves both (and Oware later):
@@ -1184,6 +1197,7 @@ One **pits-and-seeds engine** serves both (and Oware later):
 - **2026-11-25** — Added section 23: global focus, English only (D40), name Tiger & Goat (D41), Fredoka and Figtree (D42), Plato-like play screen (D43). D7 and D30 replaced. Open question: one game or platform.
 - **2026-11-25** — D44: Tiger & Goat is the first game's name; the platform brand stays open (needed by week 11).
 - **2026-11-25** — Added section 24: "Hill and meadow" chosen as the default look (D45), with palette, pieces and updated theme plan.
+- **2026-11-27** — Section 29: the sowing board is built (wooden tray, pebble seeds, counts, seed-by-seed animation, tap to skip).
 - **2026-11-27** — Section 29: pits-and-seeds rules built and checked by self-play; first player alternates in both games.
 - **2026-11-27** — Added section 29: Mancala and Pallanguzhi rules from sources, D61–D64, and the plan for the pits-and-seeds engine.
 - **2026-11-27** — Polish pass: eight sounds, last-move trail, full-width meadow, pick-up bounce, stuck-piece hint, branded start screen.

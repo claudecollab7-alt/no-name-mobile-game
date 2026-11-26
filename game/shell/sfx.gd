@@ -10,6 +10,7 @@ const STREAMS := {
 	"select": preload("res://assets/sounds/select.wav"),
 	"solved": preload("res://assets/sounds/solved.wav"),
 	"nope": preload("res://assets/sounds/nope.wav"),
+	"seed": preload("res://assets/sounds/seed.wav"),
 }
 
 var _players := {}
@@ -30,7 +31,10 @@ func _ready() -> void:
 
 func play(kind: String) -> void:
 	if Store.setting("sound") and _players.has(kind):
-		(_players[kind] as AudioStreamPlayer).play()
+		var p := _players[kind] as AudioStreamPlayer
+		if kind == "seed":  # Many seeds drop in a row; vary them so it sounds like pebbles.
+			p.pitch_scale = randf_range(0.88, 1.15)
+		p.play()
 	if kind == "capture":
 		vibrate(70)
 

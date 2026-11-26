@@ -490,7 +490,7 @@ Board and pieces are drawn in code. AI-generated images are used only for backgr
 ### Game 2 — Mancala (Kalah) and Pallanguzhi
 
 - [x] G2.1 Rules (2026-11-27: one sowing core, `games/sowing/sowing_rules.gd`; 14 rule tests; self-play check in DISCUSSION.md section 29)
-- [ ] G2.2 Board and seed animation
+- [x] G2.2 Board and seed animation (2026-11-27: `games/sowing/board/sowing_board_view.gd`; 11 board tests; pictures in `docs/game2/`)
 - [ ] G2.3 Computer opponent
 - [ ] G2.4 In the app (home card, game page, play, result)
 - [ ] G2.5 Tutorial and puzzles
@@ -519,6 +519,7 @@ Add one line per working session: date, task, result, anything the next session 
 | 2026-11-16 | Plan written | — | Godot version not yet pinned; board not yet verified |
 | 2026-11-16 | Board verified | Matches the draft exactly | Picture saved at docs/board-reference.png |
 | 2026-11-16 | Tiger start confirmed | Points 0, 3 and 4 | Nothing about the board is open now |
+| 2026-11-27 | Game 2 board | Wooden tray on the meadow, pebble seeds with count chips, Kalah stores or Pallanguzhi piles, one-tap moves, seeds animated one drop at a time with a new pebble sound, tap to skip; 92 tests pass | Not playable in the app yet (G2.4); pictures in docs/game2/, made by `tools/shot_sowing.tscn` |
 | 2026-11-27 | Game 2 rules | Kalah and Pallanguzhi share one sowing core that records every step for animation; 14 new tests, 81 pass; 1,000-game self-play: all games end, first player has a clear edge (greedy: Kalah 58–32, Pallanguzhi 84–12) | First player must alternate in both games; next is the board and seed animation |
 | 2026-11-27 | Polish pass 1 | Eight sounds; last-move trail on the board; meadow fills the full width; pick-up bounce; "nowhere to go" hint for stuck pieces; meadow-green start screen; 67 tests pass | Still to polish: visual identity review (5.1), stats/saving review (5.3), comfort checks on a real phone (5.4), website (5.5) |
 | 2026-11-27 | Daily puzzle | 194 proven puzzles from 300 self-play games; Daily tab with today's puzzle, streak, best, practice; home card shows today's number; 64 tests pass | Puzzle #1 date is 2026-11-01 for now; reset to the launch date before release. Sharing copies text only until the website exists |

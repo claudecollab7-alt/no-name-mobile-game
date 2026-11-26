@@ -42,6 +42,6 @@ func test_a_piece_with_nowhere_to_go_is_not_selected_and_says_so() -> void:
 
 
 func test_every_sound_the_game_uses_is_present() -> void:
-	for kind in ["place", "move", "capture", "win", "lose", "select", "solved", "nope"]:
+	for kind in ["place", "move", "capture", "win", "lose", "select", "solved", "nope", "seed"]:
 		assert_bool(Sfx.STREAMS.has(kind)).override_failure_message(kind).is_true()
 		assert_object(Sfx.STREAMS[kind]).override_failure_message(kind).is_not_null()
