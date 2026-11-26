@@ -493,7 +493,7 @@ Board and pieces are drawn in code. AI-generated images are used only for backgr
 - [x] G2.2 Board and seed animation (2026-11-27: `games/sowing/board/sowing_board_view.gd`; 11 board tests; pictures in `docs/game2/`)
 - [x] G2.3 Computer opponent (2026-11-27: `games/sowing/ai/sowing_opponent.gd`, easy/medium/hard; ladder in DISCUSSION.md section 29)
 - [x] G2.3b Pallanguzhi rule fix (2026-11-27: pasu goes to the pit's owner, D63 revised; no forced win, ladder clean)
-- [ ] G2.4 In the app (home card, game page, play, result)
+- [x] G2.4 In the app (2026-11-27: home cards, game page with rules card, play vs computer or pass and play, result popup, per-game records; online shows Soon)
 - [ ] G2.5 Tutorial and puzzles
 - [ ] G2.6 Online (server learns each room's game)
 
@@ -520,6 +520,7 @@ Add one line per working session: date, task, result, anything the next session 
 | 2026-11-16 | Plan written | — | Godot version not yet pinned; board not yet verified |
 | 2026-11-16 | Board verified | Matches the draft exactly | Picture saved at docs/board-reference.png |
 | 2026-11-16 | Tiger start confirmed | Points 0, 3 and 4 | Nothing about the board is open now |
+| 2026-11-27 | Game 2 in the app | Both games playable: home cards, game page, play screen with panels and hints, result popup (shared base with Tiger & Goat), records and profile card; first player alternates per game; tried in the browser; 104 tests pass | Online (G2.6) and tutorial/puzzles (G2.5) still to do; timing in the browser pane was throttled, so feel needs checking on the phone |
 | 2026-11-27 | Pallanguzhi pasu fix | Pasu now goes to the pit's owner (D63 revised); hard searches 9 deep, ladder clean, hard vs hard close (11 of 24 drawn); 98 tests pass | Next: put both games in the app (G2.4) |
 | 2026-11-27 | Game 2 computer | Search opponent with three levels; Kalah ladder clean (each level beats the one below); found Pallanguzhi as ruled is a 7-move forced win for the first player; compared 7 variants; pasu-to-owner option added to the rules; 98 tests pass | Pallanguzhi pasu rule needs a decision before the app step |
 | 2026-11-27 | Game 2 board | Wooden tray on the meadow, pebble seeds with count chips, Kalah stores or Pallanguzhi piles, one-tap moves, seeds animated one drop at a time with a new pebble sound, tap to skip; 92 tests pass | Not playable in the app yet (G2.4); pictures in docs/game2/, made by `tools/shot_sowing.tscn` |

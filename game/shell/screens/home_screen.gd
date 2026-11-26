@@ -3,6 +3,8 @@ extends AppScreen
 
 const R := preload("res://games/aadupuli/rules/aadupuli_rules.gd")
 const GamePage := preload("res://shell/screens/game_page.gd")
+const SowingGamePage := preload("res://shell/screens/sowing_game_page.gd")
+const S := preload("res://games/sowing/sowing_rules.gd")
 
 var _hello: Label
 var _greet: Label
@@ -78,9 +80,15 @@ func _ready() -> void:
 	Ui.on_tap(game, _open_game)
 	col.add_child(game)
 
+	# The seed games, side by side.
+	var seeds := Ui.hbox(18)
+	for id: String in ["kalah", "pallanguzhi"]:
+		seeds.add_child(_seed_card(id))
+	col.add_child(seeds)
+
 	# More games, coming soon (D48).
 	var more := Ui.hbox(18)
-	for g: Array in [["Mancala", "circle-dot"], ["Ludo", "dice-5"], ["More", "plus"]]:
+	for g: Array in [["Ludo", "dice-5"], ["Four in a Row", "circle-dot"], ["More", "plus"]]:
 		var c := Ui.card(Ui.PANEL, Ui.LINE, 20, 30)
 		c.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		c.modulate = Color(1, 1, 1, 0.8)
@@ -123,6 +131,34 @@ func on_show() -> void:
 
 func _open_game() -> void:
 	app.push(GamePage.new())
+
+
+## A half-width card: the board mid-game, the name and a few words.
+func _seed_card(id: String) -> PanelContainer:
+	var card := Ui.card(Ui.PANEL, Ui.LINE, 0)
+	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var v := Ui.vbox(0)
+	card.add_child(v)
+	var art := PanelContainer.new()
+	art.add_theme_stylebox_override("panel", _top_rounded(Ui.MEADOW_DEEP))
+	art.mouse_filter = Control.MOUSE_FILTER_PASS
+	var s := S.new_game(Games.rules_for(id))
+	for m: int in [2, 9, 4]:  # A few seeds on the move, so the board looks played.
+		if S.legal_moves(s).has(m):
+			s = S.after(s, m)
+	art.add_child(SowingPreview.create(s, 220, true))
+	v.add_child(art)
+	var info := MarginContainer.new()
+	for side in ["left", "right", "top", "bottom"]:
+		info.add_theme_constant_override("margin_" + side, 22)
+	info.mouse_filter = Control.MOUSE_FILTER_PASS
+	var words := Ui.vbox(0)
+	words.add_child(Ui.heading(Games.title(id), 36))
+	words.add_child(Ui.muted(str(Games.info(id)["short"]), 24))
+	info.add_child(words)
+	v.add_child(info)
+	Ui.on_tap(card, func() -> void: app.push(SowingGamePage.create(id)))
+	return card
 
 
 func _top_rounded(fill: Color) -> StyleBoxFlat:

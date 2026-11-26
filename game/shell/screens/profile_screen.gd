@@ -45,6 +45,17 @@ func on_show() -> void:
 	record.add_child(rv)
 	_col.add_child(record)
 
+	var seeds := Ui.card(Ui.PANEL, Ui.LINE, 28)
+	var sv := Ui.vbox(14)
+	sv.add_child(Ui.heading("Seed games", 36))
+	for id: String in ["kalah", "pallanguzhi"]:
+		var rec := "%d – %d" % [Store.game_stat(id, "wins"), Store.game_stat(id, "losses")]
+		if Store.game_stat(id, "draws") > 0:
+			rec += tr("  ·  %d drawn") % Store.game_stat(id, "draws")
+		sv.add_child(_line(Games.title(id), rec))
+	seeds.add_child(sv)
+	_col.add_child(seeds)
+
 	_col.add_child(Ui.heading("Badges", 38))
 	var badges := Ui.hbox(12)
 	for b: Dictionary in Store.badges():

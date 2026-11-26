@@ -1206,6 +1206,15 @@ Check with the new rule, 24 games per match:
 
 Hard now uses its full thinking time (9 moves deep at the start), each level beats the one below, and equal players are close. Moving second is a small edge, so the first player still alternates.
 
+### In the app (built 2026-11-27)
+
+- **Home:** Mancala and Pallanguzhi sit side by side under Tiger & Goat, each showing its board mid-game. The "Soon" row now shows Ludo, Four in a Row and More.
+- **Game page:** board picture, one-line description, a "How to play" rules card, then the same play choices as Tiger & Goat: against the computer (Easy, Medium, Hard) or pass and play. Online shows "Soon" until the server learns which game a room plays (G2.6).
+- **Who starts takes turns** from game to game (remembered per game), and the page says so. In a computer game you are always the bottom row.
+- **Play screen:** the opponent's panel on top, the board, your panel below, each with seeds won; a hint line ("Go again!", "The computer starts this game", whose turn in pass and play); Restart, and Undo against the computer.
+- **Result:** the shared end-of-game popup (now one base for every game) with the seed score, Rules, Home and Play again, and who starts next.
+- **Records:** each game keeps wins, losses, draws and pass-and-play games; they also count towards the overall totals, streak and badges. The profile has a "Seed games" card.
+
 ### How game 2 will be built
 
 One **pits-and-seeds engine** serves both (and Oware later):
@@ -1239,6 +1248,7 @@ One **pits-and-seeds engine** serves both (and Oware later):
 - **2026-11-25** — Added section 23: global focus, English only (D40), name Tiger & Goat (D41), Fredoka and Figtree (D42), Plato-like play screen (D43). D7 and D30 replaced. Open question: one game or platform.
 - **2026-11-25** — D44: Tiger & Goat is the first game's name; the platform brand stays open (needed by week 11).
 - **2026-11-25** — Added section 24: "Hill and meadow" chosen as the default look (D45), with palette, pieces and updated theme plan.
+- **2026-11-27** — Section 29: Mancala and Pallanguzhi are playable in the app (home cards, game page, play, result, records).
 - **2026-11-27** — D63 revised: Pallanguzhi pasu goes to the pit's owner; forced win gone, ladder clean.
 - **2026-11-27** — Section 29: computer opponent built; found a 7-move forced first-player win in Pallanguzhi as ruled; variants compared, decision pending.
 - **2026-11-27** — Section 29: the sowing board is built (wooden tray, pebble seeds, counts, seed-by-seed animation, tap to skip).

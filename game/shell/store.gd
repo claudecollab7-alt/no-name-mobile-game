@@ -28,6 +28,11 @@ func defaults() -> Dictionary:
 			"tiger_wins": 0, "tiger_losses": 0, "goat_wins": 0, "goat_losses": 0,
 			"pass_games": 0, "hardest": "", "online_wins": 0, "online_losses": 0},
 		"daily": {"streak": 0, "best": 0, "last_date": "", "solved": {}},
+		# Per-game records for the games after Tiger & Goat (its record lives in "stats").
+		"games": {
+			"kalah": {"played": 0, "wins": 0, "losses": 0, "draws": 0, "pass_games": 0, "next_first": 0},
+			"pallanguzhi": {"played": 0, "wins": 0, "losses": 0, "draws": 0, "pass_games": 0, "next_first": 0},
+		},
 		"online": {"token": "", "server": "", "muted": false, "search_side": "any", "room_side": "random"},
 	}
 
@@ -140,6 +145,47 @@ func record_game(mode: String, side: String, level: String, human_won: bool) -> 
 		s[key + "losses"] += 1
 		s["streak"] = 0
 	save_data()
+
+
+## Any game but Tiger & Goat. outcome: "win", "loss" or "draw" (the human's result;
+## in pass and play only the game count changes). Also feeds the overall totals.
+func record_result(game: String, mode: String, level: String, outcome: String) -> void:
+	var g: Dictionary = data["games"][game]
+	var s: Dictionary = data["stats"]
+	g["played"] += 1
+	s["played"] += 1
+	if mode == "pass":
+		g["pass_games"] += 1
+		s["pass_games"] += 1
+	elif outcome == "draw":
+		g["draws"] += 1
+	elif outcome == "win":
+		g["wins"] += 1
+		s["wins"] += 1
+		s["streak"] += 1
+		s["best_streak"] = maxi(s["best_streak"], s["streak"])
+		var order := ["", "easy", "medium", "hard"]
+		if order.find(level) > order.find(str(s["hardest"])):
+			s["hardest"] = level
+	else:
+		g["losses"] += 1
+		s["losses"] += 1
+		s["streak"] = 0
+	save_data()
+
+
+func game_stat(game: String, key: String) -> int:
+	return int(data["games"].get(game, {}).get(key, 0))
+
+
+## Who moves first in the next game of `game` (0 = you / player 1): it takes turns,
+## because moving first is a real edge in these games (DISCUSSION.md section 29).
+func take_first(game: String) -> int:
+	var g: Dictionary = data["games"][game]
+	var first := int(g["next_first"])
+	g["next_first"] = 1 - first
+	save_data()
+	return first
 
 
 func stat(key: String) -> int:

@@ -49,6 +49,7 @@ var only_moves := PackedInt32Array()  ## When set, only these pits may be played
 var focus_points := PackedInt32Array()  ## Pits ringed in orange to show where to look (tutorial).
 var last_pit := -1  ## The pit the last move started from.
 var busy := false  ## Seeds are moving.
+var compact := false  ## Small previews: just the tray, no Pallanguzhi piles around it.
 
 var shown := PackedInt32Array()  ## Seeds drawn in each pit; catches up with `state` as seeds land.
 var shown_stores := PackedInt32Array([0, 0])
@@ -122,7 +123,7 @@ func _relayout() -> void:
 	var cols := n + (STORE_W * 2.0 if _has_stores() else 0.0)
 	# Tray: 4.1 cells tall (count chips, two rows, gap). Pallanguzhi also needs room
 	# above and below the tray for each player's pile of captured seeds.
-	var tall := 4.8 if _has_stores() else 7.8
+	var tall := 4.8 if _has_stores() or compact else 7.8
 	cell = minf(_area.x / (cols + 0.8), _area.y / tall)
 	var size := Vector2((cols + 0.6) * cell, 4.1 * cell)
 	tray = Rect2((_area - size) / 2.0, size)
@@ -353,7 +354,8 @@ func _draw() -> void:
 	for p in focus_points:
 		_ring(pit_pos(p), pit_radii() * (1.3 + 0.06 * pulse), Color(FOCUS, 0.55 + 0.45 * pulse), 0.06 * cell)
 	for player in 2:
-		_draw_store(player)
+		if _has_stores() or not compact:
+			_draw_store(player)
 	if _fly_count > 0 and not _step.is_empty():
 		var t := ease(_step_t / maxf(_step_len, 0.001), -1.8)
 		var p := _fly_from.lerp(_fly_to, t) + Vector2(0, -sin(t * PI) * cell * 0.6)
@@ -371,8 +373,10 @@ func _is_bottom_row(pit: int) -> bool:
 
 func _draw_ground() -> void:
 	# A band of meadow behind the tray, edge to edge, with grass tufts and a few daisies.
-	var top := tray.position.y - (0.6 if _has_stores() else 2.3) * cell
-	var bot := tray.end.y + (0.6 if _has_stores() else 2.3) * cell
+	# Kept inside the board's own area, so it never spills over the panels around it.
+	var margin := 0.6 if _has_stores() or compact else 2.3
+	var top := maxf(0.0, tray.position.y - margin * cell)
+	var bot := minf(_area.y, tray.end.y + margin * cell)
 	draw_rect(Rect2(0, top, _area.x, bot - top), GROUND)
 	draw_rect(Rect2(0, top, _area.x, cell * 0.08), GROUND_DARK)
 	draw_rect(Rect2(0, bot - cell * 0.08, _area.x, cell * 0.08), GROUND_DARK)
@@ -381,7 +385,7 @@ func _draw_ground() -> void:
 	var spots := int(_area.x / cell * 6.0)
 	for i in spots:
 		var p := Vector2(rng.randf() * _area.x, rng.randf_range(top + cell * 0.25, bot - cell * 0.1))
-		if tray.grow(cell * 0.25).has_point(p) or (not _has_stores() and _near_pile(p)):
+		if tray.grow(cell * 0.25).has_point(p) or (not _has_stores() and not compact and _near_pile(p)):
 			continue
 		if rng.randf() < 0.8:
 			_tuft(p, cell * rng.randf_range(0.14, 0.2))
