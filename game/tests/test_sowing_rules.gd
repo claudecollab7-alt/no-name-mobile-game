@@ -108,8 +108,8 @@ func test_pallanguzhi_relays_from_the_next_pit() -> void:
 	assert_int(s.stores[0]).is_equal(2)
 
 
-func test_pallanguzhi_pasu_a_pit_reaching_six_goes_to_the_sower() -> void:
-	# Pit 0 has 2: the drop into pit 1 makes 6 (pasu); then drop in 2; next 3 empty, capture 4.
+func test_pallanguzhi_pasu_in_your_own_pit_is_yours() -> void:
+	# Pit 0 has 2: the drop into pit 1 (your own) makes 6 (pasu); then drop in 2; next 3 empty, capture 4.
 	var pits := [2, 5, 0, 0, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 	var r := S.apply(_pall(pits), 0)
 	var s: S.State = r[0]
@@ -118,18 +118,21 @@ func test_pallanguzhi_pasu_a_pit_reaching_six_goes_to_the_sower() -> void:
 	assert_int(s.stores[0]).is_equal(6 + 3)
 
 
-func test_pallanguzhi_pasu_can_go_to_the_pits_owner_instead() -> void:
-	# Player 0 sows pit 6's seed into player 1's pit 7, making 6. Next pit 8 is empty,
-	# so pit 9 (2 seeds) is captured. Who gets the pasu depends on the house rule.
+func test_pallanguzhi_pasu_goes_to_the_pits_owner_not_the_sower() -> void:
+	# Player 0 sows pit 6's seed into player 1's pit 7, making 6: that pasu is player 1's
+	# (D63). Next pit 8 is empty, so player 0 captures pit 9 (2 seeds).
 	var pits := [1, 0, 0, 0, 0, 0, 1, 5, 0, 2, 1, 1, 1, 1]
-	var sower := S.after(_pall(pits), 6)
-	assert_array(Array(sower.stores)).is_equal([8, 0])
+	var r := S.apply(_pall(pits), 6)
+	var s: S.State = r[0]
+	assert_array(Array(s.stores)).is_equal([2, 6])
+	var pasu: Array = (r[1] as Array).filter(func(st: Array) -> bool: return st[0] == S.PASU)
+	assert_array(pasu).is_equal([[S.PASU, 7, 6, 1]])
+	# The older rule (pasu to whoever dropped the seed) is still available as an option.
 	var game: Dictionary = S.PALLANGUZHI.duplicate()
-	game["pasu_to"] = "owner"
-	var s := _pall(pits)
-	s.game = game
-	var owner := S.after(s, 6)
-	assert_array(Array(owner.stores)).is_equal([2, 6])
+	game["pasu_to"] = "sower"
+	var old := _pall(pits)
+	old.game = game
+	assert_array(Array(S.after(old, 6).stores)).is_equal([8, 0])
 
 
 func test_pallanguzhi_ends_when_the_player_to_move_has_no_seeds() -> void:

@@ -17,7 +17,7 @@ const KALAH := {
 }
 const PALLANGUZHI := {
 	"id": "pallanguzhi", "pits": 7, "seeds": 6, "store_in_path": false, "extra_turn": false,
-	"capture": "beyond_empty", "relay": true, "pasu": 6,
+	"capture": "beyond_empty", "relay": true, "pasu": 6, "pasu_to": "owner",
 }
 const MAX_DROPS := 400  ## Safety stop for relay sowing, which can very rarely loop.
 
@@ -31,7 +31,7 @@ const PICK := "pick"  ## [PICK, pit, count]
 const DROP := "drop"  ## [DROP, pit or STORE_0/STORE_1]
 const RELAY := "relay"  ## [RELAY, pit, count]: Pallanguzhi picks up the next pit
 const CAPTURE := "capture"  ## [CAPTURE, pit, count, player]
-const PASU := "pasu"  ## [PASU, pit, count, player]
+const PASU := "pasu"  ## [PASU, pit, count, player]: a pit reaching 6 goes to its owner (D63)
 const AGAIN := "again"  ## [AGAIN, player]: extra turn
 const SWEEP := "sweep"  ## [SWEEP, pit, count, player]: leftovers at the end
 const STORE_0 := 100
@@ -208,7 +208,7 @@ static func _sow_relay(s: State, pit: int, steps: Array, record: bool) -> void:
 			if record:
 				steps.append([DROP, pos])
 			if pasu > 0 and s.pits[pos] == pasu:
-				var taker := owner(s, pos) if str(s.game.get("pasu_to", "sower")) == "owner" else me
+				var taker := me if str(s.game.get("pasu_to", "owner")) == "sower" else owner(s, pos)
 				s.stores[taker] += pasu
 				steps.append([PASU, pos, pasu, taker])
 				s.pits[pos] = 0

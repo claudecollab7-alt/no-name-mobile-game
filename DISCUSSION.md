@@ -354,7 +354,7 @@ The server is the same `game/` project started in server mode, so it needs no fo
 | D34 | **Aadupuli starts on the classic 23-point board**, verified against your picture. More boards and piece-count options may be added later if needed. | 2026-11-16 |
 | D35 | **Fixed start confirmed:** tigers begin on the top point and the two centre points of the first row. | 2026-11-16 |
 | D36–D39 | Visual design: brass-and-wood board, pieces by shape and colour, light calm app, kolam patterns and unlockable themes. See [section 22](#22-visual-design-direction). D39 is narrowed by D40. | 2026-11-16 |
-| D61–D64 | Mancala: 4 seeds; Pallanguzhi: turn ends after capture, pasu (Wikipedia version), one round. See [section 29](#29-game-2-mancala-kalah-and-pallanguzhi-rules). | 2026-11-27 |
+| D61–D64 | Mancala: 4 seeds; Pallanguzhi: turn ends after capture, pasu goes to the pit's owner (D63, changed after self-play), one round. See [section 29](#29-game-2-mancala-kalah-and-pallanguzhi-rules). | 2026-11-27 |
 | D10, D58–D60 | 5 captures kept; summit spacing; goats win after 40 tiger moves without a capture; launch with all 17 games. See [section 28](#28-balance-the-40-move-rule-and-launching-with-17-games). | 2026-11-26 |
 | D55–D57 | Next games: Mancala with Pallanguzhi next; all four game families in year one; launch Tiger & Goat first. See [section 27](#27-the-next-games). | 2026-11-26 |
 | D50–D54 | Online play: filtered names, 45-second turns, server on this computer for now, computer offer after 20 s, online before Mancala. See [section 26](#26-online-play). | 2026-11-26 |
@@ -1123,10 +1123,10 @@ Researched and decided 2026-11-27.
 - Pick up all seeds from one of your own pits and sow anticlockwise, **starting with the next pit**.
 - **Relay:** when the last seed drops, pick up all seeds in the next pit and keep sowing.
 - **Capture:** if the next pit is empty, capture everything in the pit after it (even if that is empty too), and **your turn ends** (D62).
-- **Pasu (Wikipedia version, D63):** whenever a seed you drop makes any pit hold exactly 6, you take those 6 at once.
+- **Pasu (D63, revised 2026-11-27):** whenever a seed you drop makes any pit hold exactly 6, those 6 go at once to **the player whose side the pit is on**. (We first chose the Wikipedia version, where the sower takes them; self-play showed that gives the first player a forced win, see below.)
 - **One round, most seeds wins (D64):** the game ends when the player to move has no seeds in their pits; seeds left on the board go to the owner of the side they are on.
 - Safety rule for the computer: a single turn that would go on for 400 drops ends there (relay sowing can, very rarely, loop).
-- Later, as house rules: rounds with rubbish pits, 4-seed pasu taken by the pit's owner, 5 or 12 seeds.
+- Later, as house rules: rounds with rubbish pits, pasu to the sower, 12 seeds. (5 seeds is broken under these rules: the first move ends the game.)
 
 ### Rules check by self-play (2026-11-27)
 
@@ -1148,7 +1148,7 @@ Researched and decided 2026-11-27.
 |---|---|---|
 | D61 | Kalah starts with **4 seeds per pit** | 2026-11-27 |
 | D62 | Pallanguzhi: **the turn ends after a capture** | 2026-11-27 |
-| D63 | Pallanguzhi: **pasu included, Wikipedia version** (a pit reaching 6 goes to whoever dropped the seed) | 2026-11-27 |
+| D63 | Pallanguzhi: **pasu included; a pit reaching 6 goes to the pit's owner** (revised from "to whoever dropped the seed", which allowed a 7-move forced win) | 2026-11-27 |
 | D64 | Pallanguzhi: **one round, most seeds wins** | 2026-11-27 |
 
 ### The board (built 2026-11-27)
@@ -1178,7 +1178,7 @@ Ladder, 12 games each, sides and first player swapped every game:
 
 Kalah behaves as expected: each level beats the one below, and between equals the first player wins (Kalah is a known first-player win), which is why the first player alternates.
 
-### Open question: Pallanguzhi has a quick forced win (found 2026-11-27)
+### Solved: Pallanguzhi had a quick forced win (found and fixed 2026-11-27)
 
 With our rules (6 seeds, pasu at 6 to the sower, turn ends after a capture, one round), **the first player can force a win from the start in 7 moves by opening with the third pit**. The hard computer finds it, so whenever it moves first it always wins, and the levels stop mattering (medium vs hard 6 – 6, first player won 12 of 12).
 
@@ -1194,7 +1194,17 @@ Variants checked (forced win searched 9 moves deep; then 12 hard-vs-hard games):
 | 4 seeds, pasu at 4 to the pit's owner | No | 12 of 12 | 14 |
 | 5 seeds (either pasu) | Broken: the first move ends the game | 12 of 12 | 1 |
 
-The rules engine now supports "pasu to the pit's owner" as an option. **Decision needed** (replaces or confirms D63).
+**Decision (D63 revised): the pasu goes to the pit's owner.** It removes the forced win, keeps pasu (what makes Pallanguzhi feel different from Mancala) and is a real traditional variant. The old rule stays in the engine as an option (`"pasu_to": "sower"`).
+
+Check with the new rule, 24 games per match:
+
+| Match | Result | First player won |
+|---|---|---|
+| easy vs medium | 2 – 21, 1 draw | 10 of 24 |
+| medium vs hard | 5 – 15, 4 draws | 8 of 24 |
+| hard vs hard | 9 – 4, 11 draws (average margin 4 seeds) | 3 of 24 |
+
+Hard now uses its full thinking time (9 moves deep at the start), each level beats the one below, and equal players are close. Moving second is a small edge, so the first player still alternates.
 
 ### How game 2 will be built
 
@@ -1229,6 +1239,7 @@ One **pits-and-seeds engine** serves both (and Oware later):
 - **2026-11-25** — Added section 23: global focus, English only (D40), name Tiger & Goat (D41), Fredoka and Figtree (D42), Plato-like play screen (D43). D7 and D30 replaced. Open question: one game or platform.
 - **2026-11-25** — D44: Tiger & Goat is the first game's name; the platform brand stays open (needed by week 11).
 - **2026-11-25** — Added section 24: "Hill and meadow" chosen as the default look (D45), with palette, pieces and updated theme plan.
+- **2026-11-27** — D63 revised: Pallanguzhi pasu goes to the pit's owner; forced win gone, ladder clean.
 - **2026-11-27** — Section 29: computer opponent built; found a 7-move forced first-player win in Pallanguzhi as ruled; variants compared, decision pending.
 - **2026-11-27** — Section 29: the sowing board is built (wooden tray, pebble seeds, counts, seed-by-seed animation, tap to skip).
 - **2026-11-27** — Section 29: pits-and-seeds rules built and checked by self-play; first player alternates in both games.
