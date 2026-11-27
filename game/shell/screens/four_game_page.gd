@@ -1,7 +1,8 @@
 extends AppScreen
 ## The page for Four in a Row (DISCUSSION.md section 31): what it is, the rules card, and
 ## the play options. Against the computer you choose who moves first (D69): Play first,
-## Play second or Coin toss. Online, lessons and puzzles come later (G4.5–G4.7).
+## Play second or Coin toss; online, you pick first, second or either. Lessons and
+## puzzles come later (G4.6–G4.7).
 
 const F := preload("res://games/fourinrow/four_rules.gd")
 const PlayScreen := preload("res://shell/screens/four_play_screen.gd")
@@ -49,6 +50,9 @@ func _ready() -> void:
 	(cpu.get_meta("words") as VBoxContainer).add_child(chips)
 	col.add_child(cpu)
 	col.add_child(_mode_card("pass", "users", "Pass and play", "Two people, one phone. Player 1 moves first."))
+	var online := _mode_card("online", "world", "Play online", "Find a player, or invite a friend with a code")
+	(online.get_meta("row") as HBoxContainer).add_child(Ui.icon("chevron-right", 48, Ui.MUTED))
+	col.add_child(online)
 
 	_seat_row = Ui.hbox(14)
 	var as_label := Ui.label("Play", 28, Ui.MUTED)
@@ -79,8 +83,11 @@ func _mode_card(id: String, icon_name: String, title: String, sub: String) -> Pa
 	c.add_child(row)
 	c.set_meta("words", words)
 	c.set_meta("row", row)
-	Ui.on_tap(c, _set_mode.bind(id))
-	_mode_cards[id] = c
+	if id == "online":
+		Ui.on_tap(c, func() -> void: app.push(load("res://shell/screens/online_screen.gd").create(game_id)))
+	else:
+		Ui.on_tap(c, _set_mode.bind(id))
+		_mode_cards[id] = c
 	return c
 
 

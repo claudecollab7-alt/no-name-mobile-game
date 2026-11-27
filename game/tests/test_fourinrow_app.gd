@@ -82,7 +82,7 @@ func test_the_home_card_opens_the_page_with_the_first_or_second_choice() -> void
 	assert_bool(texts.has("Pass and play")).is_true()
 	for chip in ["First", "Second", "Coin toss"]:
 		assert_bool(texts.has(chip)).override_failure_message(chip).is_true()
-	assert_bool(texts.has("Play online")).is_false()  # Online comes in G4.5.
+	assert_bool(texts.has("Play online")).is_true()
 	page._set_mode("pass")
 	assert_bool(page._seat_row.visible).is_false()  # Pass and play: Player 1 moves first.
 

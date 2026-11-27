@@ -41,7 +41,8 @@ func defaults() -> Dictionary:
 				"first_wins": 0, "first_losses": 0, "second_wins": 0, "second_losses": 0,
 				"tutorial_done": false, "tutorial_offered": false, "puzzles_solved": []},
 		},
-		"online": {"token": "", "server": "", "muted": false, "search_side": "any", "room_side": "random"},
+		"online": {"token": "", "server": "", "muted": false, "search_side": "any", "room_side": "random",
+			"search_seat": "any", "room_seat": "random"},
 	}
 
 

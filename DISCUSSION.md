@@ -1480,10 +1480,18 @@ Same search as the other games (look-ahead with pruning and a position table), w
 ### In the app (built 2026-11-27)
 
 - **Home:** its own card below the seed games, with the wooden stand beside the name and a Play button; the "Four in a Row · Soon" tile is gone.
-- **Game page:** against the computer (easy, medium, hard) or pass and play, then **Play: First / Second / Coin toss** (D69), with a note that orange moves first. In pass and play, Player 1 is orange and moves first. Online, lessons and puzzles are not shown yet.
+- **Game page:** against the computer (easy, medium, hard) or pass and play, then **Play: First / Second / Coin toss** (D69), with a note that orange moves first. In pass and play, Player 1 is orange and moves first. Lessons and puzzles are not shown yet.
 - **Play:** the opponent's panel on top, the frame, your panel below, each with its disc colour ("Orange · moves first" or "Cream · moves second"). A coin toss says who won it. Undo takes back your move and the computer's reply. The computer thinks on a worker thread on phones, and for at most 0.7 s in the browser.
 - **Result:** after the winning four have glowed for a moment: who won (or a draw when the board fills), moves, wins and win streak. Play again keeps the same seat; a second button switches to moving first or second.
 - **Record:** kept apart from the other games, with wins and losses moving first and moving second; shown on the profile. Wins against the computer also count towards the overall win streak.
+
+### Online (built 2026-11-27)
+
+- **The same server and screens as the other games.** A room plays "fourinrow"; the sides are "first" and "second", as in the seed games, but here you choose (D69): quick match offers Either, Move first or Move second; a room offers Random, I go first or I go second. A rematch swaps who moves first.
+- **Quick match pairs Four in a Row players only.**
+- **The server checks every move:** a full column, a column that doesn't exist, or a move out of turn is refused and the phone is put back in step. Games end with "four" (a line of four) or "full" (a draw).
+- **Record:** online results go on Four in a Row's own record (not by seat, which is for games against the computer) and the overall online count.
+- Checked live in the browser against a scripted player: room code, join, discs both ways, a win with the four lit up, the result card, and a rematch where the other player moved first.
 
 ### How it will be built
 
@@ -1516,6 +1524,7 @@ Same search as the other games (look-ahead with pruning and a position table), w
 - **2026-11-25** — Added section 23: global focus, English only (D40), name Tiger & Goat (D41), Fredoka and Figtree (D42), Plato-like play screen (D43). D7 and D30 replaced. Open question: one game or platform.
 - **2026-11-25** — D44: Tiger & Goat is the first game's name; the platform brand stays open (needed by week 11).
 - **2026-11-25** — Added section 24: "Hill and meadow" chosen as the default look (D45), with palette, pieces and updated theme plan.
+- **2026-11-27** — Section 31: Four in a Row online (rooms and quick match with seat choice, rematch swaps who moves first).
 - **2026-11-27** — Section 31: Four in a Row in the app (home card, game page with first/second choice, play, result, own record).
 - **2026-11-27** — Section 31: Four in a Row computer opponent (three levels, ladder clean).
 - **2026-11-27** — Section 31: Four in a Row board drawn (wooden stand, orange and cream discs, drop and win animations).

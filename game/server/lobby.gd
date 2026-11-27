@@ -11,14 +11,15 @@ extends RefCounted
 ## phone by offering the computer after 20 seconds (D5).
 ##
 ## Several games share the lobby: each room plays one game ("aadupuli", "baghchal",
-## "kalah" or "pallanguzhi"; old clients send none and get Tiger & Goat). Sides are
-## "tigers" and "goats" in the tiger games (Tiger & Goat, Bagh-Chal), "first" and
-## "second" in the seed games (who moves first; a rematch swaps them, so the start
+## "kalah", "pallanguzhi" or "fourinrow"; old clients send none and get Tiger & Goat).
+## Sides are "tigers" and "goats" in the tiger games (Tiger & Goat, Bagh-Chal), "first"
+## and "second" in the others (who moves first; a rematch swaps them, so the start
 ## alternates). Quick match pairs the same game only.
 
 const R := preload("res://games/aadupuli/rules/aadupuli_rules.gd")
 const S := preload("res://games/sowing/sowing_rules.gd")
-const GAMES := ["aadupuli", "baghchal", "kalah", "pallanguzhi"]
+const F := preload("res://games/fourinrow/four_rules.gd")
+const GAMES := ["aadupuli", "baghchal", "kalah", "pallanguzhi", "fourinrow"]
 const TIGER_GAMES := ["aadupuli", "baghchal"]  ## Played on the tiger rules, each on its own board.
 
 const PROTOCOL := 1
@@ -282,6 +283,8 @@ func _move(peer: int, m: int, now: int) -> void:
 func _apply(room: Dictionary, m: int, by: int, now: int) -> void:
 	if room["game"] in TIGER_GAMES:
 		room["state"] = R.apply(room["state"], m)
+	elif room["game"] == "fourinrow":
+		room["state"] = F.after(room["state"], m)
 	else:
 		room["state"] = S.after(room["state"], m)
 	room["deadline"] = now + TURN_MS
@@ -396,24 +399,32 @@ func _game_of(msg: Dictionary) -> String:
 func _new_state(game: String) -> Variant:
 	if game in TIGER_GAMES:
 		return R.new_game({"board": game})
+	if game == "fourinrow":
+		return F.new_game()
 	return S.new_game(S.KALAH if game == "kalah" else S.PALLANGUZHI, 0)
 
 
 func _turn_side(room: Dictionary) -> String:
 	if room["game"] in TIGER_GAMES:
 		return "tigers" if (room["state"] as R.State).turn == R.TIGER else "goats"
+	if room["game"] == "fourinrow":
+		return "first" if (room["state"] as F.State).turn == 0 else "second"
 	return "first" if (room["state"] as S.State).turn == 0 else "second"
 
 
 func _legal(room: Dictionary) -> PackedInt32Array:
 	if room["game"] in TIGER_GAMES:
 		return R.legal_moves(room["state"])
+	if room["game"] == "fourinrow":
+		return F.legal_moves(room["state"])
 	return S.legal_moves(room["state"])
 
 
 func _dict(room: Dictionary) -> Dictionary:
 	if room["game"] in TIGER_GAMES:
 		return R.to_dict(room["state"])
+	if room["game"] == "fourinrow":
+		return F.to_dict(room["state"])
 	return S.to_dict(room["state"])
 
 
@@ -427,6 +438,15 @@ func _outcome(room: Dictionary) -> Array:
 		var reason := "captured" if res == R.TIGERS_WIN and s.captured >= s.capture_target else (
 			"held" if res == R.GOATS_WIN and R.held(s) else ("trapped" if res == R.GOATS_WIN else "stuck"))
 		return ["tigers" if res == R.TIGERS_WIN else "goats", reason]
+	if room["game"] == "fourinrow":
+		match F.result(room["state"]):
+			F.WIN_0:
+				return ["first", "four"]
+			F.WIN_1:
+				return ["second", "four"]
+			F.DRAW:
+				return ["draw", "full"]
+		return []
 	match S.result(room["state"]):
 		S.WIN_0:
 			return ["first", "seeds"]

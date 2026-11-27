@@ -1,8 +1,8 @@
 extends AppScreen
 ## Play online: find a player (quick match), invite a friend (create a room), or join
 ## a friend's room with its code. `game_id` says which game: in the tiger games
-## (Tiger & Goat, Bagh-Chal) players can pick a side; in the seed games who starts is
-## decided for them and alternates.
+## (Tiger & Goat, Bagh-Chal) players can pick a side, in Four in a Row whether they move
+## first or second (D69); in the seed games who starts is decided for them and alternates.
 
 const WaitingScreen := preload("res://shell/screens/waiting_screen.gd")
 
@@ -24,9 +24,13 @@ static func create(id: String) -> AppScreen:
 	return s
 
 
+func _seats() -> bool:
+	return game_id == "fourinrow"
+
+
 func _ready() -> void:
-	_search_side = str(Store.data["online"]["search_side"])
-	_room_side = str(Store.data["online"]["room_side"])
+	_search_side = str(Store.data["online"]["search_seat" if _seats() else "search_side"])
+	_room_side = str(Store.data["online"]["room_seat" if _seats() else "room_side"])
 	var col := page(true, 64, 40)
 	col.add_child(top_bar("Play online" if game_id == "aadupuli" else tr("%s online") % tr(Games.title(game_id))))
 
@@ -47,6 +51,8 @@ func _ready() -> void:
 	var quick := _card("search", "Find a player", "Play someone online right now.")
 	if Games.is_tiger(game_id):
 		quick.get_meta("body").add_child(_chips([["any", "Any side"], ["tigers", "Tigers"], ["goats", "Goats"]], _search_chips, _set_search_side))
+	elif _seats():
+		quick.get_meta("body").add_child(_chips([["any", "Either"], ["first", "Move first"], ["second", "Move second"]], _search_chips, _set_search_side))
 	quick.get_meta("body").add_child(Ui.button("Find a player", _find, true, 108))
 	col.add_child(quick)
 
@@ -54,6 +60,8 @@ func _ready() -> void:
 	var invite := _card("users", "Invite a friend", "Get a code and send it to a friend.")
 	if Games.is_tiger(game_id):
 		invite.get_meta("body").add_child(_chips([["random", "Random"], ["tigers", "I'm tigers"], ["goats", "I'm goats"]], _room_chips, _set_room_side))
+	elif _seats():
+		invite.get_meta("body").add_child(_chips([["random", "Random"], ["first", "I go first"], ["second", "I go second"]], _room_chips, _set_room_side))
 	invite.get_meta("body").add_child(Ui.button("Create a room", _create, false, 108))
 	col.add_child(invite)
 
@@ -175,17 +183,17 @@ func _ready_to_send() -> bool:
 func _find() -> void:
 	if not _ready_to_send():
 		return
-	Store.data["online"]["search_side"] = _search_side
+	Store.data["online"]["search_seat" if _seats() else "search_side"] = _search_side
 	Store.save_data()
-	app.push(WaitingScreen.create("search", _search_side if Games.is_tiger(game_id) else "any", game_id))
+	app.push(WaitingScreen.create("search", _search_side if Games.is_tiger(game_id) or _seats() else "any", game_id))
 
 
 func _create() -> void:
 	if not _ready_to_send():
 		return
-	Store.data["online"]["room_side"] = _room_side
+	Store.data["online"]["room_seat" if _seats() else "room_side"] = _room_side
 	Store.save_data()
-	app.push(WaitingScreen.create("room", _room_side if Games.is_tiger(game_id) else "random", game_id))
+	app.push(WaitingScreen.create("room", _room_side if Games.is_tiger(game_id) or _seats() else "random", game_id))
 
 
 func _join() -> void:

@@ -297,3 +297,79 @@ func test_a_bagh_chal_game_over_the_lobby_ends_and_rematch_swaps_sides() -> void
 	var again := lobby.handle(2, {"t": "rematch"}, now)
 	assert_str(_to(again, 1, "start")["you"]).is_equal("tigers")
 	assert_str(_to(again, 1, "start")["state"]["board"]).is_equal("baghchal")
+
+
+# ---------- Four in a Row ----------
+
+const F := preload("res://games/fourinrow/four_rules.gd")
+
+
+func _start_four_room(side := "first") -> Array:
+	_hello(1, "Ana")
+	_hello(2, "Ben")
+	var code: String = _to(lobby.handle(1, {"t": "create", "side": side, "game": "fourinrow"}, now), 1, "room")["code"]
+	return lobby.handle(2, {"t": "join", "code": code}, now)
+
+
+func test_a_four_in_a_row_room_starts_empty_with_the_chosen_seats() -> void:
+	var out := _start_four_room("second")
+	var start := _to(out, 1, "start")
+	assert_str(start["game"]).is_equal("fourinrow")
+	assert_str(start["you"]).is_equal("second")
+	assert_str(_to(out, 2, "start")["you"]).is_equal("first")
+	var s := F.from_dict(start["state"])
+	assert_int(s.moves_played).is_equal(0)
+	assert_int(s.turn).is_equal(0)
+
+
+func test_four_in_a_row_quick_match_respects_seats_and_stays_apart() -> void:
+	_hello(1)
+	_hello(2)
+	_hello(3)
+	lobby.handle(1, {"t": "search", "side": "first", "game": "fourinrow"}, now)
+	assert_dict(_to(lobby.handle(2, {"t": "search", "side": "second", "game": "kalah"}, now), 2, "searching")).is_not_empty()
+	var out := lobby.handle(3, {"t": "search", "side": "second", "game": "fourinrow"}, now)
+	assert_str(_to(out, 1, "start")["you"]).is_equal("first")
+	assert_str(_to(out, 3, "start")["you"]).is_equal("second")
+
+
+func test_the_server_refuses_full_columns_and_moves_out_of_turn() -> void:
+	_start_four_room("first")  # Ana (1) first, Ben (2) second.
+	assert_dict(_to(lobby.handle(2, {"t": "move", "m": 3}, now), 2, "sync")).is_not_empty()  # Not Ben's turn.
+	for i in 6:
+		var mover := 1 if i % 2 == 0 else 2
+		assert_dict(_to(lobby.handle(mover, {"t": "move", "m": 0}, now), 1, "moved")).is_not_empty()
+	assert_dict(_to(lobby.handle(1, {"t": "move", "m": 0}, now), 1, "sync")).is_not_empty()  # Column 0 is full.
+	assert_dict(_to(lobby.handle(1, {"t": "move", "m": 9}, now), 1, "sync")).is_not_empty()  # No such column.
+
+
+func test_four_in_a_row_ends_with_four_and_rematch_swaps_who_moves_first() -> void:
+	_start_four_room("first")
+	var ended := {}
+	for c: int in [0, 1, 0, 1, 0, 1, 0]:  # Ana stacks four up column 0.
+		var mover := 1 if (lobby.rooms.values()[0]["state"] as F.State).turn == 0 else 2
+		ended = _to(lobby.handle(mover, {"t": "move", "m": c}, now), 2, "end")
+	assert_str(ended["winner"]).is_equal("first")
+	assert_str(ended["reason"]).is_equal("four")
+	lobby.handle(1, {"t": "rematch"}, now)
+	var again := lobby.handle(2, {"t": "rematch"}, now)
+	assert_str(_to(again, 1, "start")["you"]).is_equal("second")
+	assert_int(F.from_dict(_to(again, 1, "start")["state"]).moves_played).is_equal(0)
+
+
+func test_a_full_four_in_a_row_board_is_a_draw() -> void:
+	_start_four_room("first")
+	# Columns filled so no four forms: the drawn pattern from the rules tests.
+	var room: Dictionary = lobby.rooms.values()[0]
+	var columns: Array = []
+	for col in F.COLS:
+		var discs: Array = []
+		for row in F.ROWS:
+			discs.append((col + floori(row / 3.0)) % 2)
+		columns.append(discs)
+	columns[6].pop_back()  # Leave the last space for the final move.
+	room["state"] = F.from_dict({"columns": columns, "turn": 1})
+	var out := lobby.handle(2, {"t": "move", "m": 6}, now)
+	var ended := _to(out, 1, "end")
+	assert_str(ended["winner"]).is_equal("draw")
+	assert_str(ended["reason"]).is_equal("full")
