@@ -514,7 +514,7 @@ Board and pieces are drawn in code. AI-generated images are used only for backgr
 - [x] G4.0 Rules and look decided (2026-11-27: DISCUSSION.md section 31, D68–D71)
 - [x] G4.1 Grid engine and Four in a Row rules (2026-11-27: `games/grid/grid.gd`, `games/fourinrow/four_rules.gd` with bitboards; 14 tests: wins in every direction, draw, full columns, no wrap between columns, save and load, random games)
 - [x] G4.2 Board drawing (2026-11-27: wooden stand in the meadow, orange and cream discs, drop with a bounce, winning four highlighted; pictures in `docs/game4/`, made by `tools/shot_four.tscn`; 8 board tests)
-- [ ] G4.3 Computer opponent: Easy, Medium, Hard (strong but beatable), checked with a ladder
+- [x] G4.3 Computer opponent (2026-11-27: bitboard search, wins/blocks/never under a threat; Easy, Medium, Hard; ladder by `tools/four_ladder.gd`, results in DISCUSSION.md section 31)
 - [ ] G4.4 In the app: home card, game page (Play first / Play second / Coin toss), play, result, own record
 - [ ] G4.5 Online: lobby game, side choice, rematch swaps who starts
 - [ ] G4.6 Lessons
@@ -543,6 +543,7 @@ Add one line per working session: date, task, result, anything the next session 
 | 2026-11-16 | Plan written | — | Godot version not yet pinned; board not yet verified |
 | 2026-11-16 | Board verified | Matches the draft exactly | Picture saved at docs/board-reference.png |
 | 2026-11-16 | Tiger start confirmed | Points 0, 3 and 4 | Nothing about the board is open now |
+| 2026-11-27 | Game 4 computer | Four in a Row search on bitboards with threat spaces, levels Easy/Medium/Hard; ladder: Medium beat Easy 38/40, Hard beat Medium 17/20; 9 opponent tests, 190 pass | G4.4 in the app next |
 | 2026-11-27 | Game 4 board | Four in a Row board view and preview: wooden stand on feet in the meadow, orange and cream discs, falling disc with a bounce, landing hints, winning line; 8 board tests, 181 pass; pictures for approval | G4.3 computer opponent next |
 | 2026-11-27 | Game 4 rules | Grid geometry (69 lines of four on 7 × 6); Four in a Row rules on bitboards; 14 rule tests, 173 pass; 5,000 random games: first player 56%, about 75,000 positions a second | G4.2 board drawing next (pictures first) |
 | 2026-11-27 | Game 4 planned | Four in a Row chosen; rules, first-move choice, look and Hard level decided (D68–D71); G4.1–G4.7 planned | G4.1 grid engine and rules next |

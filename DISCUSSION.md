@@ -1444,6 +1444,39 @@ Decided 2026-11-27. Four in a Row is the first square-grid game, so it also pays
 - **Showing the game:** where your disc would land glows white, the last disc has a gold ring, and a win lights up the winning discs and joins them with a glowing line.
 - Pictures made by `tools/shot_four.tscn`.
 
+### The computer opponent (built 2026-11-27)
+
+Same search as the other games (look-ahead with pruning and a position table), working directly on the rules' bitboards, so trying a move costs only a few number operations. Checked with `tools/four_ladder.gd`, which plays each pairing with sides swapped and two random opening moves, so evenly matched levels don't replay the same game.
+
+**What it knows:**
+- **Wins and blocks:** it takes a win on the board at every level, blocks a single threat, and knows that two threats at once can't both be blocked.
+- **Never fills the space under the opponent's winning space**, which would hand them the win.
+- **Centre first:** centre columns, and moves that make new threats, are tried first.
+- **Scoring** beyond its look-ahead: threat spaces (with extra for rows that suit the player: rows 1, 3, 5 for whoever moved first), open lines of three and two, and discs in the centre column.
+
+**Levels:**
+
+| Level | Look-ahead | Time | Slips |
+|---|---|---|---|
+| Easy | 2 moves | 0.3 s | 35% of moves go to the 2nd or 3rd best, and can miss a block, as a beginner would |
+| Medium | 4 moves | 0.7 s | 12% of moves go to the 2nd best, never one that loses at once |
+| Hard | as far as 1.2 s allows (about 8 moves) | 1.2 s | none |
+
+**Results** (computer against itself, sides swapped every game):
+
+| Pairing | Games | Result |
+|---|---|---|
+| Medium vs Easy | 40 | Medium won 38, Easy 2 |
+| Hard vs Medium | 20 | Hard won 17, Medium 2, 1 draw |
+| Easy vs Easy | 40 | The first player won 29 |
+| Medium vs Medium | 20 | The first player won 8, the second 9, 3 draws |
+| Hard vs Hard | 20 | 4 won by the first player, 13 by the second, 3 draws |
+
+- The ladder is clean: each level beats the one below.
+- **Hard is strong but beatable (D71):** its look-ahead is about 8 moves and its judgement past that is a rule of thumb, so a player who builds threats deeper than that (especially on the right rows) can beat it. Whether it feels right for people is for the phone checks.
+- **Tried and changed:** at first every level's slips skipped moves that lose at once. That made Easy always block a single threat, and Medium beat it only 14 of 20. Easy's slips are now careless again.
+- Hard against Hard favouring the second player is the two random opening moves: a random first move is often a poor one.
+
 ### How it will be built
 
 - **Grid engine:** a board of columns × rows, with cells, lines through them, and drawing of a frame and discs. Four in a Row is its first user; Reversi next.
@@ -1475,6 +1508,7 @@ Decided 2026-11-27. Four in a Row is the first square-grid game, so it also pays
 - **2026-11-25** — Added section 23: global focus, English only (D40), name Tiger & Goat (D41), Fredoka and Figtree (D42), Plato-like play screen (D43). D7 and D30 replaced. Open question: one game or platform.
 - **2026-11-25** — D44: Tiger & Goat is the first game's name; the platform brand stays open (needed by week 11).
 - **2026-11-25** — Added section 24: "Hill and meadow" chosen as the default look (D45), with palette, pieces and updated theme plan.
+- **2026-11-27** — Section 31: Four in a Row computer opponent (three levels, ladder clean).
 - **2026-11-27** — Section 31: Four in a Row board drawn (wooden stand, orange and cream discs, drop and win animations).
 - **2026-11-27** — Section 31: Four in a Row rules and the first part of the grid engine built (14 tests).
 - **2026-11-27** — Section 31: Game 4 is Four in a Row (D68–D71): standard 7 × 6, the player chooses who moves first, wooden stand with orange and cream discs, Hard strong but beatable.
