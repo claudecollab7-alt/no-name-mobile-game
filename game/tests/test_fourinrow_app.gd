@@ -14,6 +14,7 @@ var _saved_last := {}
 func before_test() -> void:
 	_saved = (Store.data["games"]["fourinrow"] as Dictionary).duplicate(true)
 	_saved_last = (Store.data["last"] as Dictionary).duplicate(true)
+	Store.data["games"]["fourinrow"]["tutorial_offered"] = true  # The lessons offer: test_fourinrow_tutorial.gd
 	app = auto_free(load("res://main.tscn").instantiate())
 	add_child(app)
 	await _frames(3)
@@ -186,11 +187,11 @@ func test_pass_and_play_names_the_winning_player() -> void:
 	assert_int(_top().board.state.moves_played).is_equal(0)
 
 
-func test_the_rules_card_is_its_own_without_a_tutorial_yet() -> void:
+func test_the_rules_card_is_its_own_with_the_lessons() -> void:
 	Games.how_to_play(app, "fourinrow")
 	await _frames(1)
 	var texts := _texts(app)
 	assert_bool(texts.has("How to play Four in a Row")).is_true()
 	assert_bool(texts.has("Four in a row")).is_true()
-	assert_bool(_buttons(app).has("Try the tutorial")).is_false()
+	assert_bool(_buttons(app).has("Try the tutorial")).is_true()
 	Modal.close_top(app)

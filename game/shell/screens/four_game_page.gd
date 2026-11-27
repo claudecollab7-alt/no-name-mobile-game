@@ -1,8 +1,8 @@
 extends AppScreen
 ## The page for Four in a Row (DISCUSSION.md section 31): what it is, the rules card, and
 ## the play options. Against the computer you choose who moves first (D69): Play first,
-## Play second or Coin toss; online, you pick first, second or either. Lessons and
-## puzzles come later (G4.6–G4.7).
+## Play second or Coin toss; online, you pick first, second or either. Four lessons are
+## offered once, the first time you press Play. Puzzles come later (G4.7).
 
 const F := preload("res://games/fourinrow/four_rules.gd")
 const PlayScreen := preload("res://shell/screens/four_play_screen.gd")
@@ -38,6 +38,18 @@ func _ready() -> void:
 	art.add_child(FourPreview.create(F.new_game(), 460))
 	col.add_child(art)
 	col.add_child(Ui.muted(str(Games.info(game_id)["about"]), 28))
+	var learn := Ui.card(Ui.WARM, Ui.ACCENT_LINE, 24)
+	var lrow := Ui.hbox(20)
+	lrow.add_child(Ui.icon("bulb", 56, Ui.ACCENT))
+	var lw := Ui.vbox(0)
+	lw.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	lw.add_child(Ui.heading("Learn to play", 34))
+	lw.add_child(Ui.muted("Four tiny lessons on the real frame, about a minute.", 26))
+	lrow.add_child(lw)
+	lrow.add_child(Ui.icon("chevron-right", 48, Ui.MUTED))
+	learn.add_child(lrow)
+	Ui.on_tap(learn, _learn)
+	col.add_child(learn)
 
 	col.add_child(section("Play"))
 	var cpu := _mode_card("computer", "robot", "Against the computer", "")
@@ -132,10 +144,28 @@ func _style_chip(chip: PanelContainer, on: bool) -> void:
 	(chip.get_child(0) as Label).add_theme_color_override("font_color", Color("#B5501A") if on else Ui.INK)
 
 
+func _learn() -> void:
+	app.push(load("res://shell/screens/four_tutorial_screen.gd").create(game_id))
+
+
 func _start() -> void:
 	Store.set_last("mode", mode)
 	Store.set_last("level", level)
 	Store.set_last("seat", seat)
+	var g: Dictionary = Store.data["games"][game_id]
+	# The first time someone plays, offer the lessons once.
+	if not bool(g["tutorial_done"]) and not bool(g["tutorial_offered"]) and int(g["played"]) == 0:
+		g["tutorial_offered"] = true
+		Store.save_data()
+		Modal.show(app, tr("New to %s?") % tr(Games.title(game_id)), [Modal.text("Four tiny lessons on the real frame teach it in about a minute.")], [
+			["Just play", _play],
+			["Learn first", _learn, true],
+		])
+		return
+	_play()
+
+
+func _play() -> void:
 	var first := seat != "second"
 	if mode == "computer" and seat == "toss":
 		first = randi() % 2 == 0

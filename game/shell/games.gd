@@ -42,7 +42,7 @@ const GRID := {
 		"line": "Line up four  ·  2 players  ·  about 3 min",
 		"short": "Line up four",
 		"about": "Take turns dropping discs into an upright frame. Line up four of yours across, up and down, or diagonally before your opponent does.",
-		"lessons": false,
+		"lessons": true,
 		"rules": [
 			["Drop a disc", "On your turn, drop one disc into any column that isn't full. It falls to the lowest empty space."],
 			["Four in a row", "The first to line up four of their discs wins: across, up and down, or diagonally."],
@@ -135,5 +135,6 @@ static func how_to_play(host: Node, id: String) -> void:
 		rows.append(row)
 	var actions: Array = [["Got it", func() -> void: pass, true]]
 	if bool(info(id).get("lessons", true)):
-		actions.push_front(["Try the tutorial", func() -> void: host.push(load("res://shell/screens/sowing_tutorial_screen.gd").create(id))])
+		var lessons := "res://shell/screens/four_tutorial_screen.gd" if GRID.has(id) else "res://shell/screens/sowing_tutorial_screen.gd"
+		actions.push_front(["Try the tutorial", func() -> void: host.push(load(lessons).create(id))])
 	Modal.show(host, TranslationServer.translate("How to play %s") % TranslationServer.translate(title(id)), rows, actions)
