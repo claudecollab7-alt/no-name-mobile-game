@@ -1536,6 +1536,39 @@ Four hands-on lessons on the real frame, in the same style as the other games: o
 
 ---
 
+## 32. Game 5: Reversi
+
+Decided 2026-11-28. Reversi is the second square-grid game, reusing the grid engine built for Four in a Row (section 31). Generic name only: never "Othello", which is a trademark.
+
+### The rules (standard)
+
+- **Board:** 8 × 8 squares. Two discs each start on the four centre squares, placed diagonally.
+- **Moving:** place a disc so that it traps one or more straight lines of the opponent's discs (across, up and down, or diagonally) between it and another disc of yours. Every trapped disc in every direction flips to your colour. A move that traps nothing is not allowed.
+- **Passing:** if you have no legal move, you pass. If neither player can move, the game ends.
+- **Winning:** the player with more discs at the end wins; equal counts are a draw.
+
+**Worth knowing:** the first-move edge is small. Perfect play on 8 × 8 has been reported to be a draw, so who starts matters far less than in Four in a Row. Computers have played Reversi far better than people for decades, so the levels need care to stay fun.
+
+### Decisions
+
+| # | Decision | Date |
+|---|---|---|
+| D72 | **Game 5 is Reversi**, standard 8 × 8 rules: flank to flip in all eight directions, pass when you can't move, most discs wins, equal is a draw | 2026-11-28 |
+| D73 | **The player chooses who moves first**, as in Four in a Row (D69): Play first, Play second or Coin toss against the computer; first, second or either online, and a rematch swaps who starts. Orange always moves first | 2026-11-28 |
+| D74 | **A wooden tray with grass-green squares** on the meadow, with the same orange and cream discs as Four in a Row; a flipped disc turns over with a little spin | 2026-11-28 |
+| D75 | **Glowing dots show where you can play**, like the glowing points in the other games, and follow the hints setting in Settings. No flip-count preview | 2026-11-28 |
+
+Hard stays **strong but beatable**, as decided for Four in a Row (D71): a near-perfect Reversi computer would crush most players.
+
+### How it will be built
+
+- **Rules** on the grid engine: each player's discs as a 64-bit bitboard (8 × 8 fits exactly), with legal moves and flips found by shifting in the eight directions. GDScript integers are signed, so the shifts need masks to stop discs wrapping round the edges or the sign bit spreading.
+- **Board:** the wooden tray and grass squares, discs that flip with a spin one after another along each line, legal-move dots, and the last move marked.
+- **Computer:** look-ahead search with Reversi scoring (corners, edges, mobility, disc count late in the game), Easy, Medium and Hard, tuned by a ladder.
+- **In the app, online, lessons, puzzles:** the same pattern as Four in a Row, including the first/second choice and records by seat.
+
+---
+
 ## Change log
 
 - **2026-11-14** — Document created from the first discussion.
@@ -1555,6 +1588,7 @@ Four hands-on lessons on the real frame, in the same style as the other games: o
 - **2026-11-25** — Added section 23: global focus, English only (D40), name Tiger & Goat (D41), Fredoka and Figtree (D42), Plato-like play screen (D43). D7 and D30 replaced. Open question: one game or platform.
 - **2026-11-25** — D44: Tiger & Goat is the first game's name; the platform brand stays open (needed by week 11).
 - **2026-11-25** — Added section 24: "Hill and meadow" chosen as the default look (D45), with palette, pieces and updated theme plan.
+- **2026-11-28** — Section 32: Game 5 is Reversi (D72–D75): standard 8 × 8 rules, the player chooses who moves first, wooden tray with grass squares, glowing dots for legal moves.
 - **2026-11-28** — Section 31: Four in a Row puzzles (130 proven twice, from the game page). Four in a Row is complete.
 - **2026-11-28** — Section 31: Four in a Row lessons (four, offered once on first play).
 - **2026-11-27** — Section 31: Four in a Row online (rooms and quick match with seat choice, rematch swaps who moves first).

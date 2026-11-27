@@ -520,6 +520,17 @@ Board and pieces are drawn in code. AI-generated images are used only for backgr
 - [x] G4.6 Lessons (2026-11-28: four on the real frame: drop, four wins, block, diagonals; from the page, rules card and a one-time offer on first play)
 - [x] G4.7 Puzzles (2026-11-28: 130 proven puzzles of four kinds, checked again by a plain solver; Puzzles card on the page, solved ones remembered)
 
+### Game 5 — Reversi
+
+- [x] G5.0 Rules and look decided (2026-11-28: DISCUSSION.md section 32, D72–D75)
+- [ ] G5.1 Reversi rules on the grid engine, with tests (flips in all eight directions, passing, game end, draws, save and load)
+- [ ] G5.2 Board drawing: wooden tray, grass squares, flipping discs, legal-move dots (pictures for approval first)
+- [ ] G5.3 Computer opponent: Easy, Medium, Hard (strong but beatable), checked with a ladder
+- [ ] G5.4 In the app: home card, game page (Play first / Play second / Coin toss), play, result, own record
+- [ ] G5.5 Online: lobby game, seat choice, rematch swaps who starts
+- [ ] G5.6 Lessons
+- [ ] G5.7 Puzzles (proven by exact search)
+
 ### Phases 6 and 7 — closed test and release
 
 - [ ] 6.1 Release build
@@ -543,6 +554,7 @@ Add one line per working session: date, task, result, anything the next session 
 | 2026-11-16 | Plan written | — | Godot version not yet pinned; board not yet verified |
 | 2026-11-16 | Board verified | Matches the draft exactly | Picture saved at docs/board-reference.png |
 | 2026-11-16 | Tiger start confirmed | Points 0, 3 and 4 | Nothing about the board is open now |
+| 2026-11-28 | Game 5 planned | Reversi chosen; rules, first-move choice, look and hints decided (D72–D75); G5.1–G5.7 planned | G5.1 rules next |
 | 2026-11-28 | Game 4 puzzles | Puzzle proofs on bitboards; generator (600 games, 75 s); 130 puzzles: make four now 25, saves 45, win in 2 35, win in 3 25; puzzle screen and page card; 6 tests incl. a plain-solver cross-check, 215 pass; checked in the browser | Four in a Row complete; game 5 next |
 | 2026-11-28 | Game 4 lessons | Four Four in a Row lessons and their screen; Learn to play card, rules-card button and first-play offer; first game vs Easy moving first; 6 tests, 209 pass; played through in the browser at phone size | G4.7 puzzles next |
 | 2026-11-27 | Game 4 online | Lobby plays "fourinrow" (seats first/second, results four or full); online card on the page; seat chips on the online screen; waiting screen routes to the Four in a Row play screen; 5 lobby tests and 1 screen test against the real server, 203 pass; checked live against a scripted player | G4.6 lessons next |
