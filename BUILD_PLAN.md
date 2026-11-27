@@ -509,6 +509,17 @@ Board and pieces are drawn in code. AI-generated images are used only for backgr
 - [x] G3.6 Lessons (2026-11-27: five on the real board, incl. guarding a goat; from the page, rules card and a one-time offer on first play)
 - [x] G3.7 Puzzles (2026-11-27: 130 proven puzzles of four kinds, Puzzles card on the page, solved ones remembered)
 
+### Game 4 — Four in a Row
+
+- [x] G4.0 Rules and look decided (2026-11-27: DISCUSSION.md section 31, D68–D71)
+- [ ] G4.1 Grid engine and Four in a Row rules, with tests (win in every direction, draw, full columns, save and load)
+- [ ] G4.2 Board drawing: wooden stand in the meadow, orange and cream discs, drop with a bounce, winning four highlighted (pictures for approval first)
+- [ ] G4.3 Computer opponent: Easy, Medium, Hard (strong but beatable), checked with a ladder
+- [ ] G4.4 In the app: home card, game page (Play first / Play second / Coin toss), play, result, own record
+- [ ] G4.5 Online: lobby game, side choice, rematch swaps who starts
+- [ ] G4.6 Lessons
+- [ ] G4.7 Puzzles (proven by exact search)
+
 ### Phases 6 and 7 — closed test and release
 
 - [ ] 6.1 Release build
@@ -532,6 +543,7 @@ Add one line per working session: date, task, result, anything the next session 
 | 2026-11-16 | Plan written | — | Godot version not yet pinned; board not yet verified |
 | 2026-11-16 | Board verified | Matches the draft exactly | Picture saved at docs/board-reference.png |
 | 2026-11-16 | Tiger start confirmed | Points 0, 3 and 4 | Nothing about the board is open now |
+| 2026-11-27 | Game 4 planned | Four in a Row chosen; rules, first-move choice, look and Hard level decided (D68–D71); G4.1–G4.7 planned | G4.1 grid engine and rules next |
 | 2026-11-27 | Game 3 puzzles | Puzzle generator takes --board; 130 proven Bagh-Chal puzzles (safe 40, capture in 2 40, trap in 1 25, trap in 2 25); Puzzles card on the page, puzzle screen per board, solved remembered; 4 tests, 159 pass; checked in the browser at phone size | Bagh-Chal complete; game 4 next |
 | 2026-11-27 | Game 3 lessons | Five Bagh-Chal lessons on the shared tutorial screen; Learn to play card, rules-card button and first-play offer; fixed pieces landing off their point when the board resizes mid-move; 6 tests, 155 pass; played through in the browser at phone size | Puzzles next (G3.7) |
 | 2026-11-27 | Game 3 online | Lobby plays "baghchal" on the tiger rules; online card on the Bagh-Chal page; online and waiting screens route tiger games by board; online results on Bagh-Chal's record; 4 lobby tests and 1 screen test against the real server, 149 pass; checked in the browser against a second player | Lessons, puzzles next (G3.6–G3.7) |

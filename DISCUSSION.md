@@ -1400,6 +1400,40 @@ The Tiger & Goat rules, board drawing, computer and puzzle code all assume the 2
 
 ---
 
+## 31. Game 4: Four in a Row
+
+Decided 2026-11-27. Four in a Row is the first square-grid game, so it also pays for the grid engine that Reversi, Checkers, Dots and Boxes and Hnefatafl will reuse (section 27). Generic name only: never "Connect Four", which is a trademark.
+
+### The rules (standard)
+
+- **Board:** an upright frame of **7 columns × 6 rows**.
+- **Turns:** players take turns dropping one disc into a column that isn't full. It falls to the lowest empty space.
+- **Win:** the first player to line up **four of their discs in a row**, across, up and down, or diagonally.
+- **Draw:** all 42 spaces filled without four in a row.
+
+**Hard truth: the game is solved.** In 1988 James D. Allen and Victor Allis each showed that the first player can force a win by starting in the middle column. Moving first is therefore a real advantage, and a perfect computer would be no fun. Both shape the decisions below.
+
+### Decisions
+
+| # | Decision | Date |
+|---|---|---|
+| D68 | **Game 4 is Four in a Row**, standard 7 × 6, four in a line wins, a full board is a draw. It is the first square-grid game (follows the order in section 27) | 2026-11-27 |
+| D69 | **The player chooses who moves first.** Against the computer: Play first, Play second, or Coin toss (as on the tiger pages). Online: quick match and rooms let you pick first, second or either, as tigers and goats do; a rematch swaps who starts | 2026-11-27 |
+| D70 | **A wooden stand in the meadow:** an upright wooden frame standing in the hill-and-meadow world, with **orange and cream discs** in the app's colours. Discs drop with a small bounce; the winning four are highlighted. Not the classic blue frame with red and yellow discs | 2026-11-27 |
+| D71 | **Hard is strong but beatable:** it looks several moves ahead and rarely blunders, but a good player can win, especially moving first. No near-perfect level at launch. Levels are checked with a ladder, as for the other games | 2026-11-27 |
+
+### How it will be built
+
+- **Grid engine:** a board of columns × rows, with cells, lines through them, and drawing of a frame and discs. Four in a Row is its first user; Reversi next.
+- **Rules:** a small rules file in the house style (position, legal moves, apply, result, save and load), with the winning four reported so the board can highlight it.
+- **Computer:** look-ahead search (centre columns first, remembered positions), with Easy, Medium and Hard set by look-ahead and occasional slips, tuned by a ladder.
+- **In the app:** the "Four in a Row · Soon" card on the home screen becomes a real one. Game page with Play first / Play second / Coin toss; play, result, and its own record (wins, losses, draws, and how you did moving first and second).
+- **Online:** the lobby already knows "first" and "second" from the seed games; Four in a Row adds side choice on top.
+- **Lessons:** three or four (drop a disc, four in a row wins, block their three, diagonals count).
+- **Puzzles:** proven by exact search, as for the other games: win in 1, 2 or 3 moves whatever the opponent does, and "only one move doesn't lose".
+
+---
+
 ## Change log
 
 - **2026-11-14** — Document created from the first discussion.
@@ -1419,6 +1453,7 @@ The Tiger & Goat rules, board drawing, computer and puzzle code all assume the 2
 - **2026-11-25** — Added section 23: global focus, English only (D40), name Tiger & Goat (D41), Fredoka and Figtree (D42), Plato-like play screen (D43). D7 and D30 replaced. Open question: one game or platform.
 - **2026-11-25** — D44: Tiger & Goat is the first game's name; the platform brand stays open (needed by week 11).
 - **2026-11-25** — Added section 24: "Hill and meadow" chosen as the default look (D45), with palette, pieces and updated theme plan.
+- **2026-11-27** — Section 31: Game 4 is Four in a Row (D68–D71): standard 7 × 6, the player chooses who moves first, wooden stand with orange and cream discs, Hard strong but beatable.
 - **2026-11-27** — Section 30: Bagh-Chal puzzles (130 proven, from the game page). Bagh-Chal is complete.
 - **2026-11-27** — Section 30: Bagh-Chal lessons (five, offered once on first play); a moving piece now lands on its point if the board resizes mid-move.
 - **2026-11-27** — Section 30: Bagh-Chal online (rooms, quick match, rematch, own record).
