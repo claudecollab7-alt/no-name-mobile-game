@@ -109,6 +109,8 @@ static func title(id: String) -> String:
 static func puzzles(id: String) -> Array:
 	if id == "baghchal":
 		return BaghchalPuzzleData.PUZZLES
+	if id == "fourinrow":
+		return FourPuzzleData.PUZZLES
 	return SowingPuzzleData.PUZZLES.get(id, [])
 
 

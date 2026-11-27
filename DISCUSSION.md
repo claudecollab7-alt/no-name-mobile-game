@@ -1480,7 +1480,7 @@ Same search as the other games (look-ahead with pruning and a position table), w
 ### In the app (built 2026-11-27)
 
 - **Home:** its own card below the seed games, with the wooden stand beside the name and a Play button; the "Four in a Row · Soon" tile is gone.
-- **Game page:** against the computer (easy, medium, hard) or pass and play, then **Play: First / Second / Coin toss** (D69), with a note that orange moves first. In pass and play, Player 1 is orange and moves first. Puzzles are not shown yet.
+- **Game page:** against the computer (easy, medium, hard) or pass and play, then **Play: First / Second / Coin toss** (D69), with a note that orange moves first. In pass and play, Player 1 is orange and moves first. Lessons and puzzles have their own cards.
 - **Play:** the opponent's panel on top, the frame, your panel below, each with its disc colour ("Orange · moves first" or "Cream · moves second"). A coin toss says who won it. Undo takes back your move and the computer's reply. The computer thinks on a worker thread on phones, and for at most 0.7 s in the browser.
 - **Result:** after the winning four have glowed for a moment: who won (or a draw when the board fills), moves, wins and win streak. Play again keeps the same seat; a second button switches to moving first or second.
 - **Record:** kept apart from the other games, with wins and losses moving first and moving second; shown on the profile. Wins against the computer also count towards the overall win streak.
@@ -1507,6 +1507,22 @@ Four hands-on lessons on the real frame, in the same style as the other games: o
 - Every lesson is a real position: equal discs for each player with orange to move, and no stray threat from cream in the lessons where you make four (checked by the tests).
 - Opened from **Learn to play** on the game page and **Try the tutorial** on the rules card. The **first time** you press Play, a card offers the lessons once ("Learn first" or "Just play").
 - The last lesson leads into a first game against Easy, moving first.
+
+### Puzzles (built 2026-11-28)
+
+**130 proven puzzles**, made by `tools/make_four_puzzles.gd` from 600 computer games (9,101 positions checked, in about 75 seconds). Each one has exactly one right first move, proven by exact search on the bitboards, and **proven a second time** by a plain, slow solver on the game rules in the tests, so a mistake in the quick proofs would show up. The computer defends as well as it can.
+
+| Kind | Count | Difficulty |
+|---|---|---|
+| Make four now (exactly one column does it) | 25 | Gentle |
+| Only one move stops them forcing four, when they already threaten four | 15 | Easy |
+| Only one move stops them forcing four within their next two moves | 30 | Medium |
+| Make four within 2 moves, whatever they do | 35 | Medium |
+| Make four within 3 moves, whatever they do | 25 | Tricky or Hard |
+
+- You play the side to move: orange in 77 puzzles, cream in 53.
+- A **Puzzles** card on the Four in a Row page, as on the other games' pages: easiest first, with a solved count. Solved puzzles are remembered, and Next puzzle goes to the next unsolved one.
+- **Wrong moves explain themselves:** in a save, the computer plays the move that starts its forced four before the position resets. Show answer rings the space where the right disc lands.
 
 ### How it will be built
 
@@ -1539,6 +1555,7 @@ Four hands-on lessons on the real frame, in the same style as the other games: o
 - **2026-11-25** — Added section 23: global focus, English only (D40), name Tiger & Goat (D41), Fredoka and Figtree (D42), Plato-like play screen (D43). D7 and D30 replaced. Open question: one game or platform.
 - **2026-11-25** — D44: Tiger & Goat is the first game's name; the platform brand stays open (needed by week 11).
 - **2026-11-25** — Added section 24: "Hill and meadow" chosen as the default look (D45), with palette, pieces and updated theme plan.
+- **2026-11-28** — Section 31: Four in a Row puzzles (130 proven twice, from the game page). Four in a Row is complete.
 - **2026-11-28** — Section 31: Four in a Row lessons (four, offered once on first play).
 - **2026-11-27** — Section 31: Four in a Row online (rooms and quick match with seat choice, rematch swaps who moves first).
 - **2026-11-27** — Section 31: Four in a Row in the app (home card, game page with first/second choice, play, result, own record).
