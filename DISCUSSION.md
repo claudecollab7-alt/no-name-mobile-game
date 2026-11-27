@@ -1477,6 +1477,14 @@ Same search as the other games (look-ahead with pruning and a position table), w
 - **Tried and changed:** at first every level's slips skipped moves that lose at once. That made Easy always block a single threat, and Medium beat it only 14 of 20. Easy's slips are now careless again.
 - Hard against Hard favouring the second player is the two random opening moves: a random first move is often a poor one.
 
+### In the app (built 2026-11-27)
+
+- **Home:** its own card below the seed games, with the wooden stand beside the name and a Play button; the "Four in a Row · Soon" tile is gone.
+- **Game page:** against the computer (easy, medium, hard) or pass and play, then **Play: First / Second / Coin toss** (D69), with a note that orange moves first. In pass and play, Player 1 is orange and moves first. Online, lessons and puzzles are not shown yet.
+- **Play:** the opponent's panel on top, the frame, your panel below, each with its disc colour ("Orange · moves first" or "Cream · moves second"). A coin toss says who won it. Undo takes back your move and the computer's reply. The computer thinks on a worker thread on phones, and for at most 0.7 s in the browser.
+- **Result:** after the winning four have glowed for a moment: who won (or a draw when the board fills), moves, wins and win streak. Play again keeps the same seat; a second button switches to moving first or second.
+- **Record:** kept apart from the other games, with wins and losses moving first and moving second; shown on the profile. Wins against the computer also count towards the overall win streak.
+
 ### How it will be built
 
 - **Grid engine:** a board of columns × rows, with cells, lines through them, and drawing of a frame and discs. Four in a Row is its first user; Reversi next.
@@ -1508,6 +1516,7 @@ Same search as the other games (look-ahead with pruning and a position table), w
 - **2026-11-25** — Added section 23: global focus, English only (D40), name Tiger & Goat (D41), Fredoka and Figtree (D42), Plato-like play screen (D43). D7 and D30 replaced. Open question: one game or platform.
 - **2026-11-25** — D44: Tiger & Goat is the first game's name; the platform brand stays open (needed by week 11).
 - **2026-11-25** — Added section 24: "Hill and meadow" chosen as the default look (D45), with palette, pieces and updated theme plan.
+- **2026-11-27** — Section 31: Four in a Row in the app (home card, game page with first/second choice, play, result, own record).
 - **2026-11-27** — Section 31: Four in a Row computer opponent (three levels, ladder clean).
 - **2026-11-27** — Section 31: Four in a Row board drawn (wooden stand, orange and cream discs, drop and win animations).
 - **2026-11-27** — Section 31: Four in a Row rules and the first part of the grid engine built (14 tests).

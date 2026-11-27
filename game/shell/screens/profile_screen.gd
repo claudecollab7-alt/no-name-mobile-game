@@ -53,6 +53,16 @@ func on_show() -> void:
 	bagh.add_child(bv)
 	_col.add_child(bagh)
 
+	var four := Ui.card(Ui.PANEL, Ui.LINE, 28)
+	var fv := Ui.vbox(14)
+	fv.add_child(Ui.heading("Four in a Row", 36))
+	fv.add_child(_line("Moving first", "%d – %d" % [Store.game_stat("fourinrow", "first_wins"), Store.game_stat("fourinrow", "first_losses")]))
+	fv.add_child(_line("Moving second", "%d – %d" % [Store.game_stat("fourinrow", "second_wins"), Store.game_stat("fourinrow", "second_losses")]))
+	if Store.game_stat("fourinrow", "draws") > 0:
+		fv.add_child(_line("Drawn", str(Store.game_stat("fourinrow", "draws"))))
+	four.add_child(fv)
+	_col.add_child(four)
+
 	var seeds := Ui.card(Ui.PANEL, Ui.LINE, 28)
 	var sv := Ui.vbox(14)
 	sv.add_child(Ui.heading("Seed games", 36))

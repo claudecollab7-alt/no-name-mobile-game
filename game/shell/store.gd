@@ -21,7 +21,7 @@ func defaults() -> Dictionary:
 		"version": VERSION,
 		"profile": {"name": "", "avatar": "goat", "colour": 1, "since": "%04d-%02d" % [now["year"], now["month"]]},
 		"settings": {"sound": true, "vibration": true, "hints": true, "reduce_motion": false, "theme": "meadow"},
-		"last": {"mode": "computer", "level": "medium", "side": "goats"},
+		"last": {"mode": "computer", "level": "medium", "side": "goats", "seat": "first"},
 		"seen_rules": false,
 		"tutorial_done": false,
 		"stats": {"played": 0, "wins": 0, "losses": 0, "streak": 0, "best_streak": 0,
@@ -36,6 +36,9 @@ func defaults() -> Dictionary:
 				"tutorial_done": false, "tutorial_offered": false, "puzzles_solved": []},
 			"baghchal": {"played": 0, "wins": 0, "losses": 0, "draws": 0, "pass_games": 0,
 				"tiger_wins": 0, "tiger_losses": 0, "goat_wins": 0, "goat_losses": 0,
+				"tutorial_done": false, "tutorial_offered": false, "puzzles_solved": []},
+			"fourinrow": {"played": 0, "wins": 0, "losses": 0, "draws": 0, "pass_games": 0,
+				"first_wins": 0, "first_losses": 0, "second_wins": 0, "second_losses": 0,
 				"tutorial_done": false, "tutorial_offered": false, "puzzles_solved": []},
 		},
 		"online": {"token": "", "server": "", "muted": false, "search_side": "any", "room_side": "random"},
@@ -192,6 +195,15 @@ func record_tiger_game(game: String, mode: String, side: String, level: String, 
 		var key := ("tiger_" if side == "tigers" else "goat_") + ("wins" if human_won else "losses")
 		g[key] += 1
 	record_result(game, mode, level, "win" if human_won else "loss")
+
+
+## Four in a Row: the overall record plus wins and losses moving first and second (vs
+## the computer). outcome: "win", "loss" or "draw".
+func record_seat_game(game: String, mode: String, moved_first: bool, level: String, outcome: String) -> void:
+	if mode == "computer" and outcome != "draw":
+		var key := ("first_" if moved_first else "second_") + ("wins" if outcome == "win" else "losses")
+		data["games"][game][key] += 1
+	record_result(game, mode, level, outcome)
 
 
 func game_stat(game: String, key: String) -> int:

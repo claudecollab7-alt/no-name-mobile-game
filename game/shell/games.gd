@@ -1,7 +1,8 @@
 class_name Games
 extends RefCounted
 ## What the app says about each game: name, one-liners and the rules card.
-## Seed games are in SOWING; the tiger-and-goat games (one engine, two boards) in TIGER.
+## Seed games are in SOWING; the tiger-and-goat games (one engine, two boards) in TIGER;
+## the square-grid games in GRID.
 
 const S := preload("res://games/sowing/sowing_rules.gd")
 
@@ -29,6 +30,24 @@ const SOWING := {
 			["Capture", "If the next pit is empty, take every seed in the pit after it. Then your turn ends."],
 			["Pasu", "Whenever a pit reaches exactly 6 seeds, the player whose side it is on takes them at once."],
 			["Game end", "When the player to move has no seeds, the game ends. Seeds left go to the side they are on. Most seeds wins."],
+		],
+	},
+}
+
+
+## Square-grid games. Rules rows are [heading, text], as for the seed games.
+const GRID := {
+	"fourinrow": {
+		"title": "Four in a Row",
+		"line": "Line up four  ·  2 players  ·  about 3 min",
+		"short": "Line up four",
+		"about": "Take turns dropping discs into an upright frame. Line up four of yours across, up and down, or diagonally before your opponent does.",
+		"lessons": false,
+		"rules": [
+			["Drop a disc", "On your turn, drop one disc into any column that isn't full. It falls to the lowest empty space."],
+			["Four in a row", "The first to line up four of their discs wins: across, up and down, or diagonally."],
+			["Full board", "If all 42 spaces fill up without four in a row, the game is a draw."],
+			["Moving first", "Orange always moves first. Moving first is an advantage, so choose who starts before each game."],
 		],
 	},
 }
@@ -75,6 +94,8 @@ static func rules_for(id: String) -> Dictionary:
 
 
 static func info(id: String) -> Dictionary:
+	if GRID.has(id):
+		return GRID[id]
 	return SOWING.get(id, SOWING["kalah"])
 
 
@@ -96,7 +117,7 @@ static func is_tiger(id: String) -> bool:
 	return TIGER.has(id)
 
 
-## Shows the rules card for a sowing game.
+## Shows the rules card for a seed game or a grid game.
 static func how_to_play(host: Node, id: String) -> void:
 	var rows: Array = []
 	for step: Array in info(id)["rules"]:
@@ -112,7 +133,7 @@ static func how_to_play(host: Node, id: String) -> void:
 		words.add_child(body)
 		row.add_child(words)
 		rows.append(row)
-	Modal.show(host, TranslationServer.translate("How to play %s") % TranslationServer.translate(title(id)), rows, [
-		["Try the tutorial", func() -> void: host.push(load("res://shell/screens/sowing_tutorial_screen.gd").create(id))],
-		["Got it", func() -> void: pass, true],
-	])
+	var actions: Array = [["Got it", func() -> void: pass, true]]
+	if bool(info(id).get("lessons", true)):
+		actions.push_front(["Try the tutorial", func() -> void: host.push(load("res://shell/screens/sowing_tutorial_screen.gd").create(id))])
+	Modal.show(host, TranslationServer.translate("How to play %s") % TranslationServer.translate(title(id)), rows, actions)
