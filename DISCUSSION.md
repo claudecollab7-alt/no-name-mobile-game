@@ -1422,6 +1422,12 @@ Decided 2026-11-27. Four in a Row is the first square-grid game, so it also pays
 | D70 | **A wooden stand in the meadow:** an upright wooden frame standing in the hill-and-meadow world, with **orange and cream discs** in the app's colours. Discs drop with a small bounce; the winning four are highlighted. Not the classic blue frame with red and yellow discs | 2026-11-27 |
 | D71 | **Hard is strong but beatable:** it looks several moves ahead and rarely blunders, but a good player can win, especially moving first. No near-perfect level at launch. Levels are checked with a ladder, as for the other games | 2026-11-27 |
 
+### Rules built (2026-11-27)
+
+- **Grid engine, first part** (`games/grid/grid.gd`): cell numbering (row by row from the bottom left), the line and neighbour directions, and every straight run of a given length. The 7 × 6 board has 69 lines of four.
+- **Four in a Row rules** (`games/fourinrow/four_rules.gd`): player 0 always moves first, a move is a column, and discs fall to the lowest space. Each player's discs are kept as a bitboard, so checking for four takes a few shifts. The rules also give every winning cell for highlighting, and save and load the position.
+- **Random play** (5,000 games): first player 56%, second 44%, draws under 1%, about 21 moves a game. The rules check about 75,000 positions a second, enough for a computer that looks several moves ahead (G4.3).
+
 ### How it will be built
 
 - **Grid engine:** a board of columns × rows, with cells, lines through them, and drawing of a frame and discs. Four in a Row is its first user; Reversi next.
@@ -1453,6 +1459,7 @@ Decided 2026-11-27. Four in a Row is the first square-grid game, so it also pays
 - **2026-11-25** — Added section 23: global focus, English only (D40), name Tiger & Goat (D41), Fredoka and Figtree (D42), Plato-like play screen (D43). D7 and D30 replaced. Open question: one game or platform.
 - **2026-11-25** — D44: Tiger & Goat is the first game's name; the platform brand stays open (needed by week 11).
 - **2026-11-25** — Added section 24: "Hill and meadow" chosen as the default look (D45), with palette, pieces and updated theme plan.
+- **2026-11-27** — Section 31: Four in a Row rules and the first part of the grid engine built (14 tests).
 - **2026-11-27** — Section 31: Game 4 is Four in a Row (D68–D71): standard 7 × 6, the player chooses who moves first, wooden stand with orange and cream discs, Hard strong but beatable.
 - **2026-11-27** — Section 30: Bagh-Chal puzzles (130 proven, from the game page). Bagh-Chal is complete.
 - **2026-11-27** — Section 30: Bagh-Chal lessons (five, offered once on first play); a moving piece now lands on its point if the board resizes mid-move.
