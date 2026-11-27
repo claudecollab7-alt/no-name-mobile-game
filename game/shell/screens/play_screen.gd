@@ -392,7 +392,10 @@ func _finish_online(msg: Dictionary) -> void:
 	board.set_state(final_state)
 	var tigers_won := str(msg.get("winner", "")) == "tigers"
 	var human_won := (human_side == "tigers") == tigers_won
-	Store.record_game("online", human_side, "", human_won)
+	if board_id == "aadupuli":
+		Store.record_game("online", human_side, "", human_won)
+	else:
+		Store.record_tiger_game(board_id, "online", human_side, "", human_won)
 	var r: AppScreen = ResultScreen.create(final_state, "online", "", human_side, tigers_won)
 	r.set("opponent", opponent)
 	r.set("reason", str(msg.get("reason", "")))

@@ -79,7 +79,14 @@ static func info(id: String) -> Dictionary:
 
 
 static func title(id: String) -> String:
+	if TIGER.has(id):
+		return str(TIGER[id]["title"])
 	return str(info(id)["title"])
+
+
+## The tiger games (Tiger & Goat, Bagh-Chal) share one set of screens.
+static func is_tiger(id: String) -> bool:
+	return TIGER.has(id)
 
 
 ## Shows the rules card for a sowing game.

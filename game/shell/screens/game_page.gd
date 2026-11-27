@@ -1,6 +1,6 @@
 extends AppScreen
 ## A tiger-and-goat game's page (Tiger & Goat, Bagh-Chal): what it is, how to play it,
-## and the play options (D46, D48). Lessons and online are Tiger & Goat's for now.
+## and the play options (D46, D48). Lessons are Tiger & Goat's for now.
 
 const R := preload("res://games/aadupuli/rules/aadupuli_rules.gd")
 const PlayScreen := preload("res://shell/screens/play_screen.gd")
@@ -25,8 +25,6 @@ func _ready() -> void:
 	mode = Store.last("mode")
 	level = Store.last("level")
 	side = Store.last("side")
-	if mode == "online" and board_id != "aadupuli":
-		mode = "computer"
 	var info := Games.tiger_info(board_id)
 	var col := page(true, 64, 40)
 	col.add_child(top_bar(str(info["title"]), Ui.icon_button("help-circle", func() -> void: Modal.how_to_play(app, board_id))))
@@ -67,11 +65,10 @@ func _play_options(col: VBoxContainer) -> void:
 	(cpu.get_meta("words") as VBoxContainer).add_child(chips)
 	col.add_child(cpu)
 	col.add_child(_mode_card("pass", "users", "Pass and play", "Two people, one phone"))
-	if board_id == "aadupuli":
-		var online := _mode_card("online", "world", "Play online", "Find a player, or invite a friend with a code")
-		(online.get_meta("row") as HBoxContainer).add_child(Ui.icon("chevron-right", 48, Ui.MUTED))
-		Ui.on_tap(online, func() -> void: app.push(load("res://shell/screens/online_screen.gd").new()))
-		col.add_child(online)
+	var online := _mode_card("online", "world", "Play online", "Find a player, or invite a friend with a code")
+	(online.get_meta("row") as HBoxContainer).add_child(Ui.icon("chevron-right", 48, Ui.MUTED))
+	Ui.on_tap(online, func() -> void: app.push(load("res://shell/screens/online_screen.gd").create(board_id)))
+	col.add_child(online)
 
 	_side_row = Ui.hbox(14)
 	var as_label := Ui.label("Play as", 28, Ui.MUTED)

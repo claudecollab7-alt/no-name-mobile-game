@@ -144,7 +144,7 @@ func _on_message(msg: Dictionary) -> void:
 			_code_label.text = str(msg.get("code", ""))
 			_code_box.visible = true
 		"start":
-			if str(msg.get("game", "aadupuli")) == "aadupuli":
+			if Games.is_tiger(str(msg.get("game", "aadupuli"))):
 				app.replace(PlayScreen.create_online(msg))
 			else:
 				app.replace(SowingPlayScreen.create_online(msg))
@@ -155,7 +155,7 @@ func _on_message(msg: Dictionary) -> void:
 
 
 func _copy_invite() -> void:
-	var title := "Tiger & Goat" if game_id == "aadupuli" else tr(Games.title(game_id))
+	var title := tr(Games.title(game_id))
 	DisplayServer.clipboard_set(tr("Play %s with me! Open the app, tap Play online, then Join a friend and enter code %s") % [title, _code_label.text])
 	Modal.show(app, "Copied", [Modal.text("The invite is copied. Paste it into WhatsApp or any message to your friend.")], [["OK", func() -> void: pass, true]])
 
@@ -167,11 +167,11 @@ func _cancel() -> void:
 
 func _play_computer() -> void:
 	Online.send({"t": "cancel"})
-	if game_id != "aadupuli":
+	if not Games.is_tiger(game_id):
 		app.replace(SowingPlayScreen.create(game_id, "computer", Store.last("level")))
 		return
 	var side := arg if arg in ["tigers", "goats"] else "goats"
-	app.replace(PlayScreen.create("computer", Store.last("level"), side))
+	app.replace(PlayScreen.create("computer", Store.last("level"), side, false, game_id))
 
 
 func _notification(what: int) -> void:

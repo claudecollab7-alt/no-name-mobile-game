@@ -1351,9 +1351,16 @@ Same search as Tiger & Goat, with Bagh-Chal's own scoring and levels. Checked wi
 ### In the app (built 2026-11-27)
 
 - **Home:** its own card under Tiger & Goat (D65), with the square board beside the name and a Play button.
-- **Game page:** the Tiger & Goat page, now for either board. Against the computer (easy, medium, hard; play as goats, tigers or coin toss) and pass and play. Lessons and online are not shown yet.
+- **Game page:** the Tiger & Goat page, now for either board. Against the computer (easy, medium, hard; play as goats, tigers or coin toss), pass and play, and online. Lessons are not shown yet.
 - **Play and result:** the same screens. The goats' panel says "Trap all 4 tigers to win" and starts at 20 to place, the rules card is Bagh-Chal's own, and Rematch and Switch sides stay on Bagh-Chal.
 - **Record:** kept apart from Tiger & Goat, with wins and losses as tigers and as goats; shown on the profile. Wins against the computer also count towards the overall win streak.
+
+### Online (built 2026-11-27)
+
+- **The same server and screens as Tiger & Goat.** A room plays "baghchal" on the tiger rules with the Bagh-Chal board; sides are tigers and goats, picked the same way (any side, tigers or goats for quick match; random, tigers or goats for a room). A rematch swaps sides.
+- **Quick match pairs Bagh-Chal players only**, never with Tiger & Goat.
+- **The server checks the no-repeat rule.** The position's repeat counts travel with every move, so the phone and the server agree on which moves are allowed.
+- **Record:** online wins and losses go on Bagh-Chal's own record and the overall online count. As with every game, they don't touch the win streak against the computer.
 
 ### How it will be built
 
@@ -1380,6 +1387,7 @@ The Tiger & Goat rules, board drawing, computer and puzzle code all assume the 2
 - **2026-11-25** — Added section 23: global focus, English only (D40), name Tiger & Goat (D41), Fredoka and Figtree (D42), Plato-like play screen (D43). D7 and D30 replaced. Open question: one game or platform.
 - **2026-11-25** — D44: Tiger & Goat is the first game's name; the platform brand stays open (needed by week 11).
 - **2026-11-25** — Added section 24: "Hill and meadow" chosen as the default look (D45), with palette, pieces and updated theme plan.
+- **2026-11-27** — Section 30: Bagh-Chal online (rooms, quick match, rematch, own record).
 - **2026-11-27** — Section 30: Bagh-Chal in the app (home card, game page, play against the computer or pass and play, own record).
 - **2026-11-27** — Section 30: Bagh-Chal computer opponent (captures past the horizon, goats look one move further); ladder clean, easy and medium even, hard 70% tigers.
 - **2026-11-27** — Section 30: Bagh-Chal board drawn (peaks, prayer flags, square plateau).

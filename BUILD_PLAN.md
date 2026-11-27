@@ -505,7 +505,7 @@ Board and pieces are drawn in code. AI-generated images are used only for backgr
 - [x] G3.2 Board drawing (2026-11-27: Himalayan touch; pictures in `docs/game3/`, made by `tools/shot_tiger.tscn`)
 - [x] G3.3 Computer opponent and balance check (2026-11-27: Bagh-Chal scoring and levels; ladder by `tools/tiger_ladder.gd`; results in DISCUSSION.md section 30)
 - [x] G3.4 In the app (2026-11-27: home card, game page, play, result, own record; online, lessons and puzzles hidden until built)
-- [ ] G3.5 Online
+- [x] G3.5 Online (2026-11-27: lobby game "baghchal", online card on the page, rooms and quick match with sides, rematch, own record)
 - [ ] G3.6 Lessons
 - [ ] G3.7 Puzzles
 
@@ -532,6 +532,7 @@ Add one line per working session: date, task, result, anything the next session 
 | 2026-11-16 | Plan written | — | Godot version not yet pinned; board not yet verified |
 | 2026-11-16 | Board verified | Matches the draft exactly | Picture saved at docs/board-reference.png |
 | 2026-11-16 | Tiger start confirmed | Points 0, 3 and 4 | Nothing about the board is open now |
+| 2026-11-27 | Game 3 online | Lobby plays "baghchal" on the tiger rules; online card on the Bagh-Chal page; online and waiting screens route tiger games by board; online results on Bagh-Chal's record; 4 lobby tests and 1 screen test against the real server, 149 pass; checked in the browser against a second player | Lessons, puzzles next (G3.6–G3.7) |
 | 2026-11-27 | Game 3 in the app | Bagh-Chal home card; Tiger & Goat page, play and result screens take the board; Bagh-Chal rules card and record (by side) on the profile; 4 app tests, 144 pass; checked in the browser at phone size | Online, lessons, puzzles next (G3.5–G3.7) |
 | 2026-11-27 | Game 3 computer | Bagh-Chal opponent: captures checked past the horizon, look-ahead always ends with tigers to move, goats look one move further, edge and double-threat scoring; Tiger & Goat unchanged; level ladder tool; 6 opponent tests, 140 pass | Hard vs hard leans tigers (70%); app, online, lessons, puzzles next (G3.4) |
 | 2026-11-27 | Game 3 board | Tiger board view draws any board; Bagh-Chal scene with snowy peaks, prayer flags and a square plateau; Tiger & Goat unchanged; 4 board tests, 134 pass | Not playable in the app yet (G3.4); goat play next (G3.3) |

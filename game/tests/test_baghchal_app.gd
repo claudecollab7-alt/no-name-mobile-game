@@ -42,7 +42,7 @@ func test_the_home_screen_has_a_bagh_chal_card_that_opens_its_page() -> void:
 	var texts := _texts(page)
 	assert_bool(texts.has("Bagh-Chal")).is_true()
 	assert_bool(texts.has("Against the computer")).is_true()
-	assert_bool(texts.has("Play online")).is_false()  # Online comes later.
+	assert_bool(texts.has("Play online")).is_true()
 	assert_bool(texts.has("Learn to play")).is_false()  # So do lessons.
 
 

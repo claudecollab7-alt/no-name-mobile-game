@@ -227,3 +227,73 @@ func test_a_seed_time_out_plays_a_random_pit_for_the_slow_player() -> void:
 	var out := lobby.tick(now)
 	assert_str(_to(out, 2, "timeout")["side"]).is_equal("first")
 	assert_dict(_to(out, 2, "moved")).is_not_empty()
+
+
+# ---------- Bagh-Chal ----------
+
+func _start_bagh_room(side := "goats") -> Array:
+	_hello(1, "Ana")
+	_hello(2, "Ben")
+	var code: String = _to(lobby.handle(1, {"t": "create", "side": side, "game": "baghchal"}, now), 1, "room")["code"]
+	return lobby.handle(2, {"t": "join", "code": code}, now)
+
+
+func test_a_bagh_chal_room_starts_on_its_own_board_with_tigers_and_goats() -> void:
+	var out := _start_bagh_room("tigers")
+	var start := _to(out, 2, "start")
+	assert_str(start["game"]).is_equal("baghchal")
+	assert_str(_to(out, 1, "start")["you"]).is_equal("tigers")
+	assert_str(start["you"]).is_equal("goats")
+	var s := R.from_dict(start["state"])
+	assert_str(s.board).is_equal("baghchal")
+	assert_array(Array(s.tigers)).is_equal([0, 4, 20, 24])
+	assert_int(s.in_hand).is_equal(20)
+
+
+func test_quick_match_keeps_bagh_chal_and_tiger_and_goat_apart() -> void:
+	_hello(1)
+	_hello(2)
+	_hello(3)
+	lobby.handle(1, {"t": "search", "side": "tigers", "game": "baghchal"}, now)
+	assert_dict(_to(lobby.handle(2, {"t": "search", "side": "goats", "game": "aadupuli"}, now), 2, "searching")).is_not_empty()
+	var out := lobby.handle(3, {"t": "search", "side": "goats", "game": "baghchal"}, now)
+	assert_str(_to(out, 1, "start")["you"]).is_equal("tigers")
+	assert_str(_to(out, 3, "start")["you"]).is_equal("goats")
+	assert_str(_to(out, 3, "start")["state"]["board"]).is_equal("baghchal")
+
+
+func test_the_server_refuses_a_bagh_chal_move_that_goes_back_to_an_old_position() -> void:
+	_start_bagh_room("goats")  # Ana (1) goats, Ben (2) tigers.
+	var room: Dictionary = lobby.rooms.values()[0]
+	room["state"] = R.from_dict({
+		"tigers": [0, 4, 20, 24], "goats": 1 << 2, "in_hand": 0, "captured": 0, "turn": R.GOAT,
+		"board": "baghchal", "repeat_limit": 2, "goat_count": 20, "quiet_limit": 0,
+	})
+	for pair: Array in [[1, R.encode(2, 7, R.NONE)], [2, R.encode(20, 15, R.NONE)], [1, R.encode(7, 2, R.NONE)], [2, R.encode(15, 20, R.NONE)]]:
+		assert_dict(_to(lobby.handle(pair[0], {"t": "move", "m": pair[1]}, now), 1, "moved")).is_not_empty()
+	# Back where it started; stepping down again would repeat the position after move one.
+	var again := R.encode(2, 7, R.NONE)
+	assert_bool(R.legal_moves(room["state"]).has(again)).is_false()
+	assert_dict(_to(lobby.handle(1, {"t": "move", "m": again}, now), 1, "sync")).is_not_empty()
+
+
+func test_a_bagh_chal_game_over_the_lobby_ends_and_rematch_swaps_sides() -> void:
+	_start_bagh_room("goats")
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 11
+	var ended := {}
+	for i in 600:
+		var room: Dictionary = lobby.rooms.values()[0]
+		var s: R.State = room["state"]
+		var mover := 1 if s.turn == R.GOAT else 2
+		var moves := R.legal_moves(s)
+		var out := lobby.handle(mover, {"t": "move", "m": moves[rng.randi_range(0, moves.size() - 1)]}, now)
+		ended = _to(out, 1, "end")
+		if not ended.is_empty():
+			break
+	assert_bool(str(ended.get("winner", "")) in ["tigers", "goats"]).is_true()
+	assert_str(ended["state"]["board"]).is_equal("baghchal")
+	lobby.handle(1, {"t": "rematch"}, now)
+	var again := lobby.handle(2, {"t": "rematch"}, now)
+	assert_str(_to(again, 1, "start")["you"]).is_equal("tigers")
+	assert_str(_to(again, 1, "start")["state"]["board"]).is_equal("baghchal")
