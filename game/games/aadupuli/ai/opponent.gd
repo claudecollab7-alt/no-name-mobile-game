@@ -26,10 +26,37 @@ const WEIGHTS := {
 	"quiet": 12,  ## each tiger move spent without a capture (counts against tigers)
 }
 
+## Bagh-Chal (G3.3, DISCUSSION.md section 30): the same terms, checked with
+## tools/tiger_ladder.gd, plus the ones below. Tiger & Goat leaves them out.
+const BAGHCHAL_WEIGHTS := {
+	"captured": 1000,
+	"mobility": 10,
+	"threat": 220,
+	"trapped": 260,
+	"safe_wall": 6,
+	"quiet": 0,
+	"edge": 15,  ## each goat on the outer edge (it can only be jumped along the edge)
+	"fork": 500,  ## goats to move with two or more goats threatened: only one can be saved
+	"quiesce": 1,  ## look at tiger jumps past the horizon (see _tiger_captures)
+}
+
+const BOARD_WEIGHTS := {"aadupuli": WEIGHTS, "baghchal": BAGHCHAL_WEIGHTS}
+
 const LEVELS := {
 	"easy": {"depth": 2, "time_ms": 300, "slip": 0.33, "slip_rank": 3},
 	"medium": {"depth": 4, "time_ms": 600, "slip": 0.1, "slip_rank": 2},
 	"hard": {"depth": 64, "time_ms": 1200, "slip": 0.0, "slip_rank": 1},
+}
+
+## Per-board changes to LEVELS. Bagh-Chal looks one move further than Tiger & Goat:
+## its search always ends with tigers to move (see search()), so goats look an odd
+## number of moves ahead and tigers an even number. Goats need that one extra move to
+## hold their own; with equal look-ahead the tigers won about 3 games in 4.
+const BOARD_LEVELS := {
+	"baghchal": {
+		"easy": {"depth": 3, "time_ms": 400, "slip": 0.33, "slip_rank": 3},
+		"medium": {"depth": 5, "time_ms": 1000, "slip": 0.1, "slip_rank": 2},
+	},
 }
 
 var nodes := 0
@@ -38,6 +65,10 @@ var _deadline := 0
 var _aborted := false
 var _table := {}
 var _rng := RandomNumberGenerator.new()
+var tuning := {}  ## Weight overrides for self-play tuning; empty in the app.
+var _w: Dictionary = WEIGHTS
+var _board := ""
+var _edge := 0  ## Bit mask of outer-edge points on the current board
 
 
 func _init(seed_value := 0) -> void:
@@ -49,7 +80,7 @@ func _init(seed_value := 0) -> void:
 
 ## time_cap_ms > 0 shortens thinking, e.g. in the browser, where search blocks the screen.
 func choose_move(s: R.State, level: String, time_cap_ms := 0) -> int:
-	var cfg: Dictionary = LEVELS.get(level, LEVELS["medium"])
+	var cfg: Dictionary = BOARD_LEVELS.get(s.board, {}).get(level, LEVELS.get(level, LEVELS["medium"]))
 	var time_ms := int(cfg["time_ms"])
 	if time_cap_ms > 0:
 		time_ms = mini(time_ms, time_cap_ms)
@@ -61,6 +92,7 @@ func search(s: R.State, max_depth: int, time_ms: int, slip := 0.0, slip_rank := 
 	var moves := R.legal_moves(s)  # The root honours the no-repeat rule.
 	if moves.size() == 1:
 		return moves[0]
+	_use_board(s)
 	nodes = 0
 	depth_reached = 0
 	_aborted = false
@@ -68,7 +100,14 @@ func search(s: R.State, max_depth: int, time_ms: int, slip := 0.0, slip_rank := 
 	if _table.size() > 400000:
 		_table.clear()
 	var scored: Array = []
-	for depth in range(1, max_depth + 1):
+	var first := 1
+	var step := 1
+	if _w.get("quiesce", 0) != 0:
+		# Always end the look-ahead with tigers to move, where the capture look past the
+		# horizon happens; ending on goats instead would hide captures from one side only.
+		step = 2
+		first = 1 if s.turn == R.GOAT else 2
+	for depth in range(first, maxi(max_depth, first) + 1, step):
 		var round_scores: Array = []
 		for m in _root_order(s, moves, scored):
 			# Full window at the root, so every move gets an exact score: needed to rank
@@ -100,6 +139,25 @@ func search(s: R.State, max_depth: int, time_ms: int, slip := 0.0, slip_rank := 
 	return ties[_rng.randi_range(0, ties.size() - 1)][1]
 
 
+func _use_board(s: R.State) -> void:
+	if s.board != _board:
+		_board = s.board
+		_table.clear()  # Remembered scores belong to one board.
+	_w = BOARD_WEIGHTS.get(s.board, WEIGHTS)
+	if not tuning.is_empty():
+		_w = _w.merged(tuning, true)
+	_edge = 0
+	var pts := R.points_of(s.board)
+	var lo := pts[0]
+	var hi := pts[0]
+	for q in pts:
+		lo = Vector2(minf(lo.x, q.x), minf(lo.y, q.y))
+		hi = Vector2(maxf(hi.x, q.x), maxf(hi.y, q.y))
+	for i in pts.size():
+		if pts[i].x == lo.x or pts[i].x == hi.x or pts[i].y == lo.y or pts[i].y == hi.y:
+			_edge |= 1 << i
+
+
 func _root_order(s: R.State, moves: PackedInt32Array, previous: Array) -> PackedInt32Array:
 	if previous.is_empty():
 		return _ordered(moves, -1)
@@ -122,6 +180,8 @@ func _negamax(s: R.State, depth: int, alpha: int, beta: int, ply: int) -> int:
 	if moves.is_empty():
 		return -(WIN - ply)
 	if depth <= 0:
+		if s.turn == R.TIGER and _w.get("quiesce", 0) != 0:
+			return _tiger_captures(s, moves, beta, ply)
 		return _evaluate(s, moves)
 	var key := R.position_key(s) ^ (s.quiet << 51) ^ (s.captured << 58)
 	var alpha0 := alpha
@@ -162,6 +222,29 @@ func _negamax(s: R.State, depth: int, alpha: int, beta: int, ply: int) -> int:
 	return best
 
 
+## Past the horizon with tigers to move: they may stop, or take a goat (one jump deep),
+## so a goat placed into a jump is never mistaken for a safe one.
+func _tiger_captures(s: R.State, moves: PackedInt32Array, beta: int, ply: int) -> int:
+	var best := _evaluate(s, moves)
+	if best >= beta:
+		return best
+	for m in moves:
+		if R.move_over(m) == R.NONE:
+			continue
+		var n := R.apply(s, m, false)
+		var v: int
+		if n.captured >= n.capture_target:
+			v = WIN - ply - 1
+		else:
+			var replies := R.pseudo_moves(n)
+			v = WIN - ply - 1 if replies.is_empty() else -_evaluate(n, replies)
+		if v > best:
+			best = v
+			if v >= beta:
+				break
+	return best
+
+
 ## Score for the side to move.
 func _evaluate(s: R.State, moves: PackedInt32Array) -> int:
 	var score := _tiger_score(s, moves if s.turn == R.TIGER else PackedInt32Array())
@@ -169,6 +252,7 @@ func _evaluate(s: R.State, moves: PackedInt32Array) -> int:
 
 
 func evaluate_for_tigers(s: R.State) -> int:
+	_use_board(s)
 	return _tiger_score(s, PackedInt32Array())
 
 
@@ -200,9 +284,20 @@ func _tiger_score(s: R.State, tiger_moves: PackedInt32Array) -> int:
 		for n in R.neighbours(p, s.board):
 			if n > p and (g & (1 << n)) != 0:
 				links += 1
-	return (s.captured * WEIGHTS["captured"] + tiger_moves.size() * WEIGHTS["mobility"]
-		+ threats * WEIGHTS["threat"] - trapped * WEIGHTS["trapped"] - links * WEIGHTS["safe_wall"]
-		- s.quiet * WEIGHTS["quiet"])
+	var score: int = (s.captured * _w["captured"] + tiger_moves.size() * _w["mobility"]
+		+ threats * _w["threat"] - trapped * _w["trapped"] - links * _w["safe_wall"]
+		- s.quiet * _w["quiet"])
+	var edge_w: int = _w.get("edge", 0)
+	if edge_w != 0:
+		var e := g & _edge
+		var on_edge := 0
+		while e != 0:
+			e &= e - 1
+			on_edge += 1
+		score -= on_edge * edge_w
+	if threats >= 2 and s.turn == R.GOAT:
+		score += _w.get("fork", 0)  # Goats can save only one of them.
+	return score
 
 
 func _ordered(moves: PackedInt32Array, first: int) -> PackedInt32Array:
