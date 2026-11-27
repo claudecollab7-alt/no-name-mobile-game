@@ -10,6 +10,7 @@ var mode := ""
 var level := ""
 var _mode_cards := {}
 var _level_chips := {}
+var _puzzle_line: Label
 
 
 static func create(id: String) -> AppScreen:
@@ -43,6 +44,23 @@ func _ready() -> void:
 	Ui.on_tap(learn, _learn)
 	col.add_child(learn)
 
+	var puzzles: Array = SowingPuzzleData.PUZZLES.get(game_id, [])
+	if not puzzles.is_empty():
+		var pz := Ui.card(Ui.PANEL, Ui.LINE, 24)
+		var prow := Ui.hbox(20)
+		prow.add_child(Ui.icon("star", 56, Ui.ACCENT))
+		var pw := Ui.vbox(0)
+		pw.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		pw.add_child(Ui.heading("Puzzles", 34))
+		_puzzle_line = Ui.muted("", 26)
+		pw.add_child(_puzzle_line)
+		prow.add_child(pw)
+		prow.add_child(Ui.icon("chevron-right", 48, Ui.MUTED))
+		pz.add_child(prow)
+		Ui.on_tap(pz, func() -> void:
+			app.push(load("res://shell/screens/sowing_puzzle_screen.gd").create(game_id, Store.next_puzzle(game_id))))
+		col.add_child(pz)
+
 	col.add_child(section("Play"))
 	var cpu := _mode_card("computer", "robot", "Against the computer", "")
 	var chips := Ui.hbox(14)
@@ -63,6 +81,12 @@ func _ready() -> void:
 
 	col.add_child(Ui.button("Play", _start, true, 124))
 	_refresh()
+
+
+func on_show() -> void:
+	if _puzzle_line != null:
+		var total: int = (SowingPuzzleData.PUZZLES.get(game_id, []) as Array).size()
+		_puzzle_line.text = tr("%d puzzles, easiest first  ·  %d solved") % [total, Store.puzzles_solved(game_id).size()]
 
 
 func _mode_card(id: String, icon_name: String, title: String, sub: String) -> PanelContainer:

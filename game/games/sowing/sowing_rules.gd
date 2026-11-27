@@ -19,6 +19,11 @@ const PALLANGUZHI := {
 	"id": "pallanguzhi", "pits": 7, "seeds": 6, "store_in_path": false, "extra_turn": false,
 	"capture": "beyond_empty", "relay": true, "pasu": 6, "pasu_to": "owner",
 }
+## The rules for a game id ("kalah" or "pallanguzhi").
+static func config_for(id: String) -> Dictionary:
+	return PALLANGUZHI if id == "pallanguzhi" else KALAH
+
+
 const MAX_DROPS := 400  ## Safety stop for relay sowing, which can very rarely loop.
 
 const ONGOING := 0

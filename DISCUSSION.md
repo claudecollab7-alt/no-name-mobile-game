@@ -1238,6 +1238,20 @@ Four hands-on lessons per game, on the real board, in the same style as Tiger & 
 - The **first time** you press Play in a seed game, a card offers the lessons once ("Learn first" or "Just play").
 - The last lesson leads into a first game against Easy, and you start it.
 
+### Puzzles (built 2026-11-27)
+
+**110 proven puzzles per game** (220 in all), generated from self-play by `tools/make_sowing_puzzles.gd`. Like Tiger & Goat's, every one is proven by exact search to have exactly one right first move, and the computer defends as well as it can.
+
+| Goal | What you do | Per game |
+|---|---|---|
+| **Most seeds** | "Win N seeds this turn. That's the most you can get." The best first move is the only one that gets there, and at least 3 seeds better than any other. In Mancala the best turn can be a chain of extra turns | 60 |
+| **Win in 1** | Win the game with one move (more than half of all seeds, or end it ahead) | 25 |
+| **Win in 2** | Win in 2 moves, whatever the opponent does (no win in 1 exists) | 25 |
+
+- Opened from a **Puzzles** card on each game's page ("110 puzzles, easiest first · N solved"). It always opens the next unsolved puzzle; progress is kept per game.
+- Same screen pattern as Tiger & Goat: tries, Start over, Show answer (rings the right pit), a reason when a move falls short ("that turn can win 5 seeds at most; you can win 9").
+- **The Daily tab stays Tiger & Goat for now.** A daily that rotates between games is a later decision, once more games exist.
+
 ### How game 2 will be built
 
 One **pits-and-seeds engine** serves both (and Oware later):
@@ -1271,6 +1285,7 @@ One **pits-and-seeds engine** serves both (and Oware later):
 - **2026-11-25** — Added section 23: global focus, English only (D40), name Tiger & Goat (D41), Fredoka and Figtree (D42), Plato-like play screen (D43). D7 and D30 replaced. Open question: one game or platform.
 - **2026-11-25** — D44: Tiger & Goat is the first game's name; the platform brand stays open (needed by week 11).
 - **2026-11-25** — Added section 24: "Hill and meadow" chosen as the default look (D45), with palette, pieces and updated theme plan.
+- **2026-11-27** — Section 29: 220 proven puzzles for the seed games (most seeds this turn, win in 1, win in 2); game 2 complete.
 - **2026-11-27** — Section 29: lessons for Mancala and Pallanguzhi (four each), offered once on first play.
 - **2026-11-27** — Section 29: Mancala and Pallanguzhi online: rooms and quick match know their game; first and second sides swap on rematch.
 - **2026-11-27** — Section 29: Mancala and Pallanguzhi are playable in the app (home cards, game page, play, result, records).

@@ -31,9 +31,9 @@ func defaults() -> Dictionary:
 		# Per-game records for the games after Tiger & Goat (its record lives in "stats").
 		"games": {
 			"kalah": {"played": 0, "wins": 0, "losses": 0, "draws": 0, "pass_games": 0, "next_first": 0,
-				"tutorial_done": false, "tutorial_offered": false},
+				"tutorial_done": false, "tutorial_offered": false, "puzzles_solved": []},
 			"pallanguzhi": {"played": 0, "wins": 0, "losses": 0, "draws": 0, "pass_games": 0, "next_first": 0,
-				"tutorial_done": false, "tutorial_offered": false},
+				"tutorial_done": false, "tutorial_offered": false, "puzzles_solved": []},
 		},
 		"online": {"token": "", "server": "", "muted": false, "search_side": "any", "room_side": "random"},
 	}
@@ -194,6 +194,37 @@ func take_first(game: String) -> int:
 	g["next_first"] = 1 - first
 	save_data()
 	return first
+
+
+# ---------- Seed-game puzzles ----------
+
+func puzzles_solved(game: String) -> Array:
+	return data["games"][game]["puzzles_solved"]
+
+
+func solve_puzzle(game: String, id: int) -> void:
+	var solved := puzzles_solved(game)
+	if not solved.has(id):
+		solved.append(id)
+		save_data()
+
+
+## The next puzzle to offer: the first unsolved one after `after_id` (in order, easiest
+## first), wrapping round; once all are solved, any other one. {} if there are none.
+func next_puzzle(game: String, after_id := 0) -> Dictionary:
+	var all: Array = SowingPuzzleData.PUZZLES.get(game, [])
+	if all.is_empty():
+		return {}
+	var solved := puzzles_solved(game)
+	var start := 0
+	for i in all.size():
+		if int(all[i]["id"]) == after_id:
+			start = i + 1
+	for k in all.size():
+		var p: Dictionary = all[(start + k) % all.size()]
+		if not solved.has(int(p["id"])) and int(p["id"]) != after_id:
+			return p
+	return all[start % all.size()]  # All solved: simply the next one round.
 
 
 func stat(key: String) -> int:

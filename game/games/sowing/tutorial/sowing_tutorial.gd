@@ -89,7 +89,7 @@ static func steps(game_id: String) -> Array:
 
 ## Builds the position for a lesson; you (player 0) are to move.
 static func position(game_id: String, step: Dictionary) -> S.State:
-	var s := S.new_game(Games.rules_for(game_id), 0)
+	var s := S.new_game(S.config_for(game_id), 0)
 	if not (step["pits"] as Array).is_empty():
 		s.pits = PackedInt32Array(step["pits"])
 	s.stores = PackedInt32Array(step["stores"])

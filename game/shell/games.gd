@@ -35,7 +35,7 @@ const SOWING := {
 
 
 static func rules_for(id: String) -> Dictionary:
-	return S.KALAH if id == "kalah" else S.PALLANGUZHI
+	return S.config_for(id)
 
 
 static func info(id: String) -> Dictionary:
