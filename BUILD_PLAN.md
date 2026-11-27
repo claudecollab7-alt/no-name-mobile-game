@@ -502,7 +502,7 @@ Board and pieces are drawn in code. AI-generated images are used only for backgr
 
 - [x] G3.0 Rules researched and decided (2026-11-27: DISCUSSION.md section 30, D65–D67)
 - [x] G3.1 Engine takes the board as data; Bagh-Chal rules and tests (2026-11-27: 11 rule tests, every Tiger & Goat test still passes; self-play in DISCUSSION.md section 30)
-- [ ] G3.2 Board drawing (Himalayan touch)
+- [x] G3.2 Board drawing (2026-11-27: Himalayan touch; pictures in `docs/game3/`, made by `tools/shot_tiger.tscn`)
 - [ ] G3.3 Computer opponent and balance check
 - [ ] G3.4 In the app, online, lessons and puzzles
 
@@ -529,6 +529,7 @@ Add one line per working session: date, task, result, anything the next session 
 | 2026-11-16 | Plan written | — | Godot version not yet pinned; board not yet verified |
 | 2026-11-16 | Board verified | Matches the draft exactly | Picture saved at docs/board-reference.png |
 | 2026-11-16 | Tiger start confirmed | Points 0, 3 and 4 | Nothing about the board is open now |
+| 2026-11-27 | Game 3 board | Tiger board view draws any board; Bagh-Chal scene with snowy peaks, prayer flags and a square plateau; Tiger & Goat unchanged; 4 board tests, 134 pass | Not playable in the app yet (G3.4); goat play next (G3.3) |
 | 2026-11-27 | Game 3 rules | Tiger engine takes the board as data (Tiger & Goat, Bagh-Chal); Bagh-Chal 5x5 board, 4 corner tigers, 20 goats, traditional no-repeat; 11 new tests, 130 pass; self-play: every game ends, tigers lead (100% at 3-move look-ahead, 65–75% deeper) | The computer's goat play needs Bagh-Chal scoring (G3.3); board drawing next (G3.2) |
 | 2026-11-27 | Game 2 puzzles | 220 proven puzzles (most seeds this turn, win in 1, win in 2) generated in seconds by `tools/make_sowing_puzzles.gd`; puzzle screen with tries, Show answer and reasons; progress per game; checked in the browser; 119 tests pass | **Game 2 is complete.** Daily tab stays Tiger & Goat for now; a rotating daily is a later decision |
 | 2026-11-27 | Game 2 lessons | Four hands-on lessons each for Mancala and Pallanguzhi (sow, go again or relay, capture or pasu, the end); Learn to play card, Try the tutorial on the rules card, one-time offer on first play; checked in the browser; 115 tests pass | Puzzles for the seed games (G2.5b) still to do; lesson timing to check with real first-timers |

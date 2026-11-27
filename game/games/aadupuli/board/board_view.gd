@@ -2,6 +2,8 @@ extends Node2D
 ## Draws the "hill and meadow" board (DISCUSSION.md section 24), owns the piece nodes
 ## and turns taps into moves. The board is a place: the tigers' cave sits on the summit,
 ## the paths are worn into a sandy hill, and the goats come up from the meadow.
+## Bagh-Chal (section 30, D67) is the same world with a Himalayan touch: snowy peaks and
+## prayer flags behind a square sandy plateau with the 5 x 5 board worn into it.
 
 signal played(kind: String)  ## "place", "move" or "capture"
 signal changed
@@ -26,13 +28,23 @@ const HINT := Color("#FFFFFF")
 const FOCUS := Color("#E26F2A")
 const LAST := Color("#8A6A3A")  ## Last-move trail: a darker sand, quiet but visible.
 
-const SRC_MIN := Vector2(16, 22)
-const SRC_SIZE := Vector2(508, 327)
-const MARGIN := 40.0  ## Space around the lines for the hill, in board-picture units.
-const TIGER_R := 17.0  ## Piece sizes in board-picture units (closest points are 32 apart).
+const MOUNTAIN := Color("#B5C6CF")
+const MOUNTAIN_FAR := Color("#CBD8DC")
+const SNOW := Color("#FBFCFA")
+const FLAG_COLOURS := [Color("#4C7FB8"), Color("#F4F1E6"), Color("#D2553F"), Color("#6E9A4C"), Color("#E8B93F")]
+const POLE := Color("#8A6A3A")
+
+const TIGER_R := 17.0  ## Piece sizes in board-picture units (Tiger & Goat's closest points are 32 apart).
 const GOAT_R := 15.0
 const TAP_R := 30.0
-const MAX_STRETCH := 1.6
+
+## How each board sits in its picture: bounds of the points, space around them for the
+## scene (left, top, right, bottom), how far it may stretch on tall screens, and how big
+## the pieces are compared with Tiger & Goat.
+const VIEWS := {
+	"aadupuli": {"min": Vector2(16, 22), "size": Vector2(508, 327), "pad": [40.0, 40.0, 40.0, 40.0], "stretch": 1.6, "piece": 1.0},
+	"baghchal": {"min": Vector2(0, 0), "size": Vector2(400, 400), "pad": [70.0, 175.0, 70.0, 70.0], "stretch": 1.0, "piece": 1.85},
+}
 
 var state: R.State
 var plank := Rect2()
@@ -51,6 +63,9 @@ var focus_points := PackedInt32Array()  ## Points ringed in orange to show where
 var last_move := -1  ## Marked on the board so players see what just happened.
 var _area := Vector2.ZERO
 var _time := 0.0
+var _board := "aadupuli"
+var _view: Dictionary = VIEWS["aadupuli"]
+var _pk := 1.0  ## Piece and marker size factor for this board.
 
 
 func new_game(options: Dictionary = {}) -> void:
@@ -63,10 +78,16 @@ func set_state(s: R.State) -> void:
 		pieces[p].queue_free()
 	pieces.clear()
 	state = s
+	if s.board != _board:
+		_board = s.board
+		_view = VIEWS.get(_board, VIEWS["aadupuli"])
+		_pk = float(_view["piece"])
+		if _area != Vector2.ZERO:
+			layout(_area)
 	last_move = -1
 	for t in state.tigers:
 		_spawn(t, true)
-	for p in R.POINT_COUNT:
+	for p in R.point_count(state):
 		if R.goat_at(state, p):
 			_spawn(p, false)
 	_clear_selection()
@@ -81,28 +102,30 @@ func play_move(m: int) -> void:
 
 func layout(area: Vector2) -> void:
 	_area = area
-	var full := SRC_SIZE + Vector2(MARGIN, MARGIN) * 2.0
+	var pad: Array = _view["pad"]
+	var full: Vector2 = _view["size"] + Vector2(pad[0] + pad[2], pad[1] + pad[3])
 	unit = minf(area.x / full.x, area.y / full.y)
-	# On tall phones, stretch the board vertically (up to MAX_STRETCH) instead of
+	# On tall phones, stretch the board vertically (up to its stretch limit) instead of
 	# leaving empty bands; it also spreads the rows apart for easier tapping.
-	unit_y = minf(area.y / full.y, unit * MAX_STRETCH)
+	unit_y = minf(area.y / full.y, unit * float(_view["stretch"]))
 	var size := Vector2(full.x * unit, full.y * unit_y)
 	plank = Rect2((area - size) / 2.0, size)
-	origin = plank.position + Vector2(MARGIN * unit, MARGIN * unit_y)
+	origin = plank.position + Vector2(pad[0] * unit, pad[1] * unit_y)
 	for p: int in pieces:
 		var piece: Piece = pieces[p]
 		piece.position = point_pos(p)
-		piece.radius = (TIGER_R if piece.is_tiger else GOAT_R) * unit
+		piece.radius = (TIGER_R if piece.is_tiger else GOAT_R) * unit * _pk
 	queue_redraw()
 
 
 func point_pos(i: int) -> Vector2:
-	return _sp(R.POINTS[i])
+	return _sp(R.points_of(_board)[i])
 
 
 ## Board-picture coordinates to screen coordinates.
 func _sp(v: Vector2) -> Vector2:
-	return origin + Vector2((v.x - SRC_MIN.x) * unit, (v.y - SRC_MIN.y) * unit_y)
+	var lo: Vector2 = _view["min"]
+	return origin + Vector2((v.x - lo.x) * unit, (v.y - lo.y) * unit_y)
 
 
 func _process(delta: float) -> void:
@@ -114,14 +137,17 @@ func _process(delta: float) -> void:
 func _draw() -> void:
 	if plank.size == Vector2.ZERO:
 		return
-	_draw_scene()
-	for line: Array in R.LINES:
+	if _board == "baghchal":
+		_draw_himalaya()
+	else:
+		_draw_scene()
+	for line: Array in R.lines_of(_board):
 		var pts := PackedVector2Array()
 		for i: int in line:
 			pts.append(point_pos(i))
 		draw_polyline(pts, PATH_EDGE, 11.0 * unit, true)
 		draw_polyline(pts, PATH, 5.5 * unit, true)
-	for i in R.POINT_COUNT:
+	for i in R.point_count(state):
 		draw_circle(point_pos(i), 5.5 * unit, STONE, true, -1.0, true)
 	_draw_last_move()
 	var pulse := 0.5 + 0.5 * sin(_time * 3.4)
@@ -131,7 +157,7 @@ func _draw() -> void:
 			var c := point_pos(p)
 			draw_circle(c, (8.5 + 2.5 * pulse) * unit, Color(HINT, 0.45 + 0.4 * pulse), true, -1.0, true)
 	for p in focus_points:
-		draw_arc(point_pos(p), (23.0 + 3.0 * pulse) * unit, 0.0, TAU, 48, Color(FOCUS, 0.55 + 0.45 * pulse), 3.2 * unit, true)
+		draw_arc(point_pos(p), (23.0 + 3.0 * pulse) * unit * _pk, 0.0, TAU, 48, Color(FOCUS, 0.55 + 0.45 * pulse), 3.2 * unit, true)
 
 
 func _draw_scene() -> void:
@@ -176,6 +202,74 @@ func _draw_scene() -> void:
 		draw_polyline(tuft, GRASS, 2.4 * unit, true)
 
 
+## Bagh-Chal's scene (D67): far snowy peaks, a string of prayer flags, the meadow, and a
+## square sandy plateau carrying the 5 x 5 board. Picture units: points run 0..400.
+func _draw_himalaya() -> void:
+	# Two ranges of peaks, the far one paler, with snow on the tops.
+	var far := _path([Vector2(-140, 10)], [
+		[Vector2(-90, -60), Vector2(-40, -118)], [Vector2(10, -60), Vector2(70, -96)],
+		[Vector2(150, -150), Vector2(230, -132)], [Vector2(300, -90), Vector2(360, -122)],
+		[Vector2(430, -160), Vector2(560, -40)]])
+	far.append(_sp(Vector2(560, 10)))
+	draw_colored_polygon(far, MOUNTAIN_FAR)
+	var near := PackedVector2Array()
+	var tops: Array = [Vector2(-30, -126), Vector2(120, -158), Vector2(330, -142), Vector2(470, -112)]
+	var feet: Array = [Vector2(-150, -10), Vector2(50, -36), Vector2(230, -24), Vector2(410, -40), Vector2(570, -10)]
+	near.append(_sp(Vector2(-150, 20)))
+	for i in tops.size():
+		near.append(_sp(feet[i]))
+		near.append(_sp(tops[i]))
+	near.append(_sp(feet[-1]))
+	near.append(_sp(Vector2(570, 20)))
+	draw_colored_polygon(near, MOUNTAIN)
+	for top: Vector2 in tops:
+		var cap := PackedVector2Array()
+		for v: Vector2 in [Vector2(0, 0), Vector2(26, 30), Vector2(12, 24), Vector2(2, 34), Vector2(-10, 22), Vector2(-24, 30)]:
+			cap.append(_sp(top + v))
+		draw_colored_polygon(cap, SNOW)
+	# The meadow, edge to edge, so wide screens and cards have no bare sides.
+	if _area.x > 0.0:
+		var top_y := _sp(Vector2(0, -20)).y
+		var bottom := maxf(_area.y, _sp(Vector2(0, 480)).y)
+		draw_rect(Rect2(0, top_y, _area.x, bottom - top_y), RIDGE)
+	# Prayer flags strung between two poles, sagging gently over the plateau.
+	var left := Vector2(-48, -100)
+	var right := Vector2(448, -100)
+	for pole: Vector2 in [left, right]:
+		draw_line(_sp(pole + Vector2(0, -12)), _sp(pole + Vector2(0, 62)), POLE, 3.0 * unit, true)
+	var string := PackedVector2Array()
+	var flags := 15
+	for i in flags + 2:
+		var f := float(i) / float(flags + 1)
+		string.append(_sp(left.lerp(right, f) + Vector2(0, sin(f * PI) * 28.0)))
+	draw_polyline(string, Color(POLE, 0.7), 1.6 * unit, true)
+	for i in range(1, flags + 1):
+		var a := string[i]
+		var w := 11.0 * unit
+		var h := 14.0 * unit_y
+		var flag := PackedVector2Array([a + Vector2(-w / 2.0, 0), a + Vector2(w / 2.0, 0), a + Vector2(w / 2.0, h), a + Vector2(-w / 2.0, h)])
+		draw_colored_polygon(flag, FLAG_COLOURS[(i - 1) % FLAG_COLOURS.size()])
+	# The plateau: a rounded sandy square with the board worn into it.
+	var r := 46.0
+	var lo := Vector2(-50, -50)
+	var hi := Vector2(450, 450)
+	var plateau := _path([Vector2(lo.x + r, lo.y)], [
+		[Vector2(hi.x - r, lo.y), Vector2(hi.x - r, lo.y)], [Vector2(hi.x, lo.y), Vector2(hi.x, lo.y + r)],
+		[Vector2(hi.x, hi.y - r), Vector2(hi.x, hi.y - r)], [Vector2(hi.x, hi.y), Vector2(hi.x - r, hi.y)],
+		[Vector2(lo.x + r, hi.y), Vector2(lo.x + r, hi.y)], [Vector2(lo.x, hi.y), Vector2(lo.x, hi.y - r)],
+		[Vector2(lo.x, lo.y + r), Vector2(lo.x, lo.y + r)], [Vector2(lo.x, lo.y), Vector2(lo.x + r, lo.y)]])
+	draw_colored_polygon(plateau, SAND)
+	plateau.append(plateau[0])
+	draw_polyline(plateau, SAND_EDGE, 2.5 * unit, true)
+	# Meadow grass along the foot of the plateau.
+	for x: float in [-60.0, -10.0, 60.0, 140.0, 210.0, 280.0, 350.0, 420.0, 470.0]:
+		var base := Vector2(x, 468)
+		var tuft := PackedVector2Array()
+		for k in 7:
+			tuft.append(_sp(base + Vector2(k * 3.0, -12.0 if k % 2 == 1 else 0.0) + Vector2(0, -4.0 if k == 3 else 0.0)))
+		draw_polyline(tuft, GRASS, 2.4 * unit, true)
+
+
 ## Builds a closed outline from a start point and quadratic segments [control, end],
 ## in board-picture coordinates.
 func _path(start: Array, segments: Array) -> PackedVector2Array:
@@ -205,8 +299,8 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _nearest_point(pos: Vector2) -> int:
 	var best := -1
-	var best_d := TAP_R * unit
-	for i in R.POINT_COUNT:
+	var best_d := TAP_R * unit * _pk
+	for i in R.point_count(state):
 		var d := pos.distance_to(point_pos(i))
 		if d < best_d:
 			best_d = d
@@ -306,7 +400,7 @@ func _play(m: int) -> void:
 func _spawn(p: int, tiger: bool) -> Piece:
 	var piece := Piece.new()
 	piece.is_tiger = tiger
-	piece.radius = (TIGER_R if tiger else GOAT_R) * unit
+	piece.radius = (TIGER_R if tiger else GOAT_R) * unit * _pk
 	piece.position = point_pos(p)
 	piece.z_index = 2 if tiger else 1
 	piece.breathe = not reduce_motion
@@ -339,5 +433,5 @@ func _draw_last_move() -> void:
 	if from_index != R.NONE:
 		var from := point_pos(from_index)
 		draw_line(from, to, Color(LAST, 0.35), 7.0 * unit, true)
-		draw_arc(from, 11.0 * unit, 0.0, TAU, 32, mark, 2.4 * unit, true)
-	draw_circle(to, 22.0 * unit, Color(LAST, 0.22), true, -1.0, true)
+		draw_arc(from, 11.0 * unit * _pk, 0.0, TAU, 32, mark, 2.4 * unit, true)
+	draw_circle(to, 22.0 * unit * _pk, Color(LAST, 0.22), true, -1.0, true)
