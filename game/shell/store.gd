@@ -34,6 +34,9 @@ func defaults() -> Dictionary:
 				"tutorial_done": false, "tutorial_offered": false, "puzzles_solved": []},
 			"pallanguzhi": {"played": 0, "wins": 0, "losses": 0, "draws": 0, "pass_games": 0, "next_first": 0,
 				"tutorial_done": false, "tutorial_offered": false, "puzzles_solved": []},
+			"baghchal": {"played": 0, "wins": 0, "losses": 0, "draws": 0, "pass_games": 0,
+				"tiger_wins": 0, "tiger_losses": 0, "goat_wins": 0, "goat_losses": 0,
+				"tutorial_done": false, "tutorial_offered": false, "puzzles_solved": []},
 		},
 		"online": {"token": "", "server": "", "muted": false, "search_side": "any", "room_side": "random"},
 	}
@@ -180,6 +183,15 @@ func record_result(game: String, mode: String, level: String, outcome: String) -
 		s["losses"] += 1
 		s["streak"] = 0
 	save_data()
+
+
+## Bagh-Chal: the overall record plus wins and losses by side (vs the computer).
+func record_tiger_game(game: String, mode: String, side: String, level: String, human_won: bool) -> void:
+	if mode == "computer":
+		var g: Dictionary = data["games"][game]
+		var key := ("tiger_" if side == "tigers" else "goat_") + ("wins" if human_won else "losses")
+		g[key] += 1
+	record_result(game, mode, level, "win" if human_won else "loss")
 
 
 func game_stat(game: String, key: String) -> int:

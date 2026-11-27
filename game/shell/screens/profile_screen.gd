@@ -45,6 +45,14 @@ func on_show() -> void:
 	record.add_child(rv)
 	_col.add_child(record)
 
+	var bagh := Ui.card(Ui.PANEL, Ui.LINE, 28)
+	var bv := Ui.vbox(14)
+	bv.add_child(Ui.heading("Bagh-Chal", 36))
+	bv.add_child(_line("As tigers", "%d – %d" % [Store.game_stat("baghchal", "tiger_wins"), Store.game_stat("baghchal", "tiger_losses")]))
+	bv.add_child(_line("As goats", "%d – %d" % [Store.game_stat("baghchal", "goat_wins"), Store.game_stat("baghchal", "goat_losses")]))
+	bagh.add_child(bv)
+	_col.add_child(bagh)
+
 	var seeds := Ui.card(Ui.PANEL, Ui.LINE, 28)
 	var sv := Ui.vbox(14)
 	sv.add_child(Ui.heading("Seed games", 36))

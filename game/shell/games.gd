@@ -1,7 +1,7 @@
 class_name Games
 extends RefCounted
-## What the app says about each pits-and-seeds game: name, one-liners and the rules card.
-## Tiger & Goat keeps its own hand-made pages; later games join this list.
+## What the app says about each game: name, one-liners and the rules card.
+## Seed games are in SOWING; the tiger-and-goat games (one engine, two boards) in TIGER.
 
 const S := preload("res://games/sowing/sowing_rules.gd")
 
@@ -32,6 +32,42 @@ const SOWING := {
 		],
 	},
 }
+
+
+## Rules rows are [is_tiger, heading, text]: the token beside each row shows whose rule it is.
+const TIGER := {
+	"aadupuli": {
+		"title": "Tiger & Goat",
+		"line": "Hunt or trap  ·  2 players  ·  about 8 min",
+		"about": "Three tigers hunt fifteen goats on a hill. Tigers win by capturing 5 goats; goats win by trapping every tiger.",
+		"lessons": true,
+		"rules": [
+			[false, "Goats go first", "Place one goat per turn on any empty point. Goats can't move until all 15 are on the board."],
+			[true, "Tigers hunt", "Move one step along a path, or jump over a goat to the empty point behind it to capture it."],
+			[true, "Tigers win", "by capturing 5 goats."],
+			[false, "Goats win", "by trapping all 3 tigers so none can move, or by holding out: once all goats are placed, if the tigers make 40 moves without a capture, the goats win."],
+			[false, "No endless shuffling", "You can't make a move that repeats the same position a third time."],
+		],
+	},
+	"baghchal": {
+		"title": "Bagh-Chal",
+		"line": "Hunt or trap  ·  2 players  ·  about 10 min",
+		"short": "Four tigers, twenty goats",
+		"about": "Nepal's tiger game. Four tigers start in the corners and hunt twenty goats. Tigers win by capturing 5 goats; goats win by trapping all four tigers.",
+		"lessons": false,
+		"rules": [
+			[false, "Goats go first", "Place one goat per turn on any empty point. Goats can't move until all 20 are on the board."],
+			[true, "Tigers hunt", "Move one step along a line, or jump over a goat to the empty point behind it to capture it. Tigers may hunt while goats are still being placed."],
+			[true, "Tigers win", "by capturing 5 goats."],
+			[false, "Goats win", "by trapping all 4 tigers so none can move."],
+			[false, "No going back", "Once all goats are placed, no move may bring back a position that has already happened."],
+		],
+	},
+}
+
+
+static func tiger_info(board: String) -> Dictionary:
+	return TIGER.get(board, TIGER["aadupuli"])
 
 
 static func rules_for(id: String) -> Dictionary:

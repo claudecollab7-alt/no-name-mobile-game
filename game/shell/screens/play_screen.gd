@@ -15,6 +15,7 @@ var mode := "pass"
 var level := "medium"
 var human_side := "goats"
 var tossed := false
+var board_id := "aadupuli"  ## Which tiger game: "aadupuli" (Tiger & Goat) or "baghchal"
 
 var board: BoardView
 var _opponent := Opponent.new()
@@ -66,12 +67,14 @@ static func create_online(msg: Dictionary) -> AppScreen:
 	s.human_side = str(msg.get("you", "goats"))
 	s.opponent = msg.get("opponent", {})
 	s.start_state = msg.get("state", {})
+	s.board_id = str(s.start_state.get("board", "aadupuli"))
 	s._deadline = Time.get_ticks_msec() + int(msg.get("turn_ms", 45000))
 	return s
 
 
-static func create(p_mode: String, p_level: String, p_side: String, p_tossed := false) -> AppScreen:
+static func create(p_mode: String, p_level: String, p_side: String, p_tossed := false, p_board := "aadupuli") -> AppScreen:
 	var s: AppScreen = load("res://shell/screens/play_screen.gd").new()
+	s.board_id = p_board
 	s.mode = p_mode
 	s.level = p_level
 	s.human_side = p_side
@@ -90,10 +93,10 @@ func _ready() -> void:
 		t.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		t.clip_text = true
 		bar.add_child(t)
-		bar.add_child(Ui.icon_button("help-circle", func() -> void: Modal.how_to_play(app)))
+		bar.add_child(Ui.icon_button("help-circle", func() -> void: Modal.how_to_play(app, board_id)))
 		col.add_child(bar)
 	else:
-		col.add_child(top_bar(title, Ui.icon_button("help-circle", func() -> void: Modal.how_to_play(app))))
+		col.add_child(top_bar(title, Ui.icon_button("help-circle", func() -> void: Modal.how_to_play(app, board_id))))
 
 	var tparts := _player_chip(true)
 	_tiger_chip = tparts[0]
@@ -135,7 +138,7 @@ func _ready() -> void:
 	_goat_pill = gparts[1]
 	var gright := Ui.vbox(0)
 	gright.alignment = BoxContainer.ALIGNMENT_CENTER
-	_hand_count = Ui.heading("15", 52)
+	_hand_count = Ui.heading(str(R.BOARDS[board_id]["goat_count"]), 52)
 	_hand_count.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	gright.add_child(_hand_count)
 	_hand_caption = Ui.label("to place", 24, Ui.MUTED)
@@ -163,7 +166,7 @@ func _ready() -> void:
 	if mode == "online":
 		board.set_state(R.from_dict(start_state))
 	else:
-		board.new_game()
+		board.new_game({"board": board_id})
 	if tossed:
 		_hint.text = tr("Coin toss: you play the %s") % tr(human_side)
 
@@ -182,7 +185,8 @@ func _player_chip(is_tiger: bool) -> Array:
 	name_row.add_child(Ui.heading(_side_name(is_tiger), 40))
 	var pill := Ui.pill("Your turn")
 	name_row.add_child(pill)
-	var goal := Ui.label("Capture 5 goats to win" if is_tiger else "Trap all 3 tigers to win", 26, Ui.MUTED)
+	var tigers: int = R.BOARDS[board_id]["start_tigers"].size()
+	var goal := Ui.label("Capture 5 goats to win" if is_tiger else tr("Trap all %d tigers to win") % tigers, 26, Ui.MUTED)
 	text.add_child(goal)
 	if is_tiger:
 		_tiger_goal = goal
@@ -233,7 +237,7 @@ func _on_changed() -> void:
 		_hand_caption.text = "to place"
 	else:
 		_hand_count.text = str(R.goats_on_board(s))
-		_hand_caption.text = "on the hill"
+		_hand_caption.text = "on the hill" if board_id == "aadupuli" else "on the board"
 	if mode == "online":
 		board.interactive = not over and _human_turn()
 		if over:
@@ -297,7 +301,7 @@ func _restart() -> void:
 	_finished = false
 	_thinking = false
 	board.interactive = true
-	board.new_game()
+	board.new_game({"board": board_id})
 
 
 ## Takes back the human's last move and the computer's reply.
@@ -315,7 +319,10 @@ func _finish(res: int) -> void:
 	board.interactive = false
 	var tigers_won := res == R.TIGERS_WIN
 	var human_won := (human_side == "tigers") == tigers_won
-	Store.record_game(mode, human_side, level, human_won)
+	if board_id == "aadupuli":
+		Store.record_game(mode, human_side, level, human_won)
+	else:
+		Store.record_tiger_game(board_id, mode, human_side, level, human_won)
 	var final_state := board.state
 	_hint.text = "Game over"
 	# Show the popup straight away; it waits a moment before fading in, so the last

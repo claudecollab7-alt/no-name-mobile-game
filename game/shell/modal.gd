@@ -53,16 +53,10 @@ static func text(t: String) -> Label:
 	return l
 
 
-static func how_to_play(host: Node) -> void:
+static func how_to_play(host: Node, board := "aadupuli") -> void:
 	var rows: Array = []
-	var steps := [
-		[false, "Goats go first", "Place one goat per turn on any empty point. Goats can't move until all 15 are on the board."],
-		[true, "Tigers hunt", "Move one step along a path, or jump over a goat to the empty point behind it to capture it."],
-		[true, "Tigers win", "by capturing 5 goats."],
-		[false, "Goats win", "by trapping all 3 tigers so none can move, or by holding out: once all goats are placed, if the tigers make 40 moves without a capture, the goats win."],
-		[false, "No endless shuffling", "You can't make a move that repeats the same position a third time."],
-	]
-	for step: Array in steps:
+	var info := Games.tiger_info(board)
+	for step: Array in info["rules"]:
 		var row := Ui.hbox(28)
 		row.add_child(Ui.token(step[0], 30))
 		var words := Ui.vbox(2)
@@ -73,13 +67,14 @@ static func how_to_play(host: Node) -> void:
 		words.add_child(body)
 		row.add_child(words)
 		rows.append(row)
-	show(host, "How to play", rows, [
-		["Try the tutorial", func() -> void: host.push(load("res://shell/screens/tutorial_screen.gd").new())],
-		["Got it", func() -> void: pass, true],
-	])
-	Store.data["seen_rules"] = true
-	Store.save_data()
-
+	var actions: Array = [["Got it", func() -> void: pass, true]]
+	if info["lessons"]:
+		actions.push_front(["Try the tutorial", func() -> void: host.push(load("res://shell/screens/tutorial_screen.gd").new())])
+	var title := "How to play" if board == "aadupuli" else TranslationServer.translate("How to play %s") % TranslationServer.translate(str(info["title"]))
+	show(host, title, rows, actions)
+	if board == "aadupuli":
+		Store.data["seen_rules"] = true
+		Store.save_data()
 
 
 ## First launch: offer the hands-on tutorial, or the one-screen rules.

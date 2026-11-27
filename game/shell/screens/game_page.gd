@@ -1,9 +1,11 @@
 extends AppScreen
-## Tiger & Goat's page: what it is, how to play it, and the play options (D46, D48).
+## A tiger-and-goat game's page (Tiger & Goat, Bagh-Chal): what it is, how to play it,
+## and the play options (D46, D48). Lessons and online are Tiger & Goat's for now.
 
 const R := preload("res://games/aadupuli/rules/aadupuli_rules.gd")
 const PlayScreen := preload("res://shell/screens/play_screen.gd")
 
+var board_id := "aadupuli"
 var mode := ""
 var level := ""
 var side := ""
@@ -13,17 +15,32 @@ var _side_chips := {}
 var _side_row: Control
 
 
+static func create(board: String) -> AppScreen:
+	var s: AppScreen = load("res://shell/screens/game_page.gd").new()
+	s.board_id = board
+	return s
+
+
 func _ready() -> void:
 	mode = Store.last("mode")
 	level = Store.last("level")
 	side = Store.last("side")
+	if mode == "online" and board_id != "aadupuli":
+		mode = "computer"
+	var info := Games.tiger_info(board_id)
 	var col := page(true, 64, 40)
-	col.add_child(top_bar("Tiger & Goat", Ui.icon_button("help-circle", func() -> void: Modal.how_to_play(app))))
+	col.add_child(top_bar(str(info["title"]), Ui.icon_button("help-circle", func() -> void: Modal.how_to_play(app, board_id))))
 
 	var art := Ui.card(Ui.MEADOW_DEEP, Color(0, 0, 0, 0), 0, 34)
-	art.add_child(BoardPreview.create(R.new_game(), 380))
+	art.add_child(BoardPreview.create(R.new_game({"board": board_id}), 380 if board_id == "aadupuli" else 520))
 	col.add_child(art)
-	col.add_child(Ui.muted("Three tigers hunt fifteen goats on a hill. Tigers win by capturing 5 goats; goats win by trapping every tiger.", 28))
+	col.add_child(Ui.muted(str(info["about"]), 28))
+	if info["lessons"]:
+		_learn_card(col)
+	_play_options(col)
+
+
+func _learn_card(col: VBoxContainer) -> void:
 	var learn := Ui.card(Ui.WARM, Ui.ACCENT_LINE, 24)
 	var lrow := Ui.hbox(20)
 	lrow.add_child(Ui.icon("bulb", 56, Ui.ACCENT))
@@ -37,6 +54,8 @@ func _ready() -> void:
 	Ui.on_tap(learn, func() -> void: app.push(load("res://shell/screens/tutorial_screen.gd").new()))
 	col.add_child(learn)
 
+
+func _play_options(col: VBoxContainer) -> void:
 	col.add_child(section("Play"))
 	var cpu := _mode_card("computer", "robot", "Against the computer", "")
 	var chips := Ui.hbox(14)
@@ -48,10 +67,11 @@ func _ready() -> void:
 	(cpu.get_meta("words") as VBoxContainer).add_child(chips)
 	col.add_child(cpu)
 	col.add_child(_mode_card("pass", "users", "Pass and play", "Two people, one phone"))
-	var online := _mode_card("online", "world", "Play online", "Find a player, or invite a friend with a code")
-	(online.get_meta("row") as HBoxContainer).add_child(Ui.icon("chevron-right", 48, Ui.MUTED))
-	Ui.on_tap(online, func() -> void: app.push(load("res://shell/screens/online_screen.gd").new()))
-	col.add_child(online)
+	if board_id == "aadupuli":
+		var online := _mode_card("online", "world", "Play online", "Find a player, or invite a friend with a code")
+		(online.get_meta("row") as HBoxContainer).add_child(Ui.icon("chevron-right", 48, Ui.MUTED))
+		Ui.on_tap(online, func() -> void: app.push(load("res://shell/screens/online_screen.gd").new()))
+		col.add_child(online)
 
 	_side_row = Ui.hbox(14)
 	var as_label := Ui.label("Play as", 28, Ui.MUTED)
@@ -135,4 +155,4 @@ func _start() -> void:
 	var human := side
 	if mode == "computer" and side == "toss":
 		human = "goats" if randi() % 2 == 0 else "tigers"
-	app.push(PlayScreen.create(mode, level, human, mode == "computer" and side == "toss"))
+	app.push(PlayScreen.create(mode, level, human, mode == "computer" and side == "toss", board_id))

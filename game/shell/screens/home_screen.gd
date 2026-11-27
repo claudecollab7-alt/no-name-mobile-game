@@ -79,6 +79,7 @@ func _ready() -> void:
 	irow.add_child(play)
 	Ui.on_tap(game, _open_game)
 	col.add_child(game)
+	col.add_child(_bagh_card())
 
 	# The seed games, side by side.
 	var seeds := Ui.hbox(18)
@@ -131,6 +132,47 @@ func on_show() -> void:
 
 func _open_game() -> void:
 	app.push(GamePage.new())
+
+
+## Bagh-Chal (D65): its own card, the square board beside the words.
+func _bagh_card() -> PanelContainer:
+	var card := Ui.card(Ui.PANEL, Ui.LINE, 0)
+	var row := Ui.hbox(0)
+	card.add_child(row)
+	var art := PanelContainer.new()
+	var box := Ui.box(Ui.MEADOW_DEEP, Color(0, 0, 0, 0), 34, 0, 0)
+	box.corner_radius_top_right = 0
+	box.corner_radius_bottom_right = 0
+	art.add_theme_stylebox_override("panel", box)
+	art.mouse_filter = Control.MOUSE_FILTER_PASS
+	art.custom_minimum_size.x = 330
+	var s := R.new_game({"board": "baghchal"})
+	for m: int in [R.encode(R.NONE, 12, R.NONE), R.encode(0, 6, R.NONE), R.encode(R.NONE, 2, R.NONE)]:
+		s = R.apply(s, m)
+	art.add_child(BoardPreview.create(s, 330))
+	row.add_child(art)
+	var info := MarginContainer.new()
+	for side in ["left", "right", "top", "bottom"]:
+		info.add_theme_constant_override("margin_" + side, 26)
+	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	info.mouse_filter = Control.MOUSE_FILTER_PASS
+	var words := Ui.vbox(6)
+	words.alignment = BoxContainer.ALIGNMENT_CENTER
+	var bagh := Games.tiger_info("baghchal")
+	words.add_child(Ui.heading(str(bagh["title"]), 44))
+	words.add_child(Ui.muted(str(bagh["short"]), 26))
+	var play := Ui.button("Play", _open_bagh, true, 88)
+	play.custom_minimum_size.x = 200
+	play.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	words.add_child(play)
+	info.add_child(words)
+	row.add_child(info)
+	Ui.on_tap(card, _open_bagh)
+	return card
+
+
+func _open_bagh() -> void:
+	app.push(GamePage.create("baghchal"))
 
 
 ## A half-width card: the board mid-game, the name and a few words.
