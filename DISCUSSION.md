@@ -1299,6 +1299,21 @@ Researched 2026-11-27. Bagh-Chal ("tiger moves") is Nepal's national board game 
 
 Not open: 5 captures to win, captures allowed during placement, optional captures (both sources and our Tiger & Goat agree).
 
+### Rules built and checked by self-play (2026-11-27)
+
+The tiger engine now takes the board as data: Tiger & Goat and Bagh-Chal are two boards with their own points, lines, start and limits; every Tiger & Goat test still passes. The no-repeat rule (D66) is the engine's repeat counter set to "never again" once all goats are placed, with no holding-out rule.
+
+Computer against itself (`tools/self_play.gd --board=baghchal`), both sides equal:
+
+| Look-ahead | Games | Tigers win | Goats win | Unfinished | Average moves |
+|---|---|---|---|---|---|
+| 3 moves | 40 | 100% | 0% | 0 | 34 |
+| 4 moves | 20 | 65% | 35% | 0 | 101 |
+| 5 moves (time-limited) | 20 | 75% | 25% | 0 | 68 |
+
+- **Every game ends**: the no-repeat rule leaves no endless loops.
+- **Tigers lead, but that is the computer, not the rules.** Its scoring was tuned for Tiger & Goat, and placing 20 goats safely needs foresight: shallow search loses goats early, deeper search does much better. Published analysis says Bagh-Chal is a draw with perfect play, so the goat side of the computer needs its own scoring before the levels feel fair. That is the computer step (G3.3).
+
 ### How it will be built
 
 The Tiger & Goat rules, board drawing, computer and puzzle code all assume the 23-point board. They will take the board as data (points, lines, piece counts, start), with Tiger & Goat and Bagh-Chal as two boards. Everything else (screens, online, lessons, puzzles, daily) then works for both with little extra work.
@@ -1324,6 +1339,7 @@ The Tiger & Goat rules, board drawing, computer and puzzle code all assume the 2
 - **2026-11-25** — Added section 23: global focus, English only (D40), name Tiger & Goat (D41), Fredoka and Figtree (D42), Plato-like play screen (D43). D7 and D30 replaced. Open question: one game or platform.
 - **2026-11-25** — D44: Tiger & Goat is the first game's name; the platform brand stays open (needed by week 11).
 - **2026-11-25** — Added section 24: "Hill and meadow" chosen as the default look (D45), with palette, pieces and updated theme plan.
+- **2026-11-27** — Section 30: Bagh-Chal rules built on the shared tiger engine (board as data); self-play shows every game ends; goat play needs its own scoring.
 - **2026-11-27** — Added section 30: Bagh-Chal rules from sources; decided D65–D67 (own card, traditional no-repeat, Himalayan touch).
 - **2026-11-27** — Section 29: 220 proven puzzles for the seed games (most seeds this turn, win in 1, win in 2); game 2 complete.
 - **2026-11-27** — Section 29: lessons for Mancala and Pallanguzhi (four each), offered once on first play.

@@ -5,9 +5,12 @@ extends SceneTree
 ##
 ## From the repository root:
 ##   godot --headless --path game -s res://tools/self_play.gd -- --games=60 --depth=3 --targets=4,5,6,7
+## Add --board=baghchal for Bagh-Chal.
 
 const R := preload("res://games/aadupuli/rules/aadupuli_rules.gd")
-const MAX_MOVES := 250
+const MAX_MOVES := 400
+
+var board := "aadupuli"
 
 
 func _init() -> void:
@@ -19,9 +22,11 @@ func _init() -> void:
 			games = int(arg.trim_prefix("--games="))
 		elif arg.begins_with("--depth="):
 			depth = int(arg.trim_prefix("--depth="))
+		elif arg.begins_with("--board="):
+			board = arg.trim_prefix("--board=")
 		elif arg.begins_with("--targets="):
 			targets = Array(arg.trim_prefix("--targets=").split(",")).map(func(x: String) -> int: return int(x))
-	print("Self-play: %d games per target, search depth %d, both sides equal" % [games, depth])
+	print("Self-play on %s: %d games per target, search depth %d, both sides equal" % [board, games, depth])
 	print("target | tigers win | goats win | unfinished | avg moves | avg captures | secs")
 	for target: int in targets:
 		_run(target, games, depth)
@@ -38,7 +43,7 @@ func _run(target: int, games: int, depth: int) -> void:
 	var total_moves := 0
 	var total_captures := 0
 	for g in games:
-		var s := R.new_game({"capture_target": target})
+		var s := R.new_game({"board": board, "capture_target": target})
 		var n := 0
 		while R.result(s) == R.ONGOING and n < MAX_MOVES:
 			var ai := tigers if s.turn == R.TIGER else goats

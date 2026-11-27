@@ -1,6 +1,8 @@
 class_name AadupuliRules
 extends RefCounted
-## Rules of Tiger & Goat (Aadupuli) on the classic 23-point board.
+## Rules of the tiger hunt games on points and lines: Tiger & Goat (Aadupuli) on the
+## classic 23-point board, and Bagh-Chal on the 5 x 5 board (DISCUSSION.md section 30).
+## Each State knows its board; BOARDS holds the points, lines, start and limits.
 ##
 ## The only place that knows what is legal (BUILD_PLAN.md section 3). Pure data:
 ## no nodes, no screen code, so it runs from tests and from the command line.
@@ -13,23 +15,18 @@ extends RefCounted
 ## the hill and win (D59).
 ##
 ## Moves are packed ints: from | to << 5 | over << 10, with NONE (31) for "no point".
+##
+## Bagh-Chal (D66): once all 20 goats are placed, no move may recreate any earlier
+## position (repeat_limit 2), and there is no holding-out rule (quiet_limit 0).
 
 const NONE := 31
 const GOAT := 0
 const TIGER := 1
-const POINT_COUNT := 23
+const POINT_COUNT := 23  ## Tiger & Goat's board; other boards: point_count(s).
 
 const ONGOING := 0
 const GOATS_WIN := 1
 const TIGERS_WIN := 2
-
-const DEFAULT_OPTIONS := {
-	"capture_target": 5,  # D10, to be settled by self-play in phase 2.
-	"repeat_limit": 3,  # D12: the third occurrence of a position is illegal.
-	"goat_count": 15,  # D34: other counts may come later.
-	"start_tigers": [0, 3, 4],  # D35: fixed start.
-	"quiet_limit": 40,  # D59: goats win after this many tiger moves without a capture.
-}
 
 ## Point positions from the verified board picture (docs/board-reference.png). The first row
 ## is drawn a little lower than in the picture (y 112, not 97), each point kept on its fan
@@ -50,8 +47,32 @@ const LINES: Array = [
 	[1, 7, 13], [6, 12, 18],
 ]
 
-static var _neighbours: Array[PackedInt32Array] = []
-static var _jumps: Array[PackedInt32Array] = []  ## [over, land, over, land, ...] per point
+## Bagh-Chal: 5 x 5 points, row by row from the top left (point = row * 5 + column).
+## Rows, columns, the two long diagonals and the diamond joining the edge middles.
+const BAGHCHAL_LINES: Array = [
+	[0, 1, 2, 3, 4], [5, 6, 7, 8, 9], [10, 11, 12, 13, 14], [15, 16, 17, 18, 19], [20, 21, 22, 23, 24],
+	[0, 5, 10, 15, 20], [1, 6, 11, 16, 21], [2, 7, 12, 17, 22], [3, 8, 13, 18, 23], [4, 9, 14, 19, 24],
+	[0, 6, 12, 18, 24], [4, 8, 12, 16, 20],
+	[2, 6, 10], [2, 8, 14], [10, 16, 22], [14, 18, 22],
+]
+
+## Each board: points (drawing positions), lines, and the rules that differ.
+static var BOARDS := {
+	# Tiger & Goat: fixed start (D35), 15 goats (D34), 5 captures (D10, kept after
+	# self-play), the third occurrence of a position is illegal (D12), goats win after
+	# 40 tiger moves without a capture (D59).
+	"aadupuli": {
+		"points": POINTS, "lines": LINES, "start_tigers": [0, 3, 4], "goat_count": 15,
+		"capture_target": 5, "repeat_limit": 3, "quiet_limit": 40,
+	},
+	"baghchal": {
+		"points": _grid_points(5, 100.0), "lines": BAGHCHAL_LINES, "start_tigers": [0, 4, 20, 24], "goat_count": 20,
+		"capture_target": 5, "repeat_limit": 2, "quiet_limit": 0,
+	},
+}
+
+static var _neighbours := {}  ## board -> Array[PackedInt32Array]
+static var _jumps := {}  ## board -> per point [over, land, over, land, ...]
 
 
 ## A complete game position. Treat as immutable: apply() returns a new State.
@@ -67,6 +88,7 @@ class State:
 	var goat_count := 15
 	var quiet := 0  ## Tiger moves since the last capture, counted once all goats are placed.
 	var quiet_limit := 40
+	var board := "aadupuli"  ## Key into BOARDS
 	var counts := {}  ## position key -> times seen, for the no-repeat rule
 
 	func copy() -> State:
@@ -82,44 +104,77 @@ class State:
 		s.goat_count = goat_count
 		s.quiet = quiet
 		s.quiet_limit = quiet_limit
+		s.board = board
 		s.counts = counts  # Shared until apply() records a new position (copy-on-write).
 		return s
 
 
-static func neighbours(p: int) -> PackedInt32Array:
-	_build()
-	return _neighbours[p]
+static func _grid_points(size: int, gap: float) -> Array[Vector2]:
+	var out: Array[Vector2] = []
+	for r in size:
+		for c in size:
+			out.append(Vector2(c * gap, r * gap))
+	return out
 
 
-static func jumps(p: int) -> PackedInt32Array:
-	_build()
-	return _jumps[p]
+static func points_of(board: String) -> Array[Vector2]:
+	return BOARDS[board]["points"]
 
 
-static func _build() -> void:
-	if not _neighbours.is_empty():
+static func lines_of(board: String) -> Array:
+	return BOARDS[board]["lines"]
+
+
+static func point_count(s: State) -> int:
+	return points_of(s.board).size()
+
+
+static func neighbours(p: int, board := "aadupuli") -> PackedInt32Array:
+	_build(board)
+	return _neighbours[board][p]
+
+
+static func jumps(p: int, board := "aadupuli") -> PackedInt32Array:
+	_build(board)
+	return _jumps[board][p]
+
+
+static func _build(board := "aadupuli") -> void:
+	if _neighbours.has(board):
 		return
+	var count := points_of(board).size()
 	var n: Array = []
 	var j: Array = []
-	for i in POINT_COUNT:
+	for i in count:
 		n.append([])
 		j.append([])
-	for line: Array in LINES:
+	for line: Array in lines_of(board):
 		for k in range(line.size() - 1):
 			n[line[k]].append(line[k + 1])
 			n[line[k + 1]].append(line[k])
 		for k in range(line.size() - 2):
 			j[line[k]].append_array([line[k + 1], line[k + 2]])
 			j[line[k + 2]].append_array([line[k + 1], line[k]])
-	for i in POINT_COUNT:
-		_neighbours.append(PackedInt32Array(n[i]))
-		_jumps.append(PackedInt32Array(j[i]))
+	var nb: Array[PackedInt32Array] = []
+	var jb: Array[PackedInt32Array] = []
+	for i in count:
+		nb.append(PackedInt32Array(n[i]))
+		jb.append(PackedInt32Array(j[i]))
+	_neighbours[board] = nb
+	_jumps[board] = jb
 
 
+## options may name a "board" ("aadupuli" or "baghchal"); its rules are the defaults.
 static func new_game(options: Dictionary = {}) -> State:
-	_build()
-	var o := DEFAULT_OPTIONS.merged(options, true)
+	var board := str(options.get("board", "aadupuli"))
+	_build(board)
+	var base: Dictionary = BOARDS[board]
+	var o := {"start_tigers": base["start_tigers"], "goat_count": base["goat_count"],
+		"capture_target": base["capture_target"], "repeat_limit": base["repeat_limit"],
+		"quiet_limit": base["quiet_limit"]}
+	o.merge(options, true)
 	var s := State.new()
+	s.board = board
 	s.tigers = PackedInt32Array(o["start_tigers"])
 	s.goat_count = o["goat_count"]
 	s.in_hand = s.goat_count
@@ -173,7 +228,8 @@ static func goats_on_board(s: State) -> int:
 ## Same position = same goats, same tigers (order ignored), same side to move.
 ## Goats in hand always fall during placement, so placement positions never repeat.
 static func position_key(s: State) -> int:
-	return s.goats | (tiger_mask(s) << POINT_COUNT) | (s.turn << (POINT_COUNT * 2)) | (s.in_hand << (POINT_COUNT * 2 + 1))
+	var n := point_count(s)
+	return s.goats | (tiger_mask(s) << n) | (s.turn << (n * 2)) | (s.in_hand << (n * 2 + 1))
 
 
 ## Every move the side to move may make, honouring the no-repeat rule.
@@ -191,19 +247,21 @@ static func legal_moves(s: State) -> PackedInt32Array:
 
 ## Moves allowed by movement alone, ignoring the no-repeat rule. Used by search.
 static func pseudo_moves(s: State) -> PackedInt32Array:
-	_build()
+	_build(s.board)
 	var out := PackedInt32Array()
 	var occupied := s.goats | tiger_mask(s)
+	var count := point_count(s)
 	if s.turn == GOAT:
 		if s.in_hand > 0:
-			for p in POINT_COUNT:
+			for p in count:
 				if (occupied & (1 << p)) == 0:
 					out.append(encode(NONE, p, NONE))
 		else:
-			for p in POINT_COUNT:
+			var nb: Array = _neighbours[s.board]
+			for p in count:
 				if (s.goats & (1 << p)) == 0:
 					continue
-				for n in _neighbours[p]:
+				for n in nb[p]:
 					if (occupied & (1 << n)) == 0:
 						out.append(encode(p, n, NONE))
 	else:
@@ -218,11 +276,14 @@ static func tiger_mobility(s: State) -> int:
 
 
 static func _append_tiger_moves(s: State, occupied: int, out: PackedInt32Array) -> void:
+	_build(s.board)
+	var nb: Array = _neighbours[s.board]
+	var jb: Array = _jumps[s.board]
 	for t in s.tigers:
-		for n in _neighbours[t]:
+		for n: int in nb[t]:
 			if (occupied & (1 << n)) == 0:
 				out.append(encode(t, n, NONE))
-		var j := _jumps[t]
+		var j: PackedInt32Array = jb[t]
 		for k in range(0, j.size(), 2):
 			if (s.goats & (1 << j[k])) != 0 and (occupied & (1 << j[k + 1])) == 0:
 				out.append(encode(t, j[k + 1], j[k]))
@@ -250,7 +311,7 @@ static func apply(s: State, m: int, record := true) -> State:
 			n.goats &= ~(1 << over)
 			n.captured += 1
 			n.quiet = 0
-		elif s.in_hand == 0:
+		elif s.in_hand == 0 and s.quiet_limit > 0:
 			n.quiet = s.quiet + 1
 	n.turn = 1 - s.turn
 	n.moves_played = s.moves_played + 1
@@ -291,13 +352,16 @@ static func to_dict(s: State) -> Dictionary:
 		"tigers": Array(s.tigers), "goats": s.goats, "in_hand": s.in_hand, "captured": s.captured,
 		"turn": s.turn, "moves_played": s.moves_played, "capture_target": s.capture_target,
 		"repeat_limit": s.repeat_limit, "goat_count": s.goat_count, "quiet": s.quiet,
-		"quiet_limit": s.quiet_limit, "counts": counts,
+		"quiet_limit": s.quiet_limit, "board": s.board, "counts": counts,
 	}
 
 
 static func from_dict(d: Dictionary) -> State:
-	_build()
 	var s := State.new()
+	s.board = str(d.get("board", "aadupuli"))
+	if not BOARDS.has(s.board):
+		s.board = "aadupuli"
+	_build(s.board)
 	s.tigers = PackedInt32Array(d["tigers"])
 	s.goats = int(d["goats"])
 	s.in_hand = int(d["in_hand"])

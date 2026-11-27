@@ -194,10 +194,10 @@ func _tiger_score(s: R.State, tiger_moves: PackedInt32Array) -> int:
 			trapped += 1
 	var links := 0
 	var g := s.goats
-	for p in R.POINT_COUNT:
+	for p in R.point_count(s):
 		if (g & (1 << p)) == 0:
 			continue
-		for n in R.neighbours(p):
+		for n in R.neighbours(p, s.board):
 			if n > p and (g & (1 << n)) != 0:
 				links += 1
 	return (s.captured * WEIGHTS["captured"] + tiger_moves.size() * WEIGHTS["mobility"]
