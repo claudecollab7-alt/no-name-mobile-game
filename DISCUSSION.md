@@ -1428,6 +1428,22 @@ Decided 2026-11-27. Four in a Row is the first square-grid game, so it also pays
 - **Four in a Row rules** (`games/fourinrow/four_rules.gd`): player 0 always moves first, a move is a column, and discs fall to the lowest space. Each player's discs are kept as a bitboard, so checking for four takes a few shifts. The rules also give every winning cell for highlighting, and save and load the position.
 - **Random play** (5,000 games): first player 56%, second 44%, draws under 1%, about 21 moves a game. The rules check about 75,000 positions a second, enough for a computer that looks several moves ahead (G4.3).
 
+### The board (built 2026-11-27)
+
+| Start | Mid-game (glowing spaces show where each column's disc would land) |
+|---|---|
+| ![Four in a Row start](docs/game4/four_start.png) | ![Four in a Row mid-game](docs/game4/four_mid.png) |
+
+| A disc falling | A win |
+|---|---|
+| ![Four in a Row disc falling](docs/game4/four_drop.png) | ![Four in a Row win](docs/game4/four_win.png) |
+
+- **A wooden stand in the meadow (D70):** an upright plank frame with soft grain, standing on two wooden feet in a strip of grass. The meadow shows through the empty holes.
+- **Discs:** orange for the player who moves first, cream for the other, each with a darker rim, a raised inner ring and a little shine.
+- **Dropping:** tap anywhere in a column, on the frame or just above it. The disc falls from above the frame, a little faster the farther it falls, and settles with a small bounce. Tapping during the fall skips to where it lands.
+- **Showing the game:** where your disc would land glows white, the last disc has a gold ring, and a win lights up the winning discs and joins them with a glowing line.
+- Pictures made by `tools/shot_four.tscn`.
+
 ### How it will be built
 
 - **Grid engine:** a board of columns × rows, with cells, lines through them, and drawing of a frame and discs. Four in a Row is its first user; Reversi next.
@@ -1459,6 +1475,7 @@ Decided 2026-11-27. Four in a Row is the first square-grid game, so it also pays
 - **2026-11-25** — Added section 23: global focus, English only (D40), name Tiger & Goat (D41), Fredoka and Figtree (D42), Plato-like play screen (D43). D7 and D30 replaced. Open question: one game or platform.
 - **2026-11-25** — D44: Tiger & Goat is the first game's name; the platform brand stays open (needed by week 11).
 - **2026-11-25** — Added section 24: "Hill and meadow" chosen as the default look (D45), with palette, pieces and updated theme plan.
+- **2026-11-27** — Section 31: Four in a Row board drawn (wooden stand, orange and cream discs, drop and win animations).
 - **2026-11-27** — Section 31: Four in a Row rules and the first part of the grid engine built (14 tests).
 - **2026-11-27** — Section 31: Game 4 is Four in a Row (D68–D71): standard 7 × 6, the player chooses who moves first, wooden stand with orange and cream discs, Hard strong but beatable.
 - **2026-11-27** — Section 30: Bagh-Chal puzzles (130 proven, from the game page). Bagh-Chal is complete.
