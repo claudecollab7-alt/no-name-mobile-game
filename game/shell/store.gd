@@ -208,7 +208,7 @@ func take_first(game: String) -> int:
 	return first
 
 
-# ---------- Seed-game puzzles ----------
+# ---------- Game puzzles (seed games, Bagh-Chal) ----------
 
 func puzzles_solved(game: String) -> Array:
 	return data["games"][game]["puzzles_solved"]
@@ -224,7 +224,7 @@ func solve_puzzle(game: String, id: int) -> void:
 ## The next puzzle to offer: the first unsolved one after `after_id` (in order, easiest
 ## first), wrapping round; once all are solved, any other one. {} if there are none.
 func next_puzzle(game: String, after_id := 0) -> Dictionary:
-	var all: Array = SowingPuzzleData.PUZZLES.get(game, [])
+	var all: Array = Games.puzzles(game)
 	if all.is_empty():
 		return {}
 	var solved := puzzles_solved(game)

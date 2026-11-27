@@ -84,6 +84,13 @@ static func title(id: String) -> String:
 	return str(info(id)["title"])
 
 
+## A game's own puzzle list, easiest first (Tiger & Goat's live in the daily puzzle).
+static func puzzles(id: String) -> Array:
+	if id == "baghchal":
+		return BaghchalPuzzleData.PUZZLES
+	return SowingPuzzleData.PUZZLES.get(id, [])
+
+
 ## The tiger games (Tiger & Goat, Bagh-Chal) share one set of screens.
 static func is_tiger(id: String) -> bool:
 	return TIGER.has(id)

@@ -1,6 +1,7 @@
 class_name AadupuliPuzzles
 extends RefCounted
-## Puzzle goals for Tiger & Goat, with exact proofs (BUILD_PLAN.md phase 4).
+## Puzzle goals for the tiger games (Tiger & Goat, Bagh-Chal), with exact proofs
+## (BUILD_PLAN.md phase 4, G3.7). A record's "board" names its board (default Tiger & Goat).
 ## Every puzzle shipped has been proven by these functions: a forced win exists, and
 ## only one first move achieves it. The puzzle screen uses the same functions to judge
 ## the player's moves and to choose the computer's toughest defence.
@@ -15,7 +16,7 @@ const R := preload("res://games/aadupuli/rules/aadupuli_rules.gd")
 
 ## A fresh position for a puzzle record (no repeat history, no holding-out count).
 static func position(p: Dictionary) -> R.State:
-	var s := R.new_game()
+	var s := R.new_game({"board": str(p.get("board", "aadupuli"))})
 	s.tigers = PackedInt32Array(p["tigers"])
 	s.goats = 0
 	for g: int in p["goats"]:

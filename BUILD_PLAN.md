@@ -507,7 +507,7 @@ Board and pieces are drawn in code. AI-generated images are used only for backgr
 - [x] G3.4 In the app (2026-11-27: home card, game page, play, result, own record; online, lessons and puzzles hidden until built)
 - [x] G3.5 Online (2026-11-27: lobby game "baghchal", online card on the page, rooms and quick match with sides, rematch, own record)
 - [x] G3.6 Lessons (2026-11-27: five on the real board, incl. guarding a goat; from the page, rules card and a one-time offer on first play)
-- [ ] G3.7 Puzzles
+- [x] G3.7 Puzzles (2026-11-27: 130 proven puzzles of four kinds, Puzzles card on the page, solved ones remembered)
 
 ### Phases 6 and 7 — closed test and release
 
@@ -532,6 +532,7 @@ Add one line per working session: date, task, result, anything the next session 
 | 2026-11-16 | Plan written | — | Godot version not yet pinned; board not yet verified |
 | 2026-11-16 | Board verified | Matches the draft exactly | Picture saved at docs/board-reference.png |
 | 2026-11-16 | Tiger start confirmed | Points 0, 3 and 4 | Nothing about the board is open now |
+| 2026-11-27 | Game 3 puzzles | Puzzle generator takes --board; 130 proven Bagh-Chal puzzles (safe 40, capture in 2 40, trap in 1 25, trap in 2 25); Puzzles card on the page, puzzle screen per board, solved remembered; 4 tests, 159 pass; checked in the browser at phone size | Bagh-Chal complete; game 4 next |
 | 2026-11-27 | Game 3 lessons | Five Bagh-Chal lessons on the shared tutorial screen; Learn to play card, rules-card button and first-play offer; fixed pieces landing off their point when the board resizes mid-move; 6 tests, 155 pass; played through in the browser at phone size | Puzzles next (G3.7) |
 | 2026-11-27 | Game 3 online | Lobby plays "baghchal" on the tiger rules; online card on the Bagh-Chal page; online and waiting screens route tiger games by board; online results on Bagh-Chal's record; 4 lobby tests and 1 screen test against the real server, 149 pass; checked in the browser against a second player | Lessons, puzzles next (G3.6–G3.7) |
 | 2026-11-27 | Game 3 in the app | Bagh-Chal home card; Tiger & Goat page, play and result screens take the board; Bagh-Chal rules card and record (by side) on the profile; 4 app tests, 144 pass; checked in the browser at phone size | Online, lessons, puzzles next (G3.5–G3.7) |

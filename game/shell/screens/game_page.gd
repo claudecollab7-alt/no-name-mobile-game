@@ -13,6 +13,7 @@ var _mode_cards := {}
 var _level_chips := {}
 var _side_chips := {}
 var _side_row: Control
+var _puzzle_line: Label
 
 
 static func create(board: String) -> AppScreen:
@@ -35,7 +36,34 @@ func _ready() -> void:
 	col.add_child(Ui.muted(str(info["about"]), 28))
 	if info["lessons"]:
 		_learn_card(col)
+	if not Games.puzzles(board_id).is_empty():
+		_puzzle_card(col)
 	_play_options(col)
+
+
+func on_show() -> void:
+	if _puzzle_line != null:
+		_puzzle_line.text = tr("%d puzzles, easiest first  ·  %d solved") % [Games.puzzles(board_id).size(), Store.puzzles_solved(board_id).size()]
+
+
+func _puzzle_card(col: VBoxContainer) -> void:
+	var pz := Ui.card(Ui.PANEL, Ui.LINE, 24)
+	var prow := Ui.hbox(20)
+	prow.add_child(Ui.icon("star", 56, Ui.ACCENT))
+	var pw := Ui.vbox(0)
+	pw.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	pw.add_child(Ui.heading("Puzzles", 34))
+	_puzzle_line = Ui.muted("", 26)
+	pw.add_child(_puzzle_line)
+	prow.add_child(pw)
+	prow.add_child(Ui.icon("chevron-right", 48, Ui.MUTED))
+	pz.add_child(prow)
+	Ui.on_tap(pz, _open_puzzles)
+	col.add_child(pz)
+
+
+func _open_puzzles() -> void:
+	app.push(load("res://shell/screens/puzzle_screen.gd").create(Store.next_puzzle(board_id)))
 
 
 func _learn_card(col: VBoxContainer) -> void:

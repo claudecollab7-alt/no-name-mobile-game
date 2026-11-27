@@ -2,13 +2,16 @@ extends AppScreen
 ## One puzzle (BUILD_PLAN.md task 4.3). The player makes the moves for the goal's side;
 ## the computer answers with its toughest defence. A wrong move is explained and the
 ## position resets; each reset counts as a try. "Show answer" rings the right first move
-## (a revealed puzzle still counts as solved, but not for the streak).
+## (a revealed puzzle still counts as solved, but not for the streak). Tiger & Goat
+## puzzles come from the daily set; Bagh-Chal's ("board": "baghchal") are worked through
+## in order, easiest first, and solved ones are remembered.
 
 const R := preload("res://games/aadupuli/rules/aadupuli_rules.gd")
 const BoardView := preload("res://games/aadupuli/board/board_view.gd")
 
 var puzzle := {}
 var day := 0  ## Daily puzzle number, or 0 for practice.
+var game := "aadupuli"  ## Which tiger game the puzzle is on (its "board").
 var board: BoardView
 var tries := 1
 var revealed := false
@@ -28,12 +31,15 @@ static func create(p_puzzle: Dictionary, p_day := 0) -> AppScreen:
 	var s: AppScreen = load("res://shell/screens/puzzle_screen.gd").new()
 	s.puzzle = p_puzzle
 	s.day = p_day
+	s.game = str(p_puzzle.get("board", "aadupuli"))
 	return s
 
 
 func _ready() -> void:
 	var col := page(false, 64, 40)
 	var title := tr("Daily puzzle #%d") % day if day > 0 else tr("Puzzle %d") % int(puzzle["id"])
+	if day == 0 and game != "aadupuli":
+		title = tr("%s puzzle %d") % [tr(Games.title(game)), int(puzzle["id"])]
 	_tries_label = Ui.label("", 26, Ui.MUTED, "bold")
 	col.add_child(top_bar(title, _tries_label))
 
@@ -194,6 +200,8 @@ func _solved() -> void:
 	var counts_for_streak := day > 0 and not revealed
 	if counts_for_streak:
 		Daily.record(day, tries)
+	if game != "aadupuli":
+		Store.solve_puzzle(game, int(puzzle["id"]))
 	_end_title.text = "Solved!" if not revealed else "Solved with a hint"
 	var how := tr("First try!") if tries == 1 else tr("Solved in %d tries.") % tries
 	if day > 0:
@@ -205,7 +213,8 @@ func _solved() -> void:
 	if counts_for_streak:
 		_end_row.add_child(Ui.button("Copy result", _share, false, 104))
 	if day == 0:
-		_end_row.add_child(Ui.button("Next puzzle", func() -> void: app.replace(create(Daily.random_practice(int(puzzle["id"])))), false, 104))
+		var next := Daily.random_practice(int(puzzle["id"])) if game == "aadupuli" else Store.next_puzzle(game, int(puzzle["id"]))
+		_end_row.add_child(Ui.button("Next puzzle", func() -> void: app.replace(create(next)), false, 104))
 	_end_row.add_child(Ui.button("Done", func() -> void: app.pop(), true, 104))
 	_end_card.visible = true
 	_end_card.modulate.a = 0.0
