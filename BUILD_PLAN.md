@@ -498,6 +498,14 @@ Board and pieces are drawn in code. AI-generated images are used only for backgr
 - [x] G2.5b Puzzles (2026-11-27: 110 proven puzzles per game, Puzzles card on each game page, progress saved)
 - [x] G2.6 Online (2026-11-27: rooms and quick match carry the game; first/second sides swap on rematch; chat picker shared by all games; checked live)
 
+### Game 3 — Bagh-Chal
+
+- [x] G3.0 Rules researched and decided (2026-11-27: DISCUSSION.md section 30, D65–D67)
+- [ ] G3.1 Engine takes the board as data; Bagh-Chal rules and tests
+- [ ] G3.2 Board drawing (Himalayan touch)
+- [ ] G3.3 Computer opponent and balance check
+- [ ] G3.4 In the app, online, lessons and puzzles
+
 ### Phases 6 and 7 — closed test and release
 
 - [ ] 6.1 Release build

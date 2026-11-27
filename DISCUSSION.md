@@ -354,6 +354,7 @@ The server is the same `game/` project started in server mode, so it needs no fo
 | D34 | **Aadupuli starts on the classic 23-point board**, verified against your picture. More boards and piece-count options may be added later if needed. | 2026-11-16 |
 | D35 | **Fixed start confirmed:** tigers begin on the top point and the two centre points of the first row. | 2026-11-16 |
 | D36–D39 | Visual design: brass-and-wood board, pieces by shape and colour, light calm app, kolam patterns and unlockable themes. See [section 22](#22-visual-design-direction). D39 is narrowed by D40. | 2026-11-16 |
+| D65–D67 | Bagh-Chal: own game card, traditional no-repeat rule, Himalayan touch on the hill and meadow look. See [section 30](#30-game-3-bagh-chal-rules). | 2026-11-27 |
 | D61–D64 | Mancala: 4 seeds; Pallanguzhi: turn ends after capture, pasu goes to the pit's owner (D63, changed after self-play), one round. See [section 29](#29-game-2-mancala-kalah-and-pallanguzhi-rules). | 2026-11-27 |
 | D10, D58–D60 | 5 captures kept; summit spacing; goats win after 40 tiger moves without a capture; launch with all 17 games. See [section 28](#28-balance-the-40-move-rule-and-launching-with-17-games). | 2026-11-26 |
 | D55–D57 | Next games: Mancala with Pallanguzhi next; all four game families in year one; launch Tiger & Goat first. See [section 27](#27-the-next-games). | 2026-11-26 |
@@ -1266,6 +1267,44 @@ One **pits-and-seeds engine** serves both (and Oware later):
 
 ---
 
+## 30. Game 3: Bagh-Chal rules
+
+Researched 2026-11-27. Bagh-Chal ("tiger moves") is Nepal's national board game and a close cousin of Tiger & Goat, so it runs on the same points-and-lines engine.
+
+### Sources
+
+| Source | Gave us | Reliability |
+|---|---|---|
+| [Wikipedia, "Bagh-chal"](https://en.wikipedia.org/wiki/Bagh-chal) | 5×5 points, 4 tigers in the corners, 20 goats, goats first, optional captures, 5 captures win, no repeated positions once all goats are placed | Good overview; does not show the diagonals |
+| [baghchal.net rules](https://www.baghchal.net/rules) | Board lines (corner diagonals meeting in the middle, plus the inner diamond joining the edge midpoints); tigers may capture from the start; tigers also win if goats cannot move | A popular Bagh-Chal site; its home page contradicts its own rules page on captures during placement |
+| Lim Yew Jin and J. Nievergelt, "Computing Tigers and Goats" (2004, linked from Wikipedia) | A computer analysis of the whole game; reported as a draw with perfect play | Not read in full; the site above also says goats can at least draw |
+
+### The rules (as sources agree)
+
+- **Board:** 5 × 5 points joined along rows and columns. Diagonals run through every other point: the two long diagonals corner to corner, and the diamond joining the middles of the four edges (the classic "alquerque" pattern).
+- **Start:** 4 tigers on the 4 corners; 20 goats off the board. **Goats move first.**
+- **Placing:** goats are placed one per turn on any empty point. Goats cannot move until all 20 are placed. Tigers move (and may capture) from their first turn.
+- **Moving:** one step along a line to an empty point.
+- **Capturing:** a tiger jumps over one adjacent goat to the empty point straight beyond it, along a line. One goat per turn. Captures are optional. (A goat in a corner can never be jumped: no line passes through a corner.)
+- **Tigers win** by capturing **5 goats**. **Goats win** when no tiger can move. A side with no legal move loses (so tigers win in the rare case goats are stuck).
+- **Repetition (Wikipedia):** once all goats are placed, no move may recreate a position that has already occurred.
+
+### Decisions
+
+| # | Decision | Date |
+|---|---|---|
+| D65 | Bagh-Chal gets **its own game card** (one of the 17 launch games), sharing the Tiger & Goat engine | 2026-11-27 |
+| D66 | **Traditional no-repeat rule:** once all 20 goats are placed, no move may recreate an earlier position. Balance to be checked by self-play | 2026-11-27 |
+| D67 | **Same hill and meadow world with a Himalayan touch:** snowy peaks behind, the 5 × 5 board worn into the hill | 2026-11-27 |
+
+Not open: 5 captures to win, captures allowed during placement, optional captures (both sources and our Tiger & Goat agree).
+
+### How it will be built
+
+The Tiger & Goat rules, board drawing, computer and puzzle code all assume the 23-point board. They will take the board as data (points, lines, piece counts, start), with Tiger & Goat and Bagh-Chal as two boards. Everything else (screens, online, lessons, puzzles, daily) then works for both with little extra work.
+
+---
+
 ## Change log
 
 - **2026-11-14** — Document created from the first discussion.
@@ -1285,6 +1324,7 @@ One **pits-and-seeds engine** serves both (and Oware later):
 - **2026-11-25** — Added section 23: global focus, English only (D40), name Tiger & Goat (D41), Fredoka and Figtree (D42), Plato-like play screen (D43). D7 and D30 replaced. Open question: one game or platform.
 - **2026-11-25** — D44: Tiger & Goat is the first game's name; the platform brand stays open (needed by week 11).
 - **2026-11-25** — Added section 24: "Hill and meadow" chosen as the default look (D45), with palette, pieces and updated theme plan.
+- **2026-11-27** — Added section 30: Bagh-Chal rules from sources; decided D65–D67 (own card, traditional no-repeat, Himalayan touch).
 - **2026-11-27** — Section 29: 220 proven puzzles for the seed games (most seeds this turn, win in 1, win in 2); game 2 complete.
 - **2026-11-27** — Section 29: lessons for Mancala and Pallanguzhi (four each), offered once on first play.
 - **2026-11-27** — Section 29: Mancala and Pallanguzhi online: rooms and quick match know their game; first and second sides swap on rematch.
