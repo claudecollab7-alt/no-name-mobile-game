@@ -1,6 +1,6 @@
 extends AppScreen
 ## A tiger-and-goat game's page (Tiger & Goat, Bagh-Chal): what it is, how to play it,
-## and the play options (D46, D48). Lessons are Tiger & Goat's for now.
+## and the play options (D46, D48). Bagh-Chal offers its lessons the first time you play.
 
 const R := preload("res://games/aadupuli/rules/aadupuli_rules.gd")
 const PlayScreen := preload("res://shell/screens/play_screen.gd")
@@ -49,7 +49,7 @@ func _learn_card(col: VBoxContainer) -> void:
 	lrow.add_child(lw)
 	lrow.add_child(Ui.icon("chevron-right", 48, Ui.MUTED))
 	learn.add_child(lrow)
-	Ui.on_tap(learn, func() -> void: app.push(load("res://shell/screens/tutorial_screen.gd").new()))
+	Ui.on_tap(learn, _learn)
 	col.add_child(learn)
 
 
@@ -145,10 +145,30 @@ func _style_chip(chip: PanelContainer, on: bool) -> void:
 	(chip.get_child(0) as Label).add_theme_color_override("font_color", Color("#B5501A") if on else Ui.INK)
 
 
+func _learn() -> void:
+	app.push(load("res://shell/screens/tutorial_screen.gd").create(board_id))
+
+
 func _start() -> void:
 	Store.set_last("mode", mode)
 	Store.set_last("level", level)
 	Store.set_last("side", side)
+	# Bagh-Chal: the first time someone plays it, offer the lessons once (Tiger & Goat
+	# offers its own on first launch).
+	if board_id != "aadupuli":
+		var g: Dictionary = Store.data["games"][board_id]
+		if not bool(g["tutorial_done"]) and not bool(g["tutorial_offered"]) and int(g["played"]) == 0:
+			g["tutorial_offered"] = true
+			Store.save_data()
+			Modal.show(app, tr("New to %s?") % tr(Games.title(board_id)), [Modal.text("Five tiny lessons on the real board teach it in about a minute.")], [
+				["Just play", _play],
+				["Learn first", _learn, true],
+			])
+			return
+	_play()
+
+
+func _play() -> void:
 	var human := side
 	if mode == "computer" and side == "toss":
 		human = "goats" if randi() % 2 == 0 else "tigers"

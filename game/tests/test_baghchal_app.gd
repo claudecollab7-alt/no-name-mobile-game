@@ -43,11 +43,12 @@ func test_the_home_screen_has_a_bagh_chal_card_that_opens_its_page() -> void:
 	assert_bool(texts.has("Bagh-Chal")).is_true()
 	assert_bool(texts.has("Against the computer")).is_true()
 	assert_bool(texts.has("Play online")).is_true()
-	assert_bool(texts.has("Learn to play")).is_false()  # So do lessons.
+	assert_bool(texts.has("Learn to play")).is_true()
 
 
 func test_the_page_starts_a_bagh_chal_game_with_the_right_pieces() -> void:
 	Store.set_last("mode", "pass")
+	Store.data["games"]["baghchal"]["tutorial_offered"] = true  # Lessons offer: test_baghchal_tutorial.gd
 	app.push(GamePage.create("baghchal"))
 	await _frames(2)
 	_top()._start()
@@ -74,7 +75,7 @@ func test_the_rules_card_is_bagh_chals_own() -> void:
 	var buttons: Array = []
 	for b in app.find_children("*", "Button", true, false):
 		buttons.append((b as Button).text)
-	assert_bool(buttons.has("Try the tutorial")).is_false()
+	assert_bool(buttons.has("Try the tutorial")).is_true()
 	Modal.close_top(app)
 
 

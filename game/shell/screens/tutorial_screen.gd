@@ -1,15 +1,17 @@
 extends AppScreen
-## "Learn by playing": five short lessons on a real board (BUILD_PLAN.md task 3.2).
-## Each lesson sets a position, gives one instruction, accepts only the moves that teach
-## the point, then says what was learned. The last lesson leads into a first easy game.
+## "Learn by playing": five short lessons on a real board (BUILD_PLAN.md task 3.2), for
+## either tiger game (Tiger & Goat, or Bagh-Chal: G3.6). Each lesson sets a position,
+## gives one instruction, accepts only the moves that teach the point, then says what
+## was learned. The last lesson leads into a first easy game.
 
 const R := preload("res://games/aadupuli/rules/aadupuli_rules.gd")
 const BoardView := preload("res://games/aadupuli/board/board_view.gd")
 const PlayScreen := preload("res://shell/screens/play_screen.gd")
 
 var board: BoardView
+var board_id := "aadupuli"
 var step_index := 0
-var _steps: Array = AadupuliTutorial.steps()
+var _steps: Array = []
 var _counter: Label
 var _dots: HBoxContainer
 var _side_slot: Control
@@ -20,10 +22,17 @@ var _done_text: Label
 var _next_row: HBoxContainer
 
 
+static func create(p_board := "aadupuli") -> AppScreen:
+	var s: AppScreen = load("res://shell/screens/tutorial_screen.gd").new()
+	s.board_id = p_board
+	return s
+
+
 func _ready() -> void:
+	_steps = AadupuliTutorial.steps(board_id)
 	var col := page(false, 64, 40)
 	_counter = Ui.label("", 28, Ui.MUTED, "bold")
-	col.add_child(top_bar("Learn to play", _counter))
+	col.add_child(top_bar("Learn to play" if board_id == "aadupuli" else tr("Learn %s") % tr(Games.title(board_id)), _counter))
 
 	_dots = Ui.hbox(10)
 	_dots.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -103,7 +112,10 @@ func _on_moved(_m: int) -> void:
 	if step_index < _steps.size() - 1:
 		_next_row.add_child(Ui.button("Next", _next, true, 108))
 	else:
-		Store.data["tutorial_done"] = true
+		if board_id == "aadupuli":
+			Store.data["tutorial_done"] = true
+		else:
+			Store.data["games"][board_id]["tutorial_done"] = true
 		Store.save_data()
 		Sfx.play("solved")
 		_done_text.text = tr("%s You're ready to play.") % step["done"]
@@ -124,4 +136,4 @@ func _first_game() -> void:
 	Store.set_last("mode", "computer")
 	Store.set_last("level", "easy")
 	Store.set_last("side", "tigers")
-	app.replace(PlayScreen.create("computer", "easy", "tigers"))
+	app.replace(PlayScreen.create("computer", "easy", "tigers", false, board_id))

@@ -54,7 +54,7 @@ const TIGER := {
 		"line": "Hunt or trap  ·  2 players  ·  about 10 min",
 		"short": "Four tigers, twenty goats",
 		"about": "Nepal's tiger game. Four tigers start in the corners and hunt twenty goats. Tigers win by capturing 5 goats; goats win by trapping all four tigers.",
-		"lessons": false,
+		"lessons": true,
 		"rules": [
 			[false, "Goats go first", "Place one goat per turn on any empty point. Goats can't move until all 20 are on the board."],
 			[true, "Tigers hunt", "Move one step along a line, or jump over a goat to the empty point behind it to capture it. Tigers may hunt while goats are still being placed."],

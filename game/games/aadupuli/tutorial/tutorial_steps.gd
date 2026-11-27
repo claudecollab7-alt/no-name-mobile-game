@@ -1,6 +1,7 @@
 class_name AadupuliTutorial
 extends RefCounted
-## The "learn by playing" steps for Tiger & Goat (BUILD_PLAN.md task 3.2).
+## The "learn by playing" steps for the tiger games: Tiger & Goat (BUILD_PLAN.md task 3.2)
+## and Bagh-Chal (G3.6), each on its own board.
 ## Each step sets up a small position, says what to do in one line, and accepts only
 ## the moves that teach the point. The player plays both sides, one lesson at a time.
 ## Data only: the tutorial screen (shell/screens/tutorial_screen.gd) runs it.
@@ -15,7 +16,9 @@ const ANY := -1  ## Accept any legal move for the side to play.
 ##   moves: the moves accepted (ANY for any legal move)
 ##   focus: points to spotlight
 ##   done: what to say after the right move
-static func steps() -> Array:
+static func steps(board := "aadupuli") -> Array:
+	if board == "baghchal":
+		return _baghchal()
 	return [
 		{
 			"title": "Goats go first",
@@ -57,9 +60,54 @@ static func steps() -> Array:
 	]
 
 
+## Bagh-Chal: four tigers in the corners, twenty goats. Points are numbered row by row,
+## 0 to 24, from the top left; diagonals run through the points where row + column is even.
+static func _baghchal() -> Array:
+	var corners := [0, 4, 20, 24]
+	return [
+		{
+			"title": "Goats go first",
+			"text": "The four tigers start in the corners. Tap any glowing point to place your first goat.",
+			"board": "baghchal", "tigers": corners, "goats": [], "in_hand": 20, "turn": R.GOAT, "captured": 0,
+			"moves": [ANY], "focus": [],
+			"done": "Nice. Goats keep coming, one per turn, until all 20 are on the board.",
+		},
+		{
+			"title": "Tigers walk the lines",
+			"text": "Now you're a tiger. Tap the top-left tiger, then a glowing point to step along a line.",
+			"board": "baghchal", "tigers": corners, "goats": [17], "in_hand": 19, "turn": R.TIGER, "captured": 0,
+			"moves": [R.encode(0, 1, R.NONE), R.encode(0, 5, R.NONE), R.encode(0, 6, R.NONE)], "focus": [0],
+			"done": "Tigers step one point along a line. Diagonals only where a line is drawn.",
+		},
+		{
+			"title": "Jump to capture",
+			"text": "A goat with an empty point right behind it can be caught. Jump the glowing tiger over the goat.",
+			"board": "baghchal", "tigers": corners, "goats": [6, 17], "in_hand": 18, "turn": R.TIGER, "captured": 0,
+			"moves": [R.encode(0, 12, 6)], "focus": [0, 6],
+			"done": "Caught! Five captures and the tigers win.",
+		},
+		{
+			"title": "Guard your goat",
+			"text": "The tiger could jump this goat. Place a goat on the point behind it to block the jump.",
+			"board": "baghchal", "tigers": corners, "goats": [6], "in_hand": 19, "turn": R.GOAT, "captured": 0,
+			"moves": [R.encode(R.NONE, 12, R.NONE)], "focus": [6, 12],
+			"done": "Safe. A goat with a friend behind it can't be jumped.",
+		},
+		{
+			"title": "Trap every tiger",
+			"text": "All 20 goats are placed, so goats now step along the lines too. Move the glowing goat to trap the last free tiger.",
+			"board": "baghchal", "tigers": corners,
+			"goats": [1, 2, 3, 5, 7, 8, 9, 10, 12, 14, 15, 16, 18, 19, 21, 22, 23], "in_hand": 0,
+			"turn": R.GOAT, "captured": 3,
+			"moves": [R.encode(7, 6, R.NONE)], "focus": [7, 6],
+			"done": "Every tiger is trapped. The goats win!",
+		},
+	]
+
+
 ## Builds the position for a step.
 static func position(step: Dictionary) -> R.State:
-	var s := R.new_game()
+	var s := R.new_game({"board": str(step.get("board", "aadupuli"))})
 	s.tigers = PackedInt32Array(step["tigers"])
 	s.goats = 0
 	for p: int in step["goats"]:

@@ -380,7 +380,11 @@ func _play(m: int) -> void:
 		busy = true
 		var t := create_tween()
 		var speed := 0.5 if reduce_motion else 1.0
-		t.tween_property(piece, "position", point_pos(to), (0.32 if over != R.NONE else 0.2) * speed) \
+		# Tween along the path between the two points rather than to a fixed spot, so a
+		# relayout mid-move (a card appearing below the board) still lands on the point.
+		t.tween_method(func(k: float) -> void:
+			if is_instance_valid(piece):
+				piece.position = point_pos(from).lerp(point_pos(to), k), 0.0, 1.0, (0.32 if over != R.NONE else 0.2) * speed) \
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 		t.finished.connect(func() -> void: busy = false)
 		if over != R.NONE:

@@ -69,7 +69,7 @@ static func how_to_play(host: Node, board := "aadupuli") -> void:
 		rows.append(row)
 	var actions: Array = [["Got it", func() -> void: pass, true]]
 	if info["lessons"]:
-		actions.push_front(["Try the tutorial", func() -> void: host.push(load("res://shell/screens/tutorial_screen.gd").new())])
+		actions.push_front(["Try the tutorial", func() -> void: host.push(load("res://shell/screens/tutorial_screen.gd").create(board))])
 	var title := "How to play" if board == "aadupuli" else TranslationServer.translate("How to play %s") % TranslationServer.translate(str(info["title"]))
 	show(host, title, rows, actions)
 	if board == "aadupuli":

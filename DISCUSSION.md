@@ -1351,7 +1351,7 @@ Same search as Tiger & Goat, with Bagh-Chal's own scoring and levels. Checked wi
 ### In the app (built 2026-11-27)
 
 - **Home:** its own card under Tiger & Goat (D65), with the square board beside the name and a Play button.
-- **Game page:** the Tiger & Goat page, now for either board. Against the computer (easy, medium, hard; play as goats, tigers or coin toss), pass and play, and online. Lessons are not shown yet.
+- **Game page:** the Tiger & Goat page, now for either board. Against the computer (easy, medium, hard; play as goats, tigers or coin toss), pass and play, online, and lessons.
 - **Play and result:** the same screens. The goats' panel says "Trap all 4 tigers to win" and starts at 20 to place, the rules card is Bagh-Chal's own, and Rematch and Switch sides stay on Bagh-Chal.
 - **Record:** kept apart from Tiger & Goat, with wins and losses as tigers and as goats; shown on the profile. Wins against the computer also count towards the overall win streak.
 
@@ -1361,6 +1361,23 @@ Same search as Tiger & Goat, with Bagh-Chal's own scoring and levels. Checked wi
 - **Quick match pairs Bagh-Chal players only**, never with Tiger & Goat.
 - **The server checks the no-repeat rule.** The position's repeat counts travel with every move, so the phone and the server agree on which moves are allowed.
 - **Record:** online wins and losses go on Bagh-Chal's own record and the overall online count. As with every game, they don't touch the win streak against the computer.
+
+### Lessons (built 2026-11-27)
+
+Five hands-on lessons on the real Bagh-Chal board, run by the Tiger & Goat tutorial screen: one instruction, only the teaching move allowed, then one line on what happened.
+
+| # | Lesson | What you do |
+|---|---|---|
+| 1 | Goats go first | Place any goat (20 to place, tigers in the corners) |
+| 2 | Tigers walk the lines | Step a corner tiger: along the edge or the drawn diagonal |
+| 3 | Jump to capture | Jump a goat that has an empty point behind it |
+| 4 | Guard your goat | Place a goat behind a threatened goat so it can't be jumped |
+| 5 | Trap every tiger | All 20 goats placed, so goats move: one step traps the last free tiger |
+
+- Lesson 4 is Bagh-Chal's own: placing goats safely is the heart of the goat side.
+- Opened from **Learn to play** on the game page and **Try the tutorial** on the rules card. The **first time** you press Play, a card offers the lessons once ("Learn first" or "Just play"), as in the seed games.
+- The last lesson leads into a first game against Easy, playing the tigers. Finishing is recorded for Bagh-Chal only; Tiger & Goat's tutorial is separate.
+- **Fixed along the way (both tiger games):** a moving piece could land off its point when the lesson's result card appeared and shrank the board mid-move. Moves now follow the board's current layout to the end.
 
 ### How it will be built
 
@@ -1387,6 +1404,7 @@ The Tiger & Goat rules, board drawing, computer and puzzle code all assume the 2
 - **2026-11-25** — Added section 23: global focus, English only (D40), name Tiger & Goat (D41), Fredoka and Figtree (D42), Plato-like play screen (D43). D7 and D30 replaced. Open question: one game or platform.
 - **2026-11-25** — D44: Tiger & Goat is the first game's name; the platform brand stays open (needed by week 11).
 - **2026-11-25** — Added section 24: "Hill and meadow" chosen as the default look (D45), with palette, pieces and updated theme plan.
+- **2026-11-27** — Section 30: Bagh-Chal lessons (five, offered once on first play); a moving piece now lands on its point if the board resizes mid-move.
 - **2026-11-27** — Section 30: Bagh-Chal online (rooms, quick match, rematch, own record).
 - **2026-11-27** — Section 30: Bagh-Chal in the app (home card, game page, play against the computer or pass and play, own record).
 - **2026-11-27** — Section 30: Bagh-Chal computer opponent (captures past the horizon, goats look one move further); ladder clean, easy and medium even, hard 70% tigers.
