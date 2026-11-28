@@ -1560,6 +1560,24 @@ Decided 2026-11-28. Reversi is the second square-grid game, reusing the grid eng
 
 Hard stays **strong but beatable**, as decided for Four in a Row (D71): a near-perfect Reversi computer would crush most players.
 
+### Puzzles (2026-11-28)
+
+**130 proven puzzles**, made by `tools/make_reversi_puzzles.gd` from 400 computer games (22,087 positions checked, in about 2 minutes). Each one has exactly one right first move, proven by searching every line to the end of the game on the bitboards. For the "make them pass" puzzles and the shortest endings, the tests prove the answer a second time with a plain search on the game rules.
+
+| Kind | Count | Difficulty |
+|---|---|---|
+| Make them pass: the only move that leaves them nowhere to play | 25 | Gentle |
+| Win the ending, 4 to 6 empty squares | 30 | Easy |
+| Win the ending, 7 or 8 empty squares | 30 | Medium |
+| Win the ending, 9 or 10 empty squares | 25 | Tricky |
+| Win the ending, 11 or 12 empty squares | 20 | Hard |
+
+- You play the side to move: orange in 68 puzzles, cream in 62.
+- **Endings are played to the last disc.** After your first move the computer defends as well as it can (searching to the end), passes happen by themselves, and every later move you make must keep the win. A move that throws the win away is explained and the position resets.
+- A **Puzzles** card on the Reversi page, easiest first with a solved count; Show answer rings the right square. In the hardest puzzles a move is checked in under 0.05 s and the computer's defence takes under 0.5 s on a laptop.
+
+Reversi is complete: rules, board, computer, app, online, lessons and puzzles.
+
 ### Lessons (2026-11-28)
 
 **Five lessons on the real tray**, about two minutes in all (`games/reversi/tutorial/reversi_tutorial.gd`). You play orange; each lesson accepts only the moves that teach its point, then says what happened:
@@ -1638,6 +1656,7 @@ Hard stays **strong but beatable**, as decided for Four in a Row (D71): a near-p
 - **2026-11-25** — Added section 23: global focus, English only (D40), name Tiger & Goat (D41), Fredoka and Figtree (D42), Plato-like play screen (D43). D7 and D30 replaced. Open question: one game or platform.
 - **2026-11-25** — D44: Tiger & Goat is the first game's name; the platform brand stays open (needed by week 11).
 - **2026-11-25** — Added section 24: "Hill and meadow" chosen as the default look (D45), with palette, pieces and updated theme plan.
+- **2026-11-28** — Section 32: Reversi puzzles (130 proven: make them pass, and endings of 4 to 12 empty squares played to the end). Reversi is complete.
 - **2026-11-28** — Section 32: Reversi lessons (five on the real tray: flipping, lines, every direction, corners, passing).
 - **2026-11-28** — Section 32: Reversi online (seat choice, server-checked moves, passes played by the server at once, rematch swaps who starts).
 - **2026-11-28** — Section 32: Reversi in the app (home card, game page with first/second choice, live disc counts, automatic passes, result, record by seat).

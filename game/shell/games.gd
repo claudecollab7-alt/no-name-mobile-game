@@ -126,6 +126,8 @@ static func puzzles(id: String) -> Array:
 		return BaghchalPuzzleData.PUZZLES
 	if id == "fourinrow":
 		return FourPuzzleData.PUZZLES
+	if id == "reversi":
+		return ReversiPuzzleData.PUZZLES
 	return SowingPuzzleData.PUZZLES.get(id, [])
 
 

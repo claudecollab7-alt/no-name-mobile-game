@@ -2,7 +2,7 @@ extends AppScreen
 ## The page for Reversi (DISCUSSION.md section 32): what it is, the rules card, and the
 ## play options. Against the computer you choose who moves first (D73): Play first, Play
 ## second or Coin toss; online, you pick first, second or either. Five lessons are
-## offered once, the first time you press Play. Puzzles get their card in G5.7.
+## offered once, the first time you press Play. Puzzles are worked through easiest first.
 
 const R := preload("res://games/reversi/reversi_rules.gd")
 const PlayScreen := preload("res://shell/screens/reversi_play_screen.gd")
@@ -15,6 +15,7 @@ var _mode_cards := {}
 var _level_chips := {}
 var _seat_chips := {}
 var _seat_row: Control
+var _puzzle_line: Label
 
 
 static func create(id := "reversi") -> AppScreen:
@@ -60,6 +61,20 @@ func _ready() -> void:
 	Ui.on_tap(learn, _learn)
 	col.add_child(learn)
 
+	var pz := Ui.card(Ui.PANEL, Ui.LINE, 24)
+	var prow := Ui.hbox(20)
+	prow.add_child(Ui.icon("star", 56, Ui.ACCENT))
+	var pw := Ui.vbox(0)
+	pw.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	pw.add_child(Ui.heading("Puzzles", 34))
+	_puzzle_line = Ui.muted("", 26)
+	pw.add_child(_puzzle_line)
+	prow.add_child(pw)
+	prow.add_child(Ui.icon("chevron-right", 48, Ui.MUTED))
+	pz.add_child(prow)
+	Ui.on_tap(pz, _open_puzzles)
+	col.add_child(pz)
+
 	col.add_child(section("Play"))
 	var cpu := _mode_card("computer", "robot", "Against the computer", "")
 	var chips := Ui.hbox(14)
@@ -89,6 +104,15 @@ func _ready() -> void:
 
 	col.add_child(Ui.button("Play", _start, true, 124))
 	_refresh()
+
+
+func on_show() -> void:
+	if _puzzle_line != null:
+		_puzzle_line.text = tr("%d puzzles, easiest first  ·  %d solved") % [Games.puzzles(game_id).size(), Store.puzzles_solved(game_id).size()]
+
+
+func _open_puzzles() -> void:
+	app.push(load("res://shell/screens/reversi_puzzle_screen.gd").create(Store.next_puzzle(game_id)))
 
 
 func _mode_card(id: String, icon_name: String, title: String, sub: String) -> PanelContainer:

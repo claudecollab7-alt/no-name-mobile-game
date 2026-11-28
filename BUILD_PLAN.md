@@ -529,7 +529,7 @@ Board and pieces are drawn in code. AI-generated images are used only for backgr
 - [x] G5.4 In the app (2026-11-28: home card, game page with First / Second / Coin toss, play screen with live disc counts and automatic passes, result, record by seat on the Profile; 8 tests; checked in the browser)
 - [x] G5.5 Online (2026-11-28: lobby game "reversi", seat choice, the server passes at once for a player with no move, rematch swaps who starts; 4 lobby tests and 2 screen tests with the real server)
 - [x] G5.6 Lessons (2026-11-28: five lessons on the real tray, offered once on first play, from the page and the rules card; 6 tests)
-- [ ] G5.7 Puzzles (proven by exact search)
+- [x] G5.7 Puzzles (2026-11-28: 130 proven puzzles, make them pass and endings of 4 to 12 empty squares played to the end; Puzzles card on the page; 6 tests incl. a plain-rules cross-check)
 
 ### Phases 6 and 7 — closed test and release
 
@@ -554,6 +554,7 @@ Add one line per working session: date, task, result, anything the next session 
 | 2026-11-16 | Plan written | — | Godot version not yet pinned; board not yet verified |
 | 2026-11-16 | Board verified | Matches the draft exactly | Picture saved at docs/board-reference.png |
 | 2026-11-16 | Tiger start confirmed | Points 0, 3 and 4 | Nothing about the board is open now |
+| 2026-11-28 | Game 5 puzzles | Exact end-of-game proofs on bitboards; generator (400 games, 134 s); 130 puzzles: make them pass 25, endings 4–6 30, 7–8 30, 9–10 25, 11–12 20; puzzle screen plays endings to the last disc; 6 tests, 268 pass; checked in the browser | Reversi complete; game 6 next |
 | 2026-11-28 | Game 5 lessons | Five Reversi lessons (flip, line, eight directions, corner, pass) with a lesson screen, Learn card, first-play offer and rules-card button; 6 tests, 262 pass; checked in the browser | G5.7 puzzles next |
 | 2026-11-28 | Game 5 online | Reversi in the lobby (moves checked, automatic passes, ends on the disc count); online card, seat chips, waiting screen, online play and result with rematch; 4 lobby tests, 2 screen tests on the real server, 256 pass | G5.6 lessons next |
 | 2026-11-28 | Game 5 in the app | Reversi home card, game page, play screen (disc counts, passes explained, undo, computer on a thread), result screen, Profile record; 8 app tests, 250 pass; checked in the browser | G5.5 online next |
