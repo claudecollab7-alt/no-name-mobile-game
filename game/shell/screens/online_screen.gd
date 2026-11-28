@@ -1,8 +1,9 @@
 extends AppScreen
 ## Play online: find a player (quick match), invite a friend (create a room), or join
 ## a friend's room with its code. `game_id` says which game: in the tiger games
-## (Tiger & Goat, Bagh-Chal) players can pick a side, in Four in a Row whether they move
-## first or second (D69); in the seed games who starts is decided for them and alternates.
+## (Tiger & Goat, Bagh-Chal) players can pick a side, in Four in a Row and Reversi whether
+## they move first or second (D69, D73); in the seed games who starts is decided for them
+## and alternates.
 
 const WaitingScreen := preload("res://shell/screens/waiting_screen.gd")
 
@@ -25,7 +26,7 @@ static func create(id: String) -> AppScreen:
 
 
 func _seats() -> bool:
-	return game_id == "fourinrow"
+	return game_id in ["fourinrow", "reversi"]
 
 
 func _ready() -> void:

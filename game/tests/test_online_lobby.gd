@@ -373,3 +373,70 @@ func test_a_full_four_in_a_row_board_is_a_draw() -> void:
 	var ended := _to(out, 1, "end")
 	assert_str(ended["winner"]).is_equal("draw")
 	assert_str(ended["reason"]).is_equal("full")
+
+
+# ---------- Reversi ----------
+
+const V := preload("res://games/reversi/reversi_rules.gd")
+
+
+func _start_reversi_room(side := "first") -> Array:
+	_hello(1, "Ana")
+	_hello(2, "Ben")
+	var code: String = _to(lobby.handle(1, {"t": "create", "side": side, "game": "reversi"}, now), 1, "room")["code"]
+	return lobby.handle(2, {"t": "join", "code": code}, now)
+
+
+func _all_to(out: Array, peer: int, t: String) -> Array:
+	var found: Array = []
+	for pair: Array in out:
+		if pair[0] == peer and pair[1]["t"] == t:
+			found.append(pair[1])
+	return found
+
+
+func test_a_reversi_room_starts_with_four_discs_and_the_chosen_seats() -> void:
+	var out := _start_reversi_room("second")
+	var start := _to(out, 1, "start")
+	assert_str(start["game"]).is_equal("reversi")
+	assert_str(start["you"]).is_equal("second")
+	assert_str(_to(out, 2, "start")["you"]).is_equal("first")
+	var s := V.from_dict(start["state"])
+	assert_int(V.discs(s, 0) + V.discs(s, 1)).is_equal(4)
+	assert_int(s.turn).is_equal(0)
+
+
+func test_the_server_refuses_squares_that_flip_nothing_and_moves_out_of_turn() -> void:
+	_start_reversi_room("first")  # Ana (1) orange, Ben (2) cream.
+	assert_dict(_to(lobby.handle(2, {"t": "move", "m": V.cell(3, 2)}, now), 2, "sync")).is_not_empty()  # Not Ben's turn.
+	assert_dict(_to(lobby.handle(1, {"t": "move", "m": 0}, now), 1, "sync")).is_not_empty()  # Flips nothing.
+	assert_dict(_to(lobby.handle(1, {"t": "move", "m": V.PASS}, now), 1, "sync")).is_not_empty()  # Can't pass with moves.
+	assert_dict(_to(lobby.handle(1, {"t": "move", "m": V.cell(3, 2)}, now), 2, "moved")).is_not_empty()
+
+
+func test_a_player_with_no_move_passes_at_once() -> void:
+	_start_reversi_room("first")
+	var room: Dictionary = lobby.rooms.values()[0]
+	# Orange takes cream's disc at (1,1); then cream has no move but orange still does.
+	room["state"] = V.from_dict({"rows": ["0.......", ".1......", "........", "........", "........", "........", "......1.", ".......0"], "turn": 0})
+	var out := lobby.handle(1, {"t": "move", "m": V.cell(2, 2)}, now)
+	var moved := _all_to(out, 2, "moved")
+	assert_int(moved.size()).is_equal(2)
+	assert_int(int(moved[1]["m"])).is_equal(V.PASS)
+	assert_str(moved[1]["by"]).is_equal("second")
+	var s: V.State = room["state"]
+	assert_int(s.turn).is_equal(0)
+	assert_str(room["status"]).is_equal("playing")
+
+
+func test_reversi_ends_on_the_disc_count_and_rematch_swaps_who_moves_first() -> void:
+	_start_reversi_room("first")
+	var room: Dictionary = lobby.rooms.values()[0]
+	room["state"] = V.from_dict({"rows": ["0.......", ".1......", "........", "........", "........", "........", "........", "........"], "turn": 0})
+	var ended := _to(lobby.handle(1, {"t": "move", "m": V.cell(2, 2)}, now), 2, "end")
+	assert_str(ended["winner"]).is_equal("first")
+	assert_str(ended["reason"]).is_equal("discs")
+	lobby.handle(1, {"t": "rematch"}, now)
+	var again := lobby.handle(2, {"t": "rematch"}, now)
+	assert_str(_to(again, 1, "start")["you"]).is_equal("second")
+	assert_int(V.from_dict(_to(again, 1, "start")["state"]).moves_played).is_equal(0)

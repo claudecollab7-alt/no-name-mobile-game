@@ -1560,6 +1560,13 @@ Decided 2026-11-28. Reversi is the second square-grid game, reusing the grid eng
 
 Hard stays **strong but beatable**, as decided for Four in a Row (D71): a near-perfect Reversi computer would crush most players.
 
+### Online (2026-11-28)
+
+- **A Play online card** on the Reversi page, the same as Four in a Row's: Find a player (Either / Move first / Move second) or invite a friend with a code (Random / I go first / I go second). A rematch swaps who moves first.
+- **The server checks every move** with the same rules as the phone. A square that flips nothing, a move out of turn, or a pass while you have a move is refused, and the phone is put back in step.
+- **Passing online:** a player with no move doesn't wait out the 45-second timer. The server plays the pass for them at once, and both phones show it ("You had no move and passed. Waiting for Ben…").
+- The game ends on the disc count (reason "discs"), or by resigning, running out of time twice, or leaving, as in the other games. Online results go on the record by seat.
+
 ### In the app (2026-11-28)
 
 - **Home:** a Reversi card under Four in a Row, with the tray a few moves in, the name and a Play button.
@@ -1616,6 +1623,7 @@ Hard stays **strong but beatable**, as decided for Four in a Row (D71): a near-p
 - **2026-11-25** — Added section 23: global focus, English only (D40), name Tiger & Goat (D41), Fredoka and Figtree (D42), Plato-like play screen (D43). D7 and D30 replaced. Open question: one game or platform.
 - **2026-11-25** — D44: Tiger & Goat is the first game's name; the platform brand stays open (needed by week 11).
 - **2026-11-25** — Added section 24: "Hill and meadow" chosen as the default look (D45), with palette, pieces and updated theme plan.
+- **2026-11-28** — Section 32: Reversi online (seat choice, server-checked moves, passes played by the server at once, rematch swaps who starts).
 - **2026-11-28** — Section 32: Reversi in the app (home card, game page with first/second choice, live disc counts, automatic passes, result, record by seat).
 - **2026-11-28** — Section 32: Reversi computer built (Easy counts discs like a beginner; Hard looks 5 ahead and plays the last 10 moves perfectly; Hard beat Medium 30/40).
 - **2026-11-28** — Section 32: Reversi board drawn (wooden tray, grass squares, discs that turn over along each line, glowing dots).

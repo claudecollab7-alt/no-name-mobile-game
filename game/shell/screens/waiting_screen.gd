@@ -5,6 +5,7 @@ extends AppScreen
 const PlayScreen := preload("res://shell/screens/play_screen.gd")
 const SowingPlayScreen := preload("res://shell/screens/sowing_play_screen.gd")
 const FourPlayScreen := preload("res://shell/screens/four_play_screen.gd")
+const ReversiPlayScreen := preload("res://shell/screens/reversi_play_screen.gd")
 const GamePage := preload("res://shell/screens/game_page.gd")
 const OFFER_AFTER := 20.0
 
@@ -150,6 +151,8 @@ func _on_message(msg: Dictionary) -> void:
 				app.replace(PlayScreen.create_online(msg))
 			elif game == "fourinrow":
 				app.replace(FourPlayScreen.create_online(msg))
+			elif game == "reversi":
+				app.replace(ReversiPlayScreen.create_online(msg))
 			else:
 				app.replace(SowingPlayScreen.create_online(msg))
 		"error":
@@ -173,6 +176,9 @@ func _play_computer() -> void:
 	Online.send({"t": "cancel"})
 	if game_id == "fourinrow":
 		app.replace(FourPlayScreen.create(game_id, "computer", Store.last("level"), arg != "second"))
+		return
+	if game_id == "reversi":
+		app.replace(ReversiPlayScreen.create(game_id, "computer", Store.last("level"), arg != "second"))
 		return
 	if not Games.is_tiger(game_id):
 		app.replace(SowingPlayScreen.create(game_id, "computer", Store.last("level")))

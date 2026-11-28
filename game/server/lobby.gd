@@ -11,15 +11,18 @@ extends RefCounted
 ## phone by offering the computer after 20 seconds (D5).
 ##
 ## Several games share the lobby: each room plays one game ("aadupuli", "baghchal",
-## "kalah", "pallanguzhi" or "fourinrow"; old clients send none and get Tiger & Goat).
+## "kalah", "pallanguzhi", "fourinrow" or "reversi"; old clients send none and get
+## Tiger & Goat).
 ## Sides are "tigers" and "goats" in the tiger games (Tiger & Goat, Bagh-Chal), "first"
 ## and "second" in the others (who moves first; a rematch swaps them, so the start
-## alternates). Quick match pairs the same game only.
+## alternates). Quick match pairs the same game only. In Reversi a player with no legal
+## move passes at once: the server plays the pass for them (a "moved" with m = PASS).
 
 const R := preload("res://games/aadupuli/rules/aadupuli_rules.gd")
 const S := preload("res://games/sowing/sowing_rules.gd")
 const F := preload("res://games/fourinrow/four_rules.gd")
-const GAMES := ["aadupuli", "baghchal", "kalah", "pallanguzhi", "fourinrow"]
+const V := preload("res://games/reversi/reversi_rules.gd")
+const GAMES := ["aadupuli", "baghchal", "kalah", "pallanguzhi", "fourinrow", "reversi"]
 const TIGER_GAMES := ["aadupuli", "baghchal"]  ## Played on the tiger rules, each on its own board.
 
 const PROTOCOL := 1
@@ -285,6 +288,8 @@ func _apply(room: Dictionary, m: int, by: int, now: int) -> void:
 		room["state"] = R.apply(room["state"], m)
 	elif room["game"] == "fourinrow":
 		room["state"] = F.after(room["state"], m)
+	elif room["game"] == "reversi":
+		room["state"] = V.after(room["state"], m)
 	else:
 		room["state"] = S.after(room["state"], m)
 	room["deadline"] = now + TURN_MS
@@ -293,6 +298,8 @@ func _apply(room: Dictionary, m: int, by: int, now: int) -> void:
 	var outcome := _outcome(room)
 	if not outcome.is_empty():
 		_end(room, outcome[0], outcome[1])
+	elif room["game"] == "reversi" and _legal(room)[0] == V.PASS:
+		_apply(room, V.PASS, _peer_with_side(room, _turn_side(room)), now)  # No move: pass at once.
 
 
 func _timeout(room: Dictionary, now: int) -> void:
@@ -401,6 +408,8 @@ func _new_state(game: String) -> Variant:
 		return R.new_game({"board": game})
 	if game == "fourinrow":
 		return F.new_game()
+	if game == "reversi":
+		return V.new_game()
 	return S.new_game(S.KALAH if game == "kalah" else S.PALLANGUZHI, 0)
 
 
@@ -409,6 +418,8 @@ func _turn_side(room: Dictionary) -> String:
 		return "tigers" if (room["state"] as R.State).turn == R.TIGER else "goats"
 	if room["game"] == "fourinrow":
 		return "first" if (room["state"] as F.State).turn == 0 else "second"
+	if room["game"] == "reversi":
+		return "first" if (room["state"] as V.State).turn == 0 else "second"
 	return "first" if (room["state"] as S.State).turn == 0 else "second"
 
 
@@ -417,6 +428,8 @@ func _legal(room: Dictionary) -> PackedInt32Array:
 		return R.legal_moves(room["state"])
 	if room["game"] == "fourinrow":
 		return F.legal_moves(room["state"])
+	if room["game"] == "reversi":
+		return V.legal_moves(room["state"])
 	return S.legal_moves(room["state"])
 
 
@@ -425,6 +438,8 @@ func _dict(room: Dictionary) -> Dictionary:
 		return R.to_dict(room["state"])
 	if room["game"] == "fourinrow":
 		return F.to_dict(room["state"])
+	if room["game"] == "reversi":
+		return V.to_dict(room["state"])
 	return S.to_dict(room["state"])
 
 
@@ -446,6 +461,15 @@ func _outcome(room: Dictionary) -> Array:
 				return ["second", "four"]
 			F.DRAW:
 				return ["draw", "full"]
+		return []
+	if room["game"] == "reversi":
+		match V.result(room["state"]):
+			V.WIN_0:
+				return ["first", "discs"]
+			V.WIN_1:
+				return ["second", "discs"]
+			V.DRAW:
+				return ["draw", "discs"]
 		return []
 	match S.result(room["state"]):
 		S.WIN_0:
