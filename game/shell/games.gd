@@ -50,6 +50,20 @@ const GRID := {
 			["Moving first", "Orange always moves first. Moving first is an advantage, so choose who starts before each game."],
 		],
 	},
+	"reversi": {
+		"title": "Reversi",
+		"line": "Trap and flip  ·  2 players  ·  about 8 min",
+		"short": "Trap and flip",
+		"about": "Place discs to trap lines of your opponent's discs between yours, and every trapped disc flips to your colour. When the board fills up, most discs wins.",
+		"lessons": false,
+		"rules": [
+			["Trap to flip", "Place a disc so that one or more straight lines of your opponent's discs sit between it and another of yours: across, up and down, or diagonally. Every trapped disc flips to your colour."],
+			["Every move flips", "A move must flip at least one disc. The glowing dots show where you can play."],
+			["No move? Pass", "If you have nowhere to play, you pass and your opponent goes again."],
+			["Game end", "When neither player can move, usually with the board full, the game ends. Most discs wins; equal is a draw."],
+			["Moving first", "Orange always moves first. Choose who starts before each game."],
+		],
+	},
 }
 
 

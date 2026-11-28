@@ -63,6 +63,16 @@ func on_show() -> void:
 	four.add_child(fv)
 	_col.add_child(four)
 
+	var rev := Ui.card(Ui.PANEL, Ui.LINE, 28)
+	var rvv := Ui.vbox(14)
+	rvv.add_child(Ui.heading("Reversi", 36))
+	rvv.add_child(_line("Moving first", "%d – %d" % [Store.game_stat("reversi", "first_wins"), Store.game_stat("reversi", "first_losses")]))
+	rvv.add_child(_line("Moving second", "%d – %d" % [Store.game_stat("reversi", "second_wins"), Store.game_stat("reversi", "second_losses")]))
+	if Store.game_stat("reversi", "draws") > 0:
+		rvv.add_child(_line("Drawn", str(Store.game_stat("reversi", "draws"))))
+	rev.add_child(rvv)
+	_col.add_child(rev)
+
 	var seeds := Ui.card(Ui.PANEL, Ui.LINE, 28)
 	var sv := Ui.vbox(14)
 	sv.add_child(Ui.heading("Seed games", 36))

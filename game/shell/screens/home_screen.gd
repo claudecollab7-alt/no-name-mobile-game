@@ -5,6 +5,7 @@ const R := preload("res://games/aadupuli/rules/aadupuli_rules.gd")
 const GamePage := preload("res://shell/screens/game_page.gd")
 const SowingGamePage := preload("res://shell/screens/sowing_game_page.gd")
 const FourGamePage := preload("res://shell/screens/four_game_page.gd")
+const ReversiGamePage := preload("res://shell/screens/reversi_game_page.gd")
 const F := preload("res://games/fourinrow/four_rules.gd")
 const S := preload("res://games/sowing/sowing_rules.gd")
 
@@ -89,6 +90,7 @@ func _ready() -> void:
 		seeds.add_child(_seed_card(id))
 	col.add_child(seeds)
 	col.add_child(_four_card())
+	col.add_child(_reversi_card())
 
 	# More games, coming soon (D48).
 	var more := Ui.hbox(18)
@@ -212,6 +214,43 @@ func _four_card() -> PanelContainer:
 
 func _open_four() -> void:
 	app.push(FourGamePage.create("fourinrow"))
+
+
+## Reversi (D72): the wooden tray beside the name, like Four in a Row's card.
+func _reversi_card() -> PanelContainer:
+	var card := Ui.card(Ui.PANEL, Ui.LINE, 0)
+	var row := Ui.hbox(0)
+	card.add_child(row)
+	var art := PanelContainer.new()
+	var box := Ui.box(Ui.MEADOW_DEEP, Color(0, 0, 0, 0), 34, 0, 0)
+	box.corner_radius_top_right = 0
+	box.corner_radius_bottom_right = 0
+	art.add_theme_stylebox_override("panel", box)
+	art.mouse_filter = Control.MOUSE_FILTER_PASS
+	art.custom_minimum_size.x = 330
+	art.add_child(ReversiPreview.create(ReversiGamePage.sample_position(), 300, true))
+	row.add_child(art)
+	var info := MarginContainer.new()
+	for side in ["left", "right", "top", "bottom"]:
+		info.add_theme_constant_override("margin_" + side, 26)
+	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	info.mouse_filter = Control.MOUSE_FILTER_PASS
+	var words := Ui.vbox(6)
+	words.alignment = BoxContainer.ALIGNMENT_CENTER
+	words.add_child(Ui.heading(Games.title("reversi"), 44))
+	words.add_child(Ui.muted(str(Games.info("reversi")["short"]), 26))
+	var play := Ui.button("Play", _open_reversi, true, 88)
+	play.custom_minimum_size.x = 200
+	play.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	words.add_child(play)
+	info.add_child(words)
+	row.add_child(info)
+	Ui.on_tap(card, _open_reversi)
+	return card
+
+
+func _open_reversi() -> void:
+	app.push(ReversiGamePage.create("reversi"))
 
 
 func _open_bagh() -> void:

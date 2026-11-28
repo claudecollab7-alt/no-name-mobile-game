@@ -1560,6 +1560,13 @@ Decided 2026-11-28. Reversi is the second square-grid game, reusing the grid eng
 
 Hard stays **strong but beatable**, as decided for Four in a Row (D71): a near-perfect Reversi computer would crush most players.
 
+### In the app (2026-11-28)
+
+- **Home:** a Reversi card under Four in a Row, with the tray a few moves in, the name and a Play button.
+- **Game page** (`shell/screens/reversi_game_page.gd`): what it is, the rules card, against the computer (Easy, Medium, Hard) or pass and play, and the First / Second / Coin toss choice (D73). Lessons, puzzles and online get their cards when they are built (G5.5 to G5.7); the rules card has no tutorial button until then.
+- **Playing** (`reversi_play_screen.gd`): each player's panel shows their live disc count beside a disc in their colour. A player with no move passes by themselves after a short pause, and the hint says why ("You have no move, so you pass"; "The computer had no move and passed"). Undo takes back your last move and everything after it. The computer thinks on its own thread, capped at 0.7 s in the browser.
+- **Result** (`reversi_result_screen.gd`): who won, the final count ("Orange 40, cream 24"), "Neither player could move" when the board isn't full, and Play again / Move first or second. Your record is kept by seat, as for Four in a Row, and shown on the Profile.
+
 ### Computer built (2026-11-28)
 
 - **The computer** (`games/reversi/ai/reversi_opponent.gd`): look-ahead search with alpha-beta pruning and a position table, working directly on the two bitboards with the eight shift directions written out by hand. It searches about 60,000 to 100,000 positions a second on a laptop, five to nine times the speed of the general rules.
@@ -1609,6 +1616,7 @@ Hard stays **strong but beatable**, as decided for Four in a Row (D71): a near-p
 - **2026-11-25** — Added section 23: global focus, English only (D40), name Tiger & Goat (D41), Fredoka and Figtree (D42), Plato-like play screen (D43). D7 and D30 replaced. Open question: one game or platform.
 - **2026-11-25** — D44: Tiger & Goat is the first game's name; the platform brand stays open (needed by week 11).
 - **2026-11-25** — Added section 24: "Hill and meadow" chosen as the default look (D45), with palette, pieces and updated theme plan.
+- **2026-11-28** — Section 32: Reversi in the app (home card, game page with first/second choice, live disc counts, automatic passes, result, record by seat).
 - **2026-11-28** — Section 32: Reversi computer built (Easy counts discs like a beginner; Hard looks 5 ahead and plays the last 10 moves perfectly; Hard beat Medium 30/40).
 - **2026-11-28** — Section 32: Reversi board drawn (wooden tray, grass squares, discs that turn over along each line, glowing dots).
 - **2026-11-28** — Section 32: Reversi rules built on bitboards (10 tests, checked against plain rules).
