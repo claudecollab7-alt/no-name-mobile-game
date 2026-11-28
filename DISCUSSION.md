@@ -1672,6 +1672,22 @@ D81 follows the usual tournament limits, made automatic so nobody has to claim a
 
 **Worth knowing:** with optional captures there is no rule forcing a piece to take, so the computer can't set the classic "give one, take two" traps that rely on a forced capture. Lessons and puzzles will teach capturing as a choice instead: "find the move that wins two pieces".
 
+### Computer built (2026-11-28)
+
+- **The computer** (`games/checkers/ai/checkers_opponent.gd`), for both rule sets: look-ahead search with alpha-beta pruning and a position table. It plays moves on one board in place and takes them back, with its own move finder (checked against the rules by the tests), at about 12,000 to 25,000 positions a second.
+- **Captures are optional, so the end of the look-ahead is handled with care:** there the side to move may stop, or carry on capturing if that scores better (up to 8 captures in a row), so it doesn't stop counting in the middle of an exchange.
+- **How it judges a position:** pieces (a man 100, an English king 160, an International flying king 300); men coming forward; men still guarding the back row; the four middle squares. When a side is ahead, its kings close in on the nearest enemy piece and it trades down, so won games get finished instead of shuffling. The draw rules are left to the game itself.
+- **Easy** looks 1 move ahead (plus any captures that follow) and slips 40% of the time. **Medium** looks 4 moves ahead and slips 10%. **Hard** looks as far as 1.2 s allows (about 7 moves) and never slips.
+- **Ladder** (`tools/checkers_ladder.gd`, half the games each side first):
+
+| Pairing | English | International |
+|---|---|---|
+| Easy vs a player who always takes the most pieces (20 games) | 16 won, 3 lost, 1 drawn | 20 won |
+| Medium vs Easy (20 games) | 18 won, 2 drawn | 19 won, 1 drawn |
+| Hard vs Medium (12 games) | 9 won, 3 drawn | 12 won |
+
+  The baseline player is weak in Checkers: away from captures it moves at random, which keeps handing pieces over, so Easy beats it far more often than a careful beginner would. Hard never lost to Medium. Both are for the phone checks: whether Easy is easy enough, and whether Hard is beatable.
+
 ### Board built (2026-11-28)
 
 - **The board** (`games/checkers/board/checkers_board_view.gd`): a wooden frame lying in the meadow, with cream light squares and deep green dark squares. Green sets off both red and black pieces, where a classic dark brown would hide the black ones. The pieces are ridged red and black discs; kings carry a small gold crown, which pops on when a man is crowned (D78). Your own side is at the bottom: the board turns round when you play Red.
@@ -1721,6 +1737,7 @@ D81 follows the usual tournament limits, made automatic so nobody has to claim a
 - **2026-11-25** — Added section 23: global focus, English only (D40), name Tiger & Goat (D41), Fredoka and Figtree (D42), Plato-like play screen (D43). D7 and D30 replaced. Open question: one game or platform.
 - **2026-11-25** — D44: Tiger & Goat is the first game's name; the platform brand stays open (needed by week 11).
 - **2026-11-25** — Added section 24: "Hill and meadow" chosen as the default look (D45), with palette, pieces and updated theme plan.
+- **2026-11-28** — Section 33: Checkers computer built for both rule sets (Medium beat Easy 37/40, Hard beat Medium 21/24 with 3 draws).
 - **2026-11-28** — Section 33: Checkers board drawn (cream and green squares, red and black pieces with crowns, tap-through capture chains, the board turned round for Red).
 - **2026-11-28** — Section 33: Checkers rules built for both rule sets (11 tests, checked against plain rules).
 - **2026-11-28** — Section 33: Game 6 is Checkers (D76–D81): English and International rules chosen per game, optional captures with chains finished, red and black pieces, the player chooses who moves first, automatic draws.

@@ -536,7 +536,7 @@ Board and pieces are drawn in code. AI-generated images are used only for backgr
 - [x] G6.0 Rules and look decided (2026-11-28: DISCUSSION.md section 33, D76–D81)
 - [x] G6.1 Checkers rules (2026-11-28: `games/checkers/checkers_rules.gd`, English and International in one move finder; 11 tests incl. a cross-check against plain rules in 2,000+ positions)
 - [x] G6.2 Board drawing (2026-11-28: `games/checkers/board/checkers_board_view.gd` and a preview; capture chains tapped one landing at a time; pictures in `docs/game6/`; 8 board tests)
-- [ ] G6.3 Computer opponent for both rule sets: Easy, Medium, Hard (strong but beatable), checked with a ladder
+- [x] G6.3 Computer opponent (2026-11-28: `games/checkers/ai/checkers_opponent.gd`, both rule sets, captures followed past the look-ahead; ladder: Medium beat Easy 37/40, Hard beat Medium 21/24 with 3 draws; 6 tests)
 - [ ] G6.4 In the app: home card, game page with the rules chip and Play first / Play second / Coin toss, play, result, records per rule set
 - [ ] G6.5 Online: lobby games per rule set, seat choice, rematch swaps who starts
 - [ ] G6.6 Lessons (both rule sets)
@@ -565,6 +565,7 @@ Add one line per working session: date, task, result, anything the next session 
 | 2026-11-16 | Plan written | — | Godot version not yet pinned; board not yet verified |
 | 2026-11-16 | Board verified | Matches the draft exactly | Picture saved at docs/board-reference.png |
 | 2026-11-16 | Tiger start confirmed | Points 0, 3 and 4 | Nothing about the board is open now |
+| 2026-11-28 | Game 6 computer | Checkers search with make and take back, position table, captures followed past the look-ahead; Easy 1 ahead, Medium 4, Hard about 7 (1.2 s); ladder: Medium beat Easy 37/40, Hard beat Medium 21/24 (3 draws, no losses); 6 tests, 293 pass | G6.4 in the app next |
 | 2026-11-28 | Game 6 board | Checkers board in the meadow: cream and green squares, red and black pieces, crowns that pop on, glowing movable pieces and landing squares, chains tapped one landing at a time, hops with taken pieces lifting away, board turned round for Red; preview; 4 pictures; 8 board tests, 287 pass | G6.3 computer next |
 | 2026-11-28 | Game 6 rules | Checkers rules for both rule sets: chains as one move, optional captures, crowning per rule set, flying kings, wins, automatic draws, save and load; 11 rule tests, 279 pass; 1,000 random games each: English 53% draws, International 4%; about 4,000 positions a second | G6.2 board drawing next (pictures first) |
 | 2026-11-28 | Game 6 planned | Checkers chosen over Ludo (dice and 4-player rooms come as their own phase); English and International rules per game, optional captures with chains finished, red and black, player chooses who starts, automatic draws (D76–D81); G6.1–G6.7 planned | G6.1 rules next |
