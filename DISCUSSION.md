@@ -1637,6 +1637,50 @@ Reversi is complete: rules, board, computer, app, online, lessons and puzzles.
 
 ---
 
+## 33. Game 6: Checkers
+
+Decided 2026-11-28. Checkers is the third square-grid game. It was chosen ahead of Ludo, which the roadmap had next, because Ludo needs a dice engine, visibly fair dice and 4-player online rooms, a bigger platform change best done as its own phase. Six of the 17 launch games are built (Tiger & Goat, Bagh-Chal, Mancala, Pallanguzhi, Four in a Row, Reversi).
+
+### The rules
+
+Both rule sets use an 8 × 8 board, pieces on the dark squares only, 12 each, moving diagonally.
+
+| | English (American checkers) | International (8 × 8) |
+|---|---|---|
+| Men move | One square diagonally forward | One square diagonally forward |
+| Men capture | Forward only | Forward and backward |
+| Kings | Move and capture one square in any diagonal direction | "Fly": move any distance along a diagonal, and capture a piece at any distance, landing on any empty square beyond it |
+| Becoming a king | Reaching the far row; the move ends there | Reaching the far row at the end of a move. A man that passes through the far row in the middle of a capture chain carries on as a man |
+| Multi-jumps | Yes | Yes; a piece is removed only when the chain ends, and no piece can be jumped twice |
+
+"International (8 × 8)" is the 8 × 8 game played in Russia, Brazil and much of Asia; the full international draughts of tournaments is played on 10 × 10. Its usual rule that you must take the most pieces doesn't apply here, because captures are optional (D77).
+
+**Winning:** take all your opponent's pieces, or leave them with no move.
+
+### Decisions
+
+| # | Decision | Date |
+|---|---|---|
+| D76 | **Game 6 is Checkers, with both rule sets**: English (American checkers) and International (8 × 8), chosen per game | 2026-11-28 |
+| D77 | **Captures are optional**, a house rule chosen on purpose. Once you make a capture, you must finish the chain: you keep jumping while you can, one tap per landing square | 2026-11-28 |
+| D78 | **Classic red and black pieces** on a board of dark and light squares, in the meadow. Kings carry a small crown | 2026-11-28 |
+| D79 | **The player chooses who moves first**, as in Four in a Row and Reversi: Play first, Play second or Coin toss against the computer; first, second or either online, and a rematch swaps. Black always moves first, in both rule sets | 2026-11-28 |
+| D80 | **One Checkers card on home, with an English / International chip on the game page**, like the level chips. Records, puzzles, lessons and online matching are kept apart per rule set | 2026-11-28 |
+| D81 | **Draws are automatic**: when the same position comes up for the third time with the same player to move, or after 50 moves in a row (25 each) with no capture and no man moved | 2026-11-28 |
+
+D81 follows the usual tournament limits, made automatic so nobody has to claim a draw. Hard stays **strong but beatable** (D71).
+
+**Worth knowing:** with optional captures there is no rule forcing a piece to take, so the computer can't set the classic "give one, take two" traps that rely on a forced capture. Lessons and puzzles will teach capturing as a choice instead: "find the move that wins two pieces".
+
+### How it will be built
+
+- **Rules** on the grid engine: the dark squares numbered 0 to 31, moves found square by square, with the two rule sets sharing one framework; a capture chain is one move (the list of squares landed on). Tests for every rule above in both sets, and a cross-check against a plain implementation.
+- **Board:** the board in the meadow, red and black pieces that slide, hop over captured pieces (which then lift away) and gain a crown; glowing pieces that can move, and glowing landing squares once one is picked; the last move marked.
+- **Computer:** look-ahead search with Checkers scoring (material, kings, advancement, the back row, the centre), Easy, Medium and Hard for each rule set, tuned by a ladder.
+- **In the app, online, lessons, puzzles:** the same pattern as Reversi, each kept per rule set, including the first/second choice and records by seat.
+
+---
+
 ## Change log
 
 - **2026-11-14** — Document created from the first discussion.
@@ -1656,6 +1700,7 @@ Reversi is complete: rules, board, computer, app, online, lessons and puzzles.
 - **2026-11-25** — Added section 23: global focus, English only (D40), name Tiger & Goat (D41), Fredoka and Figtree (D42), Plato-like play screen (D43). D7 and D30 replaced. Open question: one game or platform.
 - **2026-11-25** — D44: Tiger & Goat is the first game's name; the platform brand stays open (needed by week 11).
 - **2026-11-25** — Added section 24: "Hill and meadow" chosen as the default look (D45), with palette, pieces and updated theme plan.
+- **2026-11-28** — Section 33: Game 6 is Checkers (D76–D81): English and International rules chosen per game, optional captures with chains finished, red and black pieces, the player chooses who moves first, automatic draws.
 - **2026-11-28** — Section 32: Reversi puzzles (130 proven: make them pass, and endings of 4 to 12 empty squares played to the end). Reversi is complete.
 - **2026-11-28** — Section 32: Reversi lessons (five on the real tray: flipping, lines, every direction, corners, passing).
 - **2026-11-28** — Section 32: Reversi online (seat choice, server-checked moves, passes played by the server at once, rematch swaps who starts).

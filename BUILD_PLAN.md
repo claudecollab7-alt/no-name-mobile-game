@@ -531,6 +531,17 @@ Board and pieces are drawn in code. AI-generated images are used only for backgr
 - [x] G5.6 Lessons (2026-11-28: five lessons on the real tray, offered once on first play, from the page and the rules card; 6 tests)
 - [x] G5.7 Puzzles (2026-11-28: 130 proven puzzles, make them pass and endings of 4 to 12 empty squares played to the end; Puzzles card on the page; 6 tests incl. a plain-rules cross-check)
 
+### Game 6 — Checkers
+
+- [x] G6.0 Rules and look decided (2026-11-28: DISCUSSION.md section 33, D76–D81)
+- [ ] G6.1 Checkers rules, English and International (8 × 8), with tests (men and kings, flying kings, capture chains, crowning, optional captures, wins, automatic draws, save and load)
+- [ ] G6.2 Board drawing: red and black pieces, crowns, sliding and jumping, glowing pieces and landing squares (pictures for approval first)
+- [ ] G6.3 Computer opponent for both rule sets: Easy, Medium, Hard (strong but beatable), checked with a ladder
+- [ ] G6.4 In the app: home card, game page with the rules chip and Play first / Play second / Coin toss, play, result, records per rule set
+- [ ] G6.5 Online: lobby games per rule set, seat choice, rematch swaps who starts
+- [ ] G6.6 Lessons (both rule sets)
+- [ ] G6.7 Puzzles (proven by exact search, both rule sets)
+
 ### Phases 6 and 7 — closed test and release
 
 - [ ] 6.1 Release build
@@ -554,6 +565,7 @@ Add one line per working session: date, task, result, anything the next session 
 | 2026-11-16 | Plan written | — | Godot version not yet pinned; board not yet verified |
 | 2026-11-16 | Board verified | Matches the draft exactly | Picture saved at docs/board-reference.png |
 | 2026-11-16 | Tiger start confirmed | Points 0, 3 and 4 | Nothing about the board is open now |
+| 2026-11-28 | Game 6 planned | Checkers chosen over Ludo (dice and 4-player rooms come as their own phase); English and International rules per game, optional captures with chains finished, red and black, player chooses who starts, automatic draws (D76–D81); G6.1–G6.7 planned | G6.1 rules next |
 | 2026-11-28 | Game 5 puzzles | Exact end-of-game proofs on bitboards; generator (400 games, 134 s); 130 puzzles: make them pass 25, endings 4–6 30, 7–8 30, 9–10 25, 11–12 20; puzzle screen plays endings to the last disc; 6 tests, 268 pass; checked in the browser | Reversi complete; game 6 next |
 | 2026-11-28 | Game 5 lessons | Five Reversi lessons (flip, line, eight directions, corner, pass) with a lesson screen, Learn card, first-play offer and rules-card button; 6 tests, 262 pass; checked in the browser | G5.7 puzzles next |
 | 2026-11-28 | Game 5 online | Reversi in the lobby (moves checked, automatic passes, ends on the disc count); online card, seat chips, waiting screen, online play and result with rematch; 4 lobby tests, 2 screen tests on the real server, 256 pass | G5.6 lessons next |
