@@ -534,7 +534,7 @@ Board and pieces are drawn in code. AI-generated images are used only for backgr
 ### Game 6 — Checkers
 
 - [x] G6.0 Rules and look decided (2026-11-28: DISCUSSION.md section 33, D76–D81)
-- [ ] G6.1 Checkers rules, English and International (8 × 8), with tests (men and kings, flying kings, capture chains, crowning, optional captures, wins, automatic draws, save and load)
+- [x] G6.1 Checkers rules (2026-11-28: `games/checkers/checkers_rules.gd`, English and International in one move finder; 11 tests incl. a cross-check against plain rules in 2,000+ positions)
 - [ ] G6.2 Board drawing: red and black pieces, crowns, sliding and jumping, glowing pieces and landing squares (pictures for approval first)
 - [ ] G6.3 Computer opponent for both rule sets: Easy, Medium, Hard (strong but beatable), checked with a ladder
 - [ ] G6.4 In the app: home card, game page with the rules chip and Play first / Play second / Coin toss, play, result, records per rule set
@@ -565,6 +565,7 @@ Add one line per working session: date, task, result, anything the next session 
 | 2026-11-16 | Plan written | — | Godot version not yet pinned; board not yet verified |
 | 2026-11-16 | Board verified | Matches the draft exactly | Picture saved at docs/board-reference.png |
 | 2026-11-16 | Tiger start confirmed | Points 0, 3 and 4 | Nothing about the board is open now |
+| 2026-11-28 | Game 6 rules | Checkers rules for both rule sets: chains as one move, optional captures, crowning per rule set, flying kings, wins, automatic draws, save and load; 11 rule tests, 279 pass; 1,000 random games each: English 53% draws, International 4%; about 4,000 positions a second | G6.2 board drawing next (pictures first) |
 | 2026-11-28 | Game 6 planned | Checkers chosen over Ludo (dice and 4-player rooms come as their own phase); English and International rules per game, optional captures with chains finished, red and black, player chooses who starts, automatic draws (D76–D81); G6.1–G6.7 planned | G6.1 rules next |
 | 2026-11-28 | Game 5 puzzles | Exact end-of-game proofs on bitboards; generator (400 games, 134 s); 130 puzzles: make them pass 25, endings 4–6 30, 7–8 30, 9–10 25, 11–12 20; puzzle screen plays endings to the last disc; 6 tests, 268 pass; checked in the browser | Reversi complete; game 6 next |
 | 2026-11-28 | Game 5 lessons | Five Reversi lessons (flip, line, eight directions, corner, pass) with a lesson screen, Learn card, first-play offer and rules-card button; 6 tests, 262 pass; checked in the browser | G5.7 puzzles next |

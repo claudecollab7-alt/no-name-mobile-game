@@ -1672,6 +1672,20 @@ D81 follows the usual tournament limits, made automatic so nobody has to claim a
 
 **Worth knowing:** with optional captures there is no rule forcing a piece to take, so the computer can't set the classic "give one, take two" traps that rely on a forced capture. Lessons and puzzles will teach capturing as a choice instead: "find the move that wins two pieces".
 
+### Rules built (2026-11-28)
+
+- **Checkers rules** (`games/checkers/checkers_rules.gd`): both rule sets in one file, sharing one move finder. Only the 32 dark squares are used, numbered from the bottom left; Black (player 0) starts on the three bottom rows. A move is the list of squares the piece stands on, so a capture chain is one move, and when a chain can branch, each finished branch is its own move. Simple moves stay legal when a capture is available (D77).
+- **Edge cases settled in code:** pieces taken in a chain stay on the board until it ends, so they block the way and can't be jumped twice (the usual international rule; in English play it almost never matters). The square the moving piece started from counts as empty during its own chain. A crowned man counts as a man moving, so crowning resets the 50-move draw count.
+- **Checked against a plain version of the rules:** in more than 2,000 positions from random games in each rule set, the moves match a separate square-by-square implementation exactly. Separate tests cover backward captures, chains that branch and can't be stopped halfway, crowning in each rule set, flying kings, both ways to win, and both draws.
+- **Random play** (1,000 games per rule set):
+
+| Rule set | First player wins | Second wins | Draws | Moves a game |
+|---|---|---|---|---|
+| English | 22.5% | 24.4% | 53.1% (mostly kings shuffling until the 50-move limit) | 209 |
+| International | 48.3% | 47.4% | 4.3% | 116 |
+
+  Flying kings finish games quickly. The rules check about 4,000 positions a second (Reversi: 11,000), so the computer (G6.3) will have its own quick move finder, as Reversi's does.
+
 ### How it will be built
 
 - **Rules** on the grid engine: the dark squares numbered 0 to 31, moves found square by square, with the two rule sets sharing one framework; a capture chain is one move (the list of squares landed on). Tests for every rule above in both sets, and a cross-check against a plain implementation.
@@ -1700,6 +1714,7 @@ D81 follows the usual tournament limits, made automatic so nobody has to claim a
 - **2026-11-25** — Added section 23: global focus, English only (D40), name Tiger & Goat (D41), Fredoka and Figtree (D42), Plato-like play screen (D43). D7 and D30 replaced. Open question: one game or platform.
 - **2026-11-25** — D44: Tiger & Goat is the first game's name; the platform brand stays open (needed by week 11).
 - **2026-11-25** — Added section 24: "Hill and meadow" chosen as the default look (D45), with palette, pieces and updated theme plan.
+- **2026-11-28** — Section 33: Checkers rules built for both rule sets (11 tests, checked against plain rules).
 - **2026-11-28** — Section 33: Game 6 is Checkers (D76–D81): English and International rules chosen per game, optional captures with chains finished, red and black pieces, the player chooses who moves first, automatic draws.
 - **2026-11-28** — Section 32: Reversi puzzles (130 proven: make them pass, and endings of 4 to 12 empty squares played to the end). Reversi is complete.
 - **2026-11-28** — Section 32: Reversi lessons (five on the real tray: flipping, lines, every direction, corners, passing).
