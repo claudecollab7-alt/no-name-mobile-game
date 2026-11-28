@@ -1560,6 +1560,14 @@ Decided 2026-11-28. Reversi is the second square-grid game, reusing the grid eng
 
 Hard stays **strong but beatable**, as decided for Four in a Row (D71): a near-perfect Reversi computer would crush most players.
 
+### Computer built (2026-11-28)
+
+- **The computer** (`games/reversi/ai/reversi_opponent.gd`): look-ahead search with alpha-beta pruning and a position table, working directly on the two bitboards with the eight shift directions written out by hand. It searches about 60,000 to 100,000 positions a second on a laptop, five to nine times the speed of the general rules.
+- **How it judges a position:** corners; the squares next to an empty corner, which give it away; edges; how many moves each side has; discs next to empty squares (they hand the other side moves); and the disc count in the last 16 moves. It tries corners first and the squares next to corners last.
+- **Easy** counts discs as a beginner does, looks one move ahead and slips 30% of the time; it knows nothing of corners. **Medium** looks 4 moves ahead with the full judgement, slips 8% of the time, and plays the last 8 moves perfectly. **Hard** looks 5 moves ahead, never slips, and plays the last 10 moves perfectly: strong but beatable (D71), since the middle game is still a rule of thumb.
+- **Ladder** (`tools/reversi_ladder.gd`, 40 games a pairing, half moving first): Easy against a player who always flips the most: won 16, lost 21, drew 3. Medium beat Easy 40/40. Hard beat Medium 30/40 (8 lost, 2 drawn). The longest think was 0.3 s, well inside the browser's 0.7 s cap.
+- **Checked by tests:** the quick move finder agrees with the rules in more than 1,000 positions, corners are taken and not given away, a pass is made when needed, and Hard's choices in the last moves match a plain search of every line.
+
 ### Board built (2026-11-28)
 
 - **The board** (`games/reversi/board/reversi_board_view.gd`): a wooden tray lying in the meadow, with grass tufts and daisies around it. The 8 × 8 squares are grass green, every other one a shade darker like mown grass, with grooves between them and the four small marks inside the board. Orange and cream discs are the same as Four in a Row's.
@@ -1601,6 +1609,7 @@ Hard stays **strong but beatable**, as decided for Four in a Row (D71): a near-p
 - **2026-11-25** — Added section 23: global focus, English only (D40), name Tiger & Goat (D41), Fredoka and Figtree (D42), Plato-like play screen (D43). D7 and D30 replaced. Open question: one game or platform.
 - **2026-11-25** — D44: Tiger & Goat is the first game's name; the platform brand stays open (needed by week 11).
 - **2026-11-25** — Added section 24: "Hill and meadow" chosen as the default look (D45), with palette, pieces and updated theme plan.
+- **2026-11-28** — Section 32: Reversi computer built (Easy counts discs like a beginner; Hard looks 5 ahead and plays the last 10 moves perfectly; Hard beat Medium 30/40).
 - **2026-11-28** — Section 32: Reversi board drawn (wooden tray, grass squares, discs that turn over along each line, glowing dots).
 - **2026-11-28** — Section 32: Reversi rules built on bitboards (10 tests, checked against plain rules).
 - **2026-11-28** — Section 32: Game 5 is Reversi (D72–D75): standard 8 × 8 rules, the player chooses who moves first, wooden tray with grass squares, glowing dots for legal moves.
