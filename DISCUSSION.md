@@ -1672,6 +1672,13 @@ D81 follows the usual tournament limits, made automatic so nobody has to claim a
 
 **Worth knowing:** with optional captures there is no rule forcing a piece to take, so the computer can't set the classic "give one, take two" traps that rely on a forced capture. Lessons and puzzles will teach capturing as a choice instead: "find the move that wins two pieces".
 
+### Board built (2026-11-28)
+
+- **The board** (`games/checkers/board/checkers_board_view.gd`): a wooden frame lying in the meadow, with cream light squares and deep green dark squares. Green sets off both red and black pieces, where a classic dark brown would hide the black ones. The pieces are ridged red and black discs; kings carry a small gold crown, which pops on when a man is crowned (D78). Your own side is at the bottom: the board turns round when you play Red.
+- **Choosing a move:** your pieces that can move glow (when hints are on). Tap one and it lifts, with its landing squares glowing; tap where it lands. In a capture chain, tap each landing square in turn: the piece follows and the pieces it has taken dim. Tapping the piece again puts it back; tapping another of your pieces picks that one instead.
+- **Playing a move:** a step slides, a capture hops over each piece, which lifts away as the mover passes; a tap skips to the end. The last move's squares are tinted and its landing square ringed in gold.
+- **Pictures for approval:** `docs/game6/checkers_start.png`, `checkers_pick.png` (a piece picked, its capture landing glowing), `checkers_hop.png` (caught mid-hop), `checkers_kings.png` (International kings, seen from Red's side).
+
 ### Rules built (2026-11-28)
 
 - **Checkers rules** (`games/checkers/checkers_rules.gd`): both rule sets in one file, sharing one move finder. Only the 32 dark squares are used, numbered from the bottom left; Black (player 0) starts on the three bottom rows. A move is the list of squares the piece stands on, so a capture chain is one move, and when a chain can branch, each finished branch is its own move. Simple moves stay legal when a capture is available (D77).
@@ -1714,6 +1721,7 @@ D81 follows the usual tournament limits, made automatic so nobody has to claim a
 - **2026-11-25** — Added section 23: global focus, English only (D40), name Tiger & Goat (D41), Fredoka and Figtree (D42), Plato-like play screen (D43). D7 and D30 replaced. Open question: one game or platform.
 - **2026-11-25** — D44: Tiger & Goat is the first game's name; the platform brand stays open (needed by week 11).
 - **2026-11-25** — Added section 24: "Hill and meadow" chosen as the default look (D45), with palette, pieces and updated theme plan.
+- **2026-11-28** — Section 33: Checkers board drawn (cream and green squares, red and black pieces with crowns, tap-through capture chains, the board turned round for Red).
 - **2026-11-28** — Section 33: Checkers rules built for both rule sets (11 tests, checked against plain rules).
 - **2026-11-28** — Section 33: Game 6 is Checkers (D76–D81): English and International rules chosen per game, optional captures with chains finished, red and black pieces, the player chooses who moves first, automatic draws.
 - **2026-11-28** — Section 32: Reversi puzzles (130 proven: make them pass, and endings of 4 to 12 empty squares played to the end). Reversi is complete.
