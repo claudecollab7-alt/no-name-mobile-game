@@ -528,7 +528,7 @@ Board and pieces are drawn in code. AI-generated images are used only for backgr
 - [x] G5.3 Computer opponent (2026-11-28: `games/reversi/ai/reversi_opponent.gd`, search on hand-unrolled bitboards; ladder: Medium beat Easy 40/40, Hard beat Medium 30/40; 7 tests)
 - [x] G5.4 In the app (2026-11-28: home card, game page with First / Second / Coin toss, play screen with live disc counts and automatic passes, result, record by seat on the Profile; 8 tests; checked in the browser)
 - [x] G5.5 Online (2026-11-28: lobby game "reversi", seat choice, the server passes at once for a player with no move, rematch swaps who starts; 4 lobby tests and 2 screen tests with the real server)
-- [ ] G5.6 Lessons
+- [x] G5.6 Lessons (2026-11-28: five lessons on the real tray, offered once on first play, from the page and the rules card; 6 tests)
 - [ ] G5.7 Puzzles (proven by exact search)
 
 ### Phases 6 and 7 — closed test and release
@@ -554,6 +554,7 @@ Add one line per working session: date, task, result, anything the next session 
 | 2026-11-16 | Plan written | — | Godot version not yet pinned; board not yet verified |
 | 2026-11-16 | Board verified | Matches the draft exactly | Picture saved at docs/board-reference.png |
 | 2026-11-16 | Tiger start confirmed | Points 0, 3 and 4 | Nothing about the board is open now |
+| 2026-11-28 | Game 5 lessons | Five Reversi lessons (flip, line, eight directions, corner, pass) with a lesson screen, Learn card, first-play offer and rules-card button; 6 tests, 262 pass; checked in the browser | G5.7 puzzles next |
 | 2026-11-28 | Game 5 online | Reversi in the lobby (moves checked, automatic passes, ends on the disc count); online card, seat chips, waiting screen, online play and result with rematch; 4 lobby tests, 2 screen tests on the real server, 256 pass | G5.6 lessons next |
 | 2026-11-28 | Game 5 in the app | Reversi home card, game page, play screen (disc counts, passes explained, undo, computer on a thread), result screen, Profile record; 8 app tests, 250 pass; checked in the browser | G5.5 online next |
 | 2026-11-28 | Game 5 computer | Negamax on bitboards, 60k–100k positions a second; Easy naive (disc count), Medium 4 ahead + perfect last 8, Hard 5 ahead + perfect last 10; ladder 40 games: Easy vs greedy 16–21–3, Medium beat Easy 40/40, Hard beat Medium 30/40; 7 tests, 242 pass | G5.4 in the app next |

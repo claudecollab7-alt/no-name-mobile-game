@@ -1560,6 +1560,21 @@ Decided 2026-11-28. Reversi is the second square-grid game, reusing the grid eng
 
 Hard stays **strong but beatable**, as decided for Four in a Row (D71): a near-perfect Reversi computer would crush most players.
 
+### Lessons (2026-11-28)
+
+**Five lessons on the real tray**, about two minutes in all (`games/reversi/tutorial/reversi_tutorial.gd`). You play orange; each lesson accepts only the moves that teach its point, then says what happened:
+
+| Lesson | What you do | What it teaches |
+|---|---|---|
+| Trap to flip | Any opening move from the real start | A move must trap at least one disc, which flips |
+| A whole line flips | Trap three cream discs in a row | Every disc in the trapped line turns over |
+| Every direction at once | Play in the middle of a ring of cream | One disc can flip lines in all eight directions |
+| Corners are safe | Take the corner | Corners can never be flipped back; corners, then edges, are strongest |
+| No move? Pass | Either move | Cream then has nowhere to play and passes (shown on the board); the game ends when neither can move |
+
+- A **Learn to play** card on the Reversi page and a **Try the tutorial** button on the rules card. The first time you press Play, the lessons are offered once. The last lesson leads into a first game against Easy, moving first.
+- **Checked by tests:** every accepted move does what its lesson says (flips, a line of three or more, five or more directions, a corner, cream forced to pass), and the lessons play through by tapping.
+
 ### Online (2026-11-28)
 
 - **A Play online card** on the Reversi page, the same as Four in a Row's: Find a player (Either / Move first / Move second) or invite a friend with a code (Random / I go first / I go second). A rematch swaps who moves first.
@@ -1623,6 +1638,7 @@ Hard stays **strong but beatable**, as decided for Four in a Row (D71): a near-p
 - **2026-11-25** — Added section 23: global focus, English only (D40), name Tiger & Goat (D41), Fredoka and Figtree (D42), Plato-like play screen (D43). D7 and D30 replaced. Open question: one game or platform.
 - **2026-11-25** — D44: Tiger & Goat is the first game's name; the platform brand stays open (needed by week 11).
 - **2026-11-25** — Added section 24: "Hill and meadow" chosen as the default look (D45), with palette, pieces and updated theme plan.
+- **2026-11-28** — Section 32: Reversi lessons (five on the real tray: flipping, lines, every direction, corners, passing).
 - **2026-11-28** — Section 32: Reversi online (seat choice, server-checked moves, passes played by the server at once, rematch swaps who starts).
 - **2026-11-28** — Section 32: Reversi in the app (home card, game page with first/second choice, live disc counts, automatic passes, result, record by seat).
 - **2026-11-28** — Section 32: Reversi computer built (Easy counts discs like a beginner; Hard looks 5 ahead and plays the last 10 moves perfectly; Hard beat Medium 30/40).

@@ -1,8 +1,8 @@
 extends AppScreen
 ## The page for Reversi (DISCUSSION.md section 32): what it is, the rules card, and the
 ## play options. Against the computer you choose who moves first (D73): Play first, Play
-## second or Coin toss. Lessons and puzzles get their own cards once they are built
-## (BUILD_PLAN.md G5.6, G5.7). Online, you pick first, second or either.
+## second or Coin toss; online, you pick first, second or either. Five lessons are
+## offered once, the first time you press Play. Puzzles get their card in G5.7.
 
 const R := preload("res://games/reversi/reversi_rules.gd")
 const PlayScreen := preload("res://shell/screens/reversi_play_screen.gd")
@@ -47,6 +47,18 @@ func _ready() -> void:
 	art.add_child(ReversiPreview.create(sample_position(), 520))
 	col.add_child(art)
 	col.add_child(Ui.muted(str(Games.info(game_id)["about"]), 28))
+	var learn := Ui.card(Ui.WARM, Ui.ACCENT_LINE, 24)
+	var lrow := Ui.hbox(20)
+	lrow.add_child(Ui.icon("bulb", 56, Ui.ACCENT))
+	var lw := Ui.vbox(0)
+	lw.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	lw.add_child(Ui.heading("Learn to play", 34))
+	lw.add_child(Ui.muted("Five tiny lessons on the real board, about two minutes.", 26))
+	lrow.add_child(lw)
+	lrow.add_child(Ui.icon("chevron-right", 48, Ui.MUTED))
+	learn.add_child(lrow)
+	Ui.on_tap(learn, _learn)
+	col.add_child(learn)
 
 	col.add_child(section("Play"))
 	var cpu := _mode_card("computer", "robot", "Against the computer", "")
@@ -141,10 +153,28 @@ func _style_chip(chip: PanelContainer, on: bool) -> void:
 	(chip.get_child(0) as Label).add_theme_color_override("font_color", Color("#B5501A") if on else Ui.INK)
 
 
+func _learn() -> void:
+	app.push(load("res://shell/screens/reversi_tutorial_screen.gd").create(game_id))
+
+
 func _start() -> void:
 	Store.set_last("mode", mode)
 	Store.set_last("level", level)
 	Store.set_last("seat", seat)
+	var g: Dictionary = Store.data["games"][game_id]
+	# The first time someone plays, offer the lessons once.
+	if not bool(g["tutorial_done"]) and not bool(g["tutorial_offered"]) and int(g["played"]) == 0:
+		g["tutorial_offered"] = true
+		Store.save_data()
+		Modal.show(app, tr("New to %s?") % tr(Games.title(game_id)), [Modal.text("Five tiny lessons on the real board teach it in about two minutes.")], [
+			["Just play", _play],
+			["Learn first", _learn, true],
+		])
+		return
+	_play()
+
+
+func _play() -> void:
 	var first := seat != "second"
 	if mode == "computer" and seat == "toss":
 		first = randi() % 2 == 0

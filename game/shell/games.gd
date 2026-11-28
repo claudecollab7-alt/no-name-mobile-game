@@ -55,7 +55,8 @@ const GRID := {
 		"line": "Trap and flip  ·  2 players  ·  about 8 min",
 		"short": "Trap and flip",
 		"about": "Place discs to trap lines of your opponent's discs between yours, and every trapped disc flips to your colour. When the board fills up, most discs wins.",
-		"lessons": false,
+		"lessons": true,
+		"tutorial": "res://shell/screens/reversi_tutorial_screen.gd",
 		"rules": [
 			["Trap to flip", "Place a disc so that one or more straight lines of your opponent's discs sit between it and another of yours: across, up and down, or diagonally. Every trapped disc flips to your colour."],
 			["Every move flips", "A move must flip at least one disc. The glowing dots show where you can play."],
@@ -152,5 +153,6 @@ static func how_to_play(host: Node, id: String) -> void:
 	var actions: Array = [["Got it", func() -> void: pass, true]]
 	if bool(info(id).get("lessons", true)):
 		var lessons := "res://shell/screens/four_tutorial_screen.gd" if GRID.has(id) else "res://shell/screens/sowing_tutorial_screen.gd"
+		lessons = str(info(id).get("tutorial", lessons))
 		actions.push_front(["Try the tutorial", func() -> void: host.push(load(lessons).create(id))])
 	Modal.show(host, TranslationServer.translate("How to play %s") % TranslationServer.translate(title(id)), rows, actions)
