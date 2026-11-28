@@ -1560,6 +1560,12 @@ Decided 2026-11-28. Reversi is the second square-grid game, reusing the grid eng
 
 Hard stays **strong but beatable**, as decided for Four in a Row (D71): a near-perfect Reversi computer would crush most players.
 
+### Rules built (2026-11-28)
+
+- **Reversi rules** (`games/reversi/reversi_rules.gd`): squares numbered as the grid engine does (row × 8 + column, row 0 at the bottom); orange (player 0) moves first. Each player's discs are a 64-bit bitboard, and legal moves and flips are found by shifting in the eight directions. Every shift is masked, so the signed top bit never spreads and discs never wrap round an edge. A player without a legal move makes the move PASS. Saved as eight rows of text, so nothing relies on 64-bit numbers surviving JSON.
+- **Checked against a plain version of the rules:** in more than 1,500 positions from random games, the bitboard moves and flips match a square-by-square implementation exactly. Separate tests cover all eight directions at once, the edges, the corner square that holds the sign bit, passing, and the end of the game.
+- **Random play** (2,000 games): first player 45%, second 51%, draws 4%; about 60 moves a game, with frequent passes. The rules check about 11,000 positions a second (Four in a Row: 75,000), so the computer (G5.3) will search directly on the bitboards, as Four in a Row's does.
+
 ### How it will be built
 
 - **Rules** on the grid engine: each player's discs as a 64-bit bitboard (8 × 8 fits exactly), with legal moves and flips found by shifting in the eight directions. GDScript integers are signed, so the shifts need masks to stop discs wrapping round the edges or the sign bit spreading.
@@ -1588,6 +1594,7 @@ Hard stays **strong but beatable**, as decided for Four in a Row (D71): a near-p
 - **2026-11-25** — Added section 23: global focus, English only (D40), name Tiger & Goat (D41), Fredoka and Figtree (D42), Plato-like play screen (D43). D7 and D30 replaced. Open question: one game or platform.
 - **2026-11-25** — D44: Tiger & Goat is the first game's name; the platform brand stays open (needed by week 11).
 - **2026-11-25** — Added section 24: "Hill and meadow" chosen as the default look (D45), with palette, pieces and updated theme plan.
+- **2026-11-28** — Section 32: Reversi rules built on bitboards (10 tests, checked against plain rules).
 - **2026-11-28** — Section 32: Game 5 is Reversi (D72–D75): standard 8 × 8 rules, the player chooses who moves first, wooden tray with grass squares, glowing dots for legal moves.
 - **2026-11-28** — Section 31: Four in a Row puzzles (130 proven twice, from the game page). Four in a Row is complete.
 - **2026-11-28** — Section 31: Four in a Row lessons (four, offered once on first play).
