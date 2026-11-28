@@ -524,7 +524,7 @@ Board and pieces are drawn in code. AI-generated images are used only for backgr
 
 - [x] G5.0 Rules and look decided (2026-11-28: DISCUSSION.md section 32, D72–D75)
 - [x] G5.1 Reversi rules (2026-11-28: `games/reversi/reversi_rules.gd` on masked 64-bit bitboards; 10 tests incl. a cross-check against plain rules in 1,500+ positions)
-- [ ] G5.2 Board drawing: wooden tray, grass squares, flipping discs, legal-move dots (pictures for approval first)
+- [x] G5.2 Board drawing (2026-11-28: `games/reversi/board/reversi_board_view.gd` and a preview; discs turn over one after another along each line; pictures in `docs/game5/`; 10 board tests)
 - [ ] G5.3 Computer opponent: Easy, Medium, Hard (strong but beatable), checked with a ladder
 - [ ] G5.4 In the app: home card, game page (Play first / Play second / Coin toss), play, result, own record
 - [ ] G5.5 Online: lobby game, seat choice, rematch swaps who starts
@@ -554,6 +554,7 @@ Add one line per working session: date, task, result, anything the next session 
 | 2026-11-16 | Plan written | — | Godot version not yet pinned; board not yet verified |
 | 2026-11-16 | Board verified | Matches the draft exactly | Picture saved at docs/board-reference.png |
 | 2026-11-16 | Tiger start confirmed | Points 0, 3 and 4 | Nothing about the board is open now |
+| 2026-11-28 | Game 5 board | Wooden tray in the meadow, grass squares, discs that settle and turn over along each line, glowing dots for legal moves, last move ringed; preview; 4 pictures; 10 board tests, 235 pass | G5.3 computer next |
 | 2026-11-28 | Game 5 rules | Reversi rules on bitboards (masked shifts for the sign bit and edges), passing, game end; 10 rule tests, 225 pass; 2,000 random games: first 45%, second 51%, draws 4%, about 11,000 positions a second | G5.2 board drawing next (pictures first) |
 | 2026-11-28 | Game 5 planned | Reversi chosen; rules, first-move choice, look and hints decided (D72–D75); G5.1–G5.7 planned | G5.1 rules next |
 | 2026-11-28 | Game 4 puzzles | Puzzle proofs on bitboards; generator (600 games, 75 s); 130 puzzles: make four now 25, saves 45, win in 2 35, win in 3 25; puzzle screen and page card; 6 tests incl. a plain-solver cross-check, 215 pass; checked in the browser | Four in a Row complete; game 5 next |
